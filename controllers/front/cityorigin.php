@@ -1,43 +1,46 @@
 <?php
-	$fc_city_orign = "https://api.freteclick.com.br/carrier/search-city-origin.json";
-    function initContent(){
-		global $fc_city_orign;
+/**
+ *  Módulo para o calculo do frete usando o webservice do FreteClick
+ *  @author    Ederson Ferreira (ederson.dev@gmail.com)
+ *  @copyright 2010-2015 FreteClick
+ *  @license   LICENSE
+ */
+ 
+class FreteclickCityoriginModuleFrontController extends ModuleFrontController
+{
+    public function initContent()
+    {
         $arrRetorno = array();
         try {
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $fc_city_orign . '?' . http_build_query($_GET));
+            curl_setopt($ch, CURLOPT_URL, $this->module->url_city_origin . '?' . http_build_query($_GET));
             curl_setopt($ch, CURLOPT_HTTPGET, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $resp = curl_exec($ch);
             curl_close($ch);
-            echo filterJson($resp);
+            echo $this->filterJson($resp);
             exit;
         } catch (Exception $ex) {
             $arrRetorno = $this->module->addError($ex->getMessage());
-            echo json_encode($arrRetorno);
+            echo Tools::jsonEncode($arrRetorno);
             exit;
         }
-    };
+    }
 
-    function filterJson($json) {
-        $arrJson = json_decode($json);
+    public function filterJson($json)
+    {
+        $arrJson = Tools::jsonDecode($json);
         if (!$arrJson) {
-            fc_error('Erro ao recuperar dados');
+            $arrJson = $this->module->addError('Erro ao recuperar dados');
         }
         if ($arrJson->response->success === false) {
             if ($arrJson->response->error) {
                 foreach ($arrJson->response->error as $error) {
-                    fc_error($error->message);
+                    $this->module->addError($error->message);
                 }
             }
-            fc_error('Erro ao recuperar dados');
+            $this->module->addError('Erro ao recuperar dados');
         }
-        return json_encode($arrJson);
-    };
-
-	function fc_error($value){
-		echo json_encode(array("Erro"=>$value));
-		exit;
-	};
-	
-	initContent();
+        return Tools::jsonEncode($this->module->getErrors()? : $arrJson);
+    }
+}
