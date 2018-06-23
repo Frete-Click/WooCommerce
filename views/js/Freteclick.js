@@ -160,53 +160,56 @@ jQuery(function ($) {
 		//ViaCep
 		var tb_cep, tb_rua, tb_cidade, tb_bairro, se_estado, span_estado, tb_pais;
 
-		tb_cep = document.getElementById("cep-origin") ? document.getElementById("cep-origin") : document.getElementById("fk-cep");
-		tb_rua = document.getElementById("street-origin") ? document.getElementById("street-origin") : document.getElementById("street-destination");
-		tb_cidade = document.getElementById("city-origin") ? document.getElementById("city-origin") : document.getElementById("city-destination");
-		tb_bairro = document.getElementById("district-origin") ? document.getElementById("district-origin") : document.getElementById("district-destination");
-		se_estado = document.getElementById("state-origin") ? document.getElementById("state-origin") : document.getElementById("state-destination");
-		tb_pais = document.getElementById("country-origin") ? document.getElementById("country-origin") : document.getElementById("country-destination");
-		if (tb_pais){
-			tb_pais.value = "Brasil";
-		}
-		if (tb_cep){
-		 var tb_cep_keyup = function(){
-			 var reseta = function () {
-			   tb_cep.disabled = false;
-			   tb_rua.disabled = false;
-			   tb_cidade.disabled = false;
-			   tb_bairro.disabled = false;
-			   se_estado.disabled = false;			 
-			 };
-		  var num = this.value.length;
-		  if (num == 9){
-		   tb_cep.disabled = true;
-		   tb_rua.disabled = true;
-		   tb_cidade.disabled = true;
-		   tb_bairro.disabled = true;
-		   se_estado.disabled = true;
-		   
-		   $.ajax({
-			url: "https://viacep.com.br/ws/"+tb_cep.value+"/json/",
-			data: null,
-			success: function (data) {
-			  if (!data.erro){
-			  tb_rua.value = data.logradouro;
-			  tb_cidade.value = data.localidade;
-			  tb_bairro.value = data.bairro;
-			  se_estado.value = data.uf;
-			  }
-			  reseta();
-			},
-			dataType: "json"
-		   });
-		  }
-		  else{
-			  reseta();
-		  }
-		 }
-		 
-		 tb_cep.onkeyup = tb_cep_keyup;
+		tb_cep = document.getElementsByClassName("cep-origin");
+		tb_rua = document.getElementsByClassName("street-origin");
+		tb_cidade = document.getElementsByClassName("city-origin");
+		tb_bairro = document.getElementsByClassName("district-origin");
+		se_estado = document.getElementsByClassName("state-origin");
+		tb_pais = document.getElementsByClassName("country-origin");
+		if (tb_cep.length > 0){
+            var tb_cep_keyup = function(n){
+                var reseta = function (i) {
+                    tb_cep[i].disabled = false;
+                    tb_rua[i].disabled = false;
+                    tb_cidade[i].disabled = false;
+                    tb_bairro[i].disabled = false;
+                    se_estado[i].disabled = false;			 
+                };
+                var num = tb_cep[n].value.length;
+                if (num == 9){
+                    tb_cep[n].disabled = true;
+                    tb_rua[n].disabled = true;
+                    tb_cidade[n].disabled = true;
+                    tb_bairro[n].disabled = true;
+                    se_estado[n].disabled = true;
+                
+                    $.ajax({
+                        url: "https://viacep.com.br/ws/"+tb_cep[n].value+"/json/",
+                        data: null,
+                        success: function (data) {
+                            if (!data.erro){
+                                tb_rua[n].value = data.logradouro;
+                                tb_cidade[n].value = data.localidade;
+                                tb_bairro[n].value = data.bairro;
+                                se_estado[n].value = data.uf;
+                            }
+                            reseta(n);
+                        },
+                        dataType: "json"
+                    });
+                }
+                else{
+                    reseta(n);
+                }
+            }
+            for (var i = 0; i < tb_cep.length; i++){
+                (function (num) {
+                    tb_cep[num].onkeyup = function () { tb_cep_keyup(num); }
+                })(i);
+                if (tb_pais[i]){
+                    tb_pais[i].value = "Brasil";
+                }
+            }
 		}
 
     });
