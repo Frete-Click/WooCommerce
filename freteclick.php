@@ -11,6 +11,9 @@ License:      Todos os Direitos Reservados
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 	/*Variáveis globais*/
 	$url_freteclick_settings;
+	$url_shipping_quote = "https://api.freteclick.com.br/sales/shipping-quote.json";
+	$url_origin_company = "https://app.freteclick.com.br/sales/add-quote-origin-company.json";
+	$url_destination_client = "https://app.freteclick.com.br/sales/add-quote-destination-client.json";
 	if (is_admin()){
 		fc_add_scripts();
 	}
@@ -19,7 +22,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		/*Adicionar os métidos de entrega*/
 		if ( ! class_exists( 'Fc_shipping_methods' ) ) {
 			class Fc_shipping_methods extends WC_Shipping_Method {
-				public $url_shipping_quote;
+				public $error;
 				/**
 				 * Constructor for your shipping class
 				 *
@@ -28,13 +31,15 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				 */
 				public function __construct() {
 					global $url_freteclick_settings;
-					$this->id                 = 'freteclick';
-					$this->method_title       = __( 'Frete Click' ); 
+					$this->id = 'freteclick';
+					$this->method_title = __( 'Frete Click' ); 
 					$this->method_description = __( 'Cálculo do frete com o serviço da web Frete Click' );
-					$this->title              = "Frete Click";
+					$this->title = "Frete Click";
+					$this->availability = 'including';
+					$this->countries = array('BR');
 
 					$url_freteclick_settings = "admin.php?page=wc-settings&tab=shipping&section=".$this->id;
-					$this->url_shipping_quote = "https://api.freteclick.com.br/sales/shipping-quote.json";
+					$this->error = array();
 
 					$this->init();
 				}
@@ -154,51 +159,119 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				 * @param mixed $package
 				 * @return void
 				 */
-				public function calculate_shipping( $package ) {/*
-					try {
-							$product_price = number_format($data['product-total-price'], 2, ',', '.');
-							$data['product-total-price'] = $product_price;
-							
-							$ch = curl_init();
-							$data['api-key'] = Configuration::get('FC_API_KEY');
-							curl_setopt($ch, CURLOPT_URL, $this->url_shipping_quote);
-							curl_setopt($ch, CURLOPT_POST, true);
-							curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-							curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-							$resp = curl_exec($ch);
-							curl_close($ch);
-							$arrJson = $this->orderByPrice($this->filterJson($resp));
-							if (!$this->cookie->fc_valorFrete){
-								$this->cookie->fc_valorFrete = $arrJson->response->data->quote[0]->total;
-							}
-							foreach ($arrJson->response->data->quote as $key => $quote) {
-								$quote_price = number_format($quote->total, 2, ',', '.');
-								$arrJson->response->data->quote[$key]->raw_total = $quote->total;
-								$arrJson->response->data->quote[$key]->total = "R$ {$quote_price}";
-							}
-							$this->cookie->write();
-							return Tools::jsonEncode($arrJson);
+				public function calculate_shipping( $package ) {
+					session_start();
+					$array_resp = array();
+					/*Dados de origem*/
+					$array_data = array(
+						'city-origin' => $this->settings['FC_CITY_ORIGIN'],
+						'cep-origin' => $this->settings['FC_CEP_ORIGIN'],
+						'street-origin' => $this->settings['FC_STREET_ORIGIN'],
+						'address-number-origin' => $this->settings['FC_NUMBER_ORIGIN'],
+						'complement-origin' => strlen($this->settings['FC_COMPLEMENT_ORIGIN']) > 0 ? $this->settings['FC_COMPLEMENT_ORIGIN'] : "",
+						'district-origin' => $this->settings['FC_DISTRICT_ORIGIN'],
+						'state-origin' => $this->settings['FC_STATE_ORIGIN'],
+						'country-origin' => $this->settings['FC_CONTRY_ORIGIN']
+					);
+					/*Dados do produto*/
+					$_pf = new WC_Product_Factory();
+					$prod_nomes = array();
+					foreach($package['contents'] as $key => $item){
+						$product = $_pf->get_product($item['product_id']);
+						$p_data = $product->get_data();
+						$array_data['product-package'][$key]['qtd'] = $item['quantity'];
+						$array_data['product-package'][$key]['weight'] = number_format($p_data['weight'], 10, ',', '');
+						$array_data['product-package'][$key]['height'] = number_format($p_data['height'] / 100, 10, ',', '');
+						$array_data['product-package'][$key]['width'] = number_format($p_data['width'] / 100, 10, ',', '');
+						$array_data['product-package'][$key]['depth'] = number_format($p_data['length'] / 100, 10, ',', '');
+						array_push($prod_nomes, $p_data['name']);
+					}
+					$array_data['product-type'] = implode(',', array_values($prod_nomes));
+					$array_data['product-total-price'] = number_format($package['cart_subtotal'], 2, ',', '.');
+					/*Dados do destino*/
+					$dest = $package['destination'];
+					$data_cep = $this->fc_get_cep_data($dest['postcode']);
+
+					if (!$data_cep->erro){
+						$array_data['city-destination'] = $data_cep->localidade;
+						$array_data['street-destination'] = preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $data_cep->logradouro);
+						$array_data['district-destination'] = $data_cep->bairro;
+						$array_data['state-destination'] = $data_cep->uf;
+						$array_data['country-destination'] = 'Brasil';
+						$array_data['complement-destination'] = $data_cep->complemento;
+					}
+					else{
+						$array_data['city-destination'] = $dest['city'];
+						$array_data['street-destination'] = preg_replace('/[^A-Z a-z]/', '', preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $dest['address']));
+						$array_data['district-destination'] = $dest['address_2'];
+						$array_data['state-destination'] = $dest['state'];
+						$array_data['country-destination'] = $dest['country'];
+						$array_data['complement-destination'] = "";
+					}					
+					$array_data['cep-destination'] = $dest['postcode'];
+					$dest_number = preg_replace('/[^0-9]/', '', $dest['address']);
+					$array_data['address-number-destination'] = strlen($dest_number) > 0 ? $dest_number : 1;
+					
+					/*Fazer cotação*/
+					$quote_key = md5(json_encode($array_data));
+					if (isset($_SESSION[$quote_key])){
+						$array_resp = json_decode($_SESSION[$quote_key]);
+					}
+					else{
+						$array_resp = $this->fc_get_quotes($array_data);
+						if ($array_resp->response->data != false){
+							$_SESSION[$quote_key] = json_encode($array_resp);
+						}
+					}
+					if ($array_resp->response->data != false){
+						foreach ($array_resp->response->data->quote as $key => $quote){
+							$quote = (array) $quote;
+							$carrier_data = array(
+								'id' => $quote['quote-id'],
+								'label' => $quote['carrier-alias'],
+								'cost' => $quote['total'],
+								'calc_tax' => 'per_item',
+								'meta_data' => array(
+									'Código de Rastreamento' => $quote['order-id'],
+									'Nome da Transportadora' => $quote['carrier-name'],
+									'Cotação' => $quote['quote-id']
+								)
+							);
+							$this->add_rate( $carrier_data );
+						}
+					}
+					else{
+						error_log(json_encode($array_data));
+						error_log(json_encode($array_resp));
+					}
+				}
+				public function fc_get_cep_data($cep){					
+					/*Obter dados viacep*/
+					$_cep = curl_init();
+					curl_setopt($_cep, CURLOPT_URL, 'https://viacep.com.br/ws/'.$cep.'/json/');
+					curl_setopt($_cep, CURLOPT_RETURNTRANSFER, true);
+					$data_cep = json_decode(curl_exec($_cep));
+					curl_close($_cep);
+					return $data_cep;
+				}
+				function fc_get_quotes($array_data){
+					$array_resp = array();
+					try {							
+						$ch = curl_init();
+						$array_data['api-key'] = $this->settings['FC_API_KEY'];
+						curl_setopt($ch, CURLOPT_URL, $url_shipping_quote);
+						curl_setopt($ch, CURLOPT_POST, true);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($array_data));
+						$resp = curl_exec($ch);
+						curl_close($ch);
+						$array_resp = $this->orderByPrice($this->filterJson($resp));
 					} catch (Exception $ex) {
-						$arrRetorno = array();
-						$arrRetorno = array(
+						$array_resp = array(
 							'response' => array('success' => false, 'error' => $ex->getMessage())
 						);
-						return Tools::jsonEncode($arrRetorno);
-					}*/
-
-					echo "<pre>";
-					echo var_dump($package);
-					echo "</pre>";
-
-
-					$rate = array(
-						'id' => $this->id,
-						'label' => $this->title,
-						'cost' => '10.99',
-						'calc_tax' => 'per_item'
-					);
-					// Register the rate
-					$this->add_rate( $rate );
+					}
+					return $array_resp;
 				}
 				function fc_check_settings($set){
 					if ($set['FC_IS_ACTIVE'] != 'yes' && isset($set['FC_IS_ACTIVE'])){
@@ -210,6 +283,50 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					else if (strlen($set['FC_CEP_ORIGIN']) <= 0 || strlen($set['FC_CITY_ORIGIN']) <= 0 || strlen($set['FC_STREET_ORIGIN']) <= 0 || strlen($set['FC_NUMBER_ORIGIN']) <= 0 || strlen($set['FC_STATE_ORIGIN']) <= 0 || strlen($set['FC_CONTRY_ORIGIN']) <= 0 || strlen($set['FC_DISTRICT_ORIGIN']) <= 0){
 						add_action( 'admin_notices', 'fc_missing_address' );
 					}
+				}				
+				public function orderByPrice($arrJson)
+				{
+					$quotes = (array) $arrJson->response->data->quote;
+					usort($quotes, function ($a, $b) {
+						return $a->total > $b->total;
+					});
+					$arrJson->response->data->quote = $quotes;
+					return $arrJson;
+				}
+				public function filterJson($json)
+				{
+					$arrJson = json_decode($json);
+					if (!$arrJson) {
+						$this->addError('Erro ao recuperar dados');
+					}
+					if ($arrJson->response->success === false) {
+						if ($arrJson->response->error) {
+							foreach ($arrJson->response->error as $error) {
+								$this->addError($error->message);
+							}
+						}
+						$this->addError('Erro ao recuperar dados');
+					}
+					return $this->getErrors() ? : $arrJson;
+				}
+				public function getErrors()
+				{
+					return $this->error ? array(
+						'response' => array(
+							'data' => 'false',
+							'count' => 0,
+							'success' => false,
+							'error' => $this->error
+						)
+					) : false;
+				}
+				public function addError($error)
+				{
+					array_push($this->error, array(
+						'code' => md5($error),
+						'message' => $error
+					));
+					return $this->getErrors();
 				}
 			}
 		}
@@ -220,6 +337,9 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		return $methods;
 	}
 	add_filter( 'woocommerce_shipping_methods', 'add_fc_shipping_methods' );
+
+	/*Hooks para status dos pedidos*/
+	add_action('woocommerce_order_status_changed', 'fc_pedido_alterado', 10, 3);
 }
 else {
 	add_action( 'admin_notices', 'fc_wc_missing_notice' );
@@ -247,5 +367,32 @@ function fc_is_disabled(){
 function fc_missing_address(){
 	global $url_freteclick_settings;
 	printf("<div class='notice notice-warning is-dismissible'><p>Por favor, para que o Frete Click funcione, informe o <a href='$url_freteclick_settings'>endereço completo</a> para a coleta dos produtos.</p></div>");
+};
+function fc_pedido_alterado($order_id, $old_status, $new_status){
+	$order = new WC_Order( $order_id );
+	$data = $order->get_data();
+	$shipping = $order->get_items('shipping');
+	$shipping_data = array();
+	$array_data = array();
+
+	foreach($shipping as $key => $shipping_item){
+		$s_data = $shipping_item->get_data();
+		$shipping_data[$key] = $s_data;
+	}
+
+	$status_espera = array(
+		'pending',
+		'processing',
+		'on-hold'
+	);
+
+	if (in_array($data['status'], $status_espera)){
+
+	}
+
+	error_log($old_status);
+	error_log($new_status);
+	error_log(json_encode($shipping_data));
+	error_log(json_encode($data));
 };
 ?>
