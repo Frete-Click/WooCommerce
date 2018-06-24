@@ -2,143 +2,227 @@
 /*
 Plugin Name:  FreteClick
 Plugin URI:   https://freteclick.com.br/
-Description:  Cálculo do frete com o serviço da web Freteclick
+Description:  Cálculo do frete com o serviço da web Frete Click
 Version:      1.0
 Author:       Guilherme Cristino
 Author URI:   http://twitter.com/guilhermeCDP7
 License:      Todos os Direitos Reservados
 */
-if (!defined('ABSPATH')) {
-    exit;
-}
-if (!function_exists( 'is_woocommerce_activated' )) {
-	function is_woocommerce_activated() {
-		if (class_exists( 'woocommerce' )) { return true; } else { return false; }
+if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+	/*Variáveis globais*/
+	$url_freteclick_settings;
+	if (is_admin()){
+		fc_add_scripts();
 	}
-}
-
-function fc_init(){
-	if (is_woocommerce_activated()){
-		
-		add_filter( 'woocommerce_integrations', 'fc_include_integrations' );
-		add_action( 'woocommerce_shipping_init', 'fc_add_shipping_method' );
-		add_filter( 'woocommerce_shipping_methods', 'fc_include_methods' );	
-		
-		if (is_admin()){
-			fc_add_scripts();
-			add_action( 'admin_menu', 'fc_registerItemSettings' );
-			add_action( 'admin_init', 'fc_registerSettings' );
-		}
-		else if (is_checkout()){
-			fc_add_scripts();
-		}
-	}
-	else {
-		add_action( 'admin_notices', array( __CLASS__, 'woocommerce_missing_notice' ) );
-	}
-};
-
-function fc_include_integrations( $integrations ) {
 	
-	$integrations[] = 'FreteClick';
-	return $integrations;
-}
+	function fc_shipping_methods() {
+		/*Adicionar os métidos de entrega*/
+		if ( ! class_exists( 'Fc_shipping_methods' ) ) {
+			class Fc_shipping_methods extends WC_Shipping_Method {
+				public $url_shipping_quote;
+				/**
+				 * Constructor for your shipping class
+				 *
+				 * @access public
+				 * @return void
+				 */
+				public function __construct() {
+					global $url_freteclick_settings;
+					$this->id                 = 'freteclick';
+					$this->method_title       = __( 'Frete Click' ); 
+					$this->method_description = __( 'Cálculo do frete com o serviço da web Frete Click' );
+					$this->title              = "Frete Click";
 
-function fc_include_methods( $methods ) {
-    $methods['freteclick'] = 'Fc_Shipping_Method';
-    return $methods;
-}
+					$url_freteclick_settings = "admin.php?page=wc-settings&tab=shipping&section=".$this->id;
+					$this->url_shipping_quote = "https://api.freteclick.com.br/sales/shipping-quote.json";
 
-function fc_add_shipping_method(){
-    if ( ! class_exists( 'Fc_Shipping_Method' ) ) {
-        class Fc_Shipping_Method extends WC_Shipping_Method {
-		
-            public function __construct() {
-                $this->id                 = 'freteclick'; 
-                $this->method_title       = __( 'Frete Click', 'freteclick' );  
-                $this->method_description = __( 'Cálculo do frete com o serviço da web Freteclick', 'freteclick' ); 
-			
-				// Availability & Countries
-				$this->availability = 'including';
-				$this->countries = array('BR');
- 
-                $this->enabled = isset( $this->settings['enabled'] ) ? $this->settings['enabled'] : 'yes';
-                $this->title = isset( $this->settings['title'] ) ? $this->settings['title'] : __( 'Frete Click', 'freteclick' );
-				$this->supports              = array(
-					'shipping-zones',
-					'instance-settings'
-				);
-                $this->init();
-            }
- 
-            function init() {
-                // Load the settings API
-                $this->init_form_fields(); 
-                //$this->init_settings(); 
-				
-				$this->enabled = $this->get_option( 'enabled' );
-				$this->FC_CEP_ORIGIN = $this->get_option( 'FC_CEP_ORIGIN' );
-				
-				
-    /*register_setting( 'freteclick', 'FC_CITY_ORIGIN');
-    register_setting( 'freteclick', 'FC_CEP_ORIGIN');
-    register_setting( 'freteclick', 'FC_STREET_ORIGIN');
-    register_setting( 'freteclick', 'FC_NUMBER_ORIGIN');
-    register_setting( 'freteclick', 'FC_COMPLEMENT_ORIGIN');
-    register_setting( 'freteclick', 'FC_STATE_ORIGIN');
-    register_setting( 'freteclick', 'FC_CONTRY_ORIGIN');
-    register_setting( 'freteclick', 'FC_DISTRICT_ORIGIN');
-    register_setting( 'freteclick', 'FC_API_KEY');
-    register_setting( 'freteclick', 'FC_INFO_PROD');
-    register_setting( 'freteclick', 'FC_SHOP_CART');*/
-	
-                // Save settings in admin if you have any defined
-                add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
-            } 
-            /**
-            * Define settings field for this shipping
-            * @return void 
-            */
-            function init_form_fields() { 
-                $this->instance_form_fields = array( 
-					'enabled' => array(
-					    'title' => __( 'Enable', 'tutsplus' ),
-					    'type' => 'checkbox',
-						'description' => __( 'Enable this shipping.', 'tutsplus' ),
-						'default' => 'yes'
+					$this->init();
+				}
+				/**
+				 * Init your settings
+				 *
+				 * @access public
+				 * @return void
+				 */
+				function init() {
+					// Load the settings API
+					$this->init_form_fields();
+					$this->init_settings();
+					
+					$this->enabled = isset($this->settings['FC_IS_ACTIVE']) ? $this->settings['FC_IS_ACTIVE'] : 'yes';
+
+					$this->fc_check_settings($this->settings);
+
+					// Save settings in admin if you have any defined
+					add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
+				}
+				function init_form_fields() {
+					$this->form_fields = array(
+						'FC_IS_ACTIVE' => array(
+							'title' => __( 'Status do Frete Click' ),
+							'type' => 'checkbox',
+							'description' => __( 'Para ativar os métodos de entrega do frete click você deve checar essa opção.' ),
+							'label' => 'Ativar o Frete Click como Método de Entrega?'
+					   ),
+						'FC_CEP_ORIGIN' => array(
+							 'title' => __( 'CEP de Origem' ),
+							 'type' => 'text',
+							 'description' => __( '' ),
+							 'class' => 'fc-input-cep cep-origin'
 						),
-					'title' => array(
-						'title' => __( 'Title', 'tutsplus' ),
-						'type' => 'text',
-						'description' => __( 'Title to be display on site', 'tutsplus' ),
-						'default' => __( 'TutsPlus Shipping', 'tutsplus' )
-					),
-			 
-				);
-            }
- 
-			 function admin_options() {
-			 ?>
-			 <h2><?php _e('You plugin name','woocommerce'); ?></h2>
-			 <table class="form-table">
-			 <?php $this->generate_settings_html(); ?>
-			 </table> <?php
-			 }
-            public function calculate_shipping( $package = array() ) {
-                    $rate = array(
-					'id'       => $this->id,
-					'label'    => "Label for the rate",
-					'cost'     => '10.99',
-					'calc_tax' => 'per_item'
-				);
-				die();
+						'FC_STREET_ORIGIN' => array(
+							 'title' => __( 'Rua' ),
+							 'type' => 'text',
+							 'description' => __( '' ),
+							 'class' => 'street-origin'
+						),
+						'FC_NUMBER_ORIGIN' => array(
+							 'title' => __( 'Número' ),
+							 'type' => 'text',
+							 'description' => __( '' )
+						),
+						'FC_COMPLEMENT_ORIGIN' => array(
+							 'title' => __( 'Complemento' ),
+							 'type' => 'text',
+							 'description' => __( '' )
+						),
+						'FC_DISTRICT_ORIGIN' => array(
+							 'title' => __( 'Bairro' ),
+							 'type' => 'text',
+							 'description' => __( '' ),
+							 'class' => 'district-origin'
+						),
+						'FC_CITY_ORIGIN' => array(
+							 'title' => __( 'Cidade de Origem' ),
+							 'type' => 'text',
+							 'description' => __( '' ),
+							 'class' => 'city-origin'
+						),
+						'FC_STATE_ORIGIN' => array(
+							 'title' => __( 'Estado de Origem' ),
+							 'type' => 'select',
+							 'description' => __( '' ),
+							 'options' => array(
+								 'AC' => 'Acre',
+								 'AL' => 'Alagoas',
+								 'AP' => 'Amapá',
+								 'AM' => 'Amazonas',
+								 'BA' => 'Bahia',
+								 'CE' => 'Ceará',
+								 'DF' => 'Distrito Federal',
+								 'ES' => 'Espírito Santo',
+								 'GO' => 'Goiás',
+								 'MA' => 'Maranhão',
+								 'MT' => 'Mato Grosso',
+								 'MS' => 'Mato Grosso do Sul',
+								 'MG' => 'Minas Gerais',
+								 'PA' => 'Pará',
+								 'PB' => 'Paraíba',
+								 'PR' => 'Paraná',
+								 'PE' => 'Pernambuco',
+								 'PI' => 'Piauí',
+								 'RJ' => 'Rio de Janeiro',
+								 'RN' => 'Rio Grande do Norte',
+								 'RS' => 'Rio Grande do Sul',
+								 'RO' => 'Rondônia',
+								 'RR' => 'Roraima',
+								 'SC' => 'Santa Catarina',
+								 'SP' => 'São Paulo',
+								 'SE' => 'Sergipe',
+								 'TO' => 'Tocantins'
+							 ),
+							 'class' => 'state-origin'
+						),
+						'FC_CONTRY_ORIGIN' => array(
+							 'title' => __( 'Paìs de Origem' ),
+							 'type' => 'text',
+							 'description' => __( '' ),
+							 'default' => 'Brasil',
+							 'class' => 'country-origin'
+						),
+						'FC_API_KEY' => array(
+							 'title' => __( 'Chave da API' ),
+							 'type' => 'text',
+							 'description' => __( '' )
+						)
+					);
+			   }
+				/**
+				 * calculate_shipping function.
+				 *
+				 * @access public
+				 * @param mixed $package
+				 * @return void
+				 */
+				public function calculate_shipping( $package ) {/*
+					try {
+							$product_price = number_format($data['product-total-price'], 2, ',', '.');
+							$data['product-total-price'] = $product_price;
+							
+							$ch = curl_init();
+							$data['api-key'] = Configuration::get('FC_API_KEY');
+							curl_setopt($ch, CURLOPT_URL, $this->url_shipping_quote);
+							curl_setopt($ch, CURLOPT_POST, true);
+							curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+							curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+							$resp = curl_exec($ch);
+							curl_close($ch);
+							$arrJson = $this->orderByPrice($this->filterJson($resp));
+							if (!$this->cookie->fc_valorFrete){
+								$this->cookie->fc_valorFrete = $arrJson->response->data->quote[0]->total;
+							}
+							foreach ($arrJson->response->data->quote as $key => $quote) {
+								$quote_price = number_format($quote->total, 2, ',', '.');
+								$arrJson->response->data->quote[$key]->raw_total = $quote->total;
+								$arrJson->response->data->quote[$key]->total = "R$ {$quote_price}";
+							}
+							$this->cookie->write();
+							return Tools::jsonEncode($arrJson);
+					} catch (Exception $ex) {
+						$arrRetorno = array();
+						$arrRetorno = array(
+							'response' => array('success' => false, 'error' => $ex->getMessage())
+						);
+						return Tools::jsonEncode($arrRetorno);
+					}*/
 
-				// Register the rate
-				$this->add_rate( $rate );
-                
-            }
-        }  
+					echo "<pre>";
+					echo var_dump($package);
+					echo "</pre>";
+
+
+					$rate = array(
+						'id' => $this->id,
+						'label' => $this->title,
+						'cost' => '10.99',
+						'calc_tax' => 'per_item'
+					);
+					// Register the rate
+					$this->add_rate( $rate );
+				}
+				function fc_check_settings($set){
+					if ($set['FC_IS_ACTIVE'] != 'yes' && isset($set['FC_IS_ACTIVE'])){
+						add_action( 'admin_notices', 'fc_is_disabled' );
+					}
+					else if (strlen($set['FC_API_KEY']) <= 0){
+						add_action( 'admin_notices', 'fc_missing_apikey' );
+					}
+					else if (strlen($set['FC_CEP_ORIGIN']) <= 0 || strlen($set['FC_CITY_ORIGIN']) <= 0 || strlen($set['FC_STREET_ORIGIN']) <= 0 || strlen($set['FC_NUMBER_ORIGIN']) <= 0 || strlen($set['FC_STATE_ORIGIN']) <= 0 || strlen($set['FC_CONTRY_ORIGIN']) <= 0 || strlen($set['FC_DISTRICT_ORIGIN']) <= 0){
+						add_action( 'admin_notices', 'fc_missing_address' );
+					}
+				}
+			}
+		}
 	}
+	add_action( 'woocommerce_shipping_init', 'fc_shipping_methods' );
+	function add_fc_shipping_methods( $methods ) {
+		$methods['freteclick'] = 'Fc_shipping_methods';
+		return $methods;
+	}
+	add_filter( 'woocommerce_shipping_methods', 'add_fc_shipping_methods' );
+}
+else {
+	add_action( 'admin_notices', 'fc_wc_missing_notice' );
 }
 
 function fc_add_scripts(){
@@ -148,143 +232,20 @@ function fc_add_scripts(){
 	wp_enqueue_script("freteclick", $plugin_uri."views/js/Freteclick.js", array( 'jquery', 'jquery-ui-autocomplete' ), "1.0", true);
 
 };
-
-function fc_registerItemSettings(){
-	$plugin_uri = plugin_dir_url( __FILE__ );
-	
-	add_menu_page('FreteClick', 'FreteClick', 'administrator', __FILE__, 'fc_DisplaySettingsPage');
-	
-	add_action( 'admin_init', 'fc_registerSettings' );
+/*Funções*/
+function fc_wc_missing_notice(){
+	printf("<div class='notice notice-warning'><p>O WooCommerce não está intalado, para usar o Frete Click é necessário <a href='https://br.wordpress.org/plugins/woocommerce/' target='blanck'>instalar o WooCommerce</a>.</p></div>");
 };
-
-function fc_registerSettings(){
-    register_setting( 'freteclick', 'FC_CITY_ORIGIN');
-    register_setting( 'freteclick', 'FC_CEP_ORIGIN');
-    register_setting( 'freteclick', 'FC_STREET_ORIGIN');
-    register_setting( 'freteclick', 'FC_NUMBER_ORIGIN');
-    register_setting( 'freteclick', 'FC_COMPLEMENT_ORIGIN');
-    register_setting( 'freteclick', 'FC_STATE_ORIGIN');
-    register_setting( 'freteclick', 'FC_CONTRY_ORIGIN');
-    register_setting( 'freteclick', 'FC_DISTRICT_ORIGIN');
-    register_setting( 'freteclick', 'FC_API_KEY');
-    register_setting( 'freteclick', 'FC_INFO_PROD');
-    register_setting( 'freteclick', 'FC_SHOP_CART');
+function fc_missing_apikey(){
+	global $url_freteclick_settings;
+	printf("<div class='notice notice-warning is-dismissible'><p>Por favor, para que o Frete Click funcione, <a href='$url_freteclick_settings'>informe sua Chave de API</a></p></div>");
 };
-
-function fc_DisplaySettingsPage(){
-	$plugin_uri = plugin_dir_url( __FILE__ );
-	?>
-<div class="wrap" id="module_form">
-	<h1>FreteClick</h1>
-
-	<form method="post" action="options.php">
-		<?php settings_fields( 'freteclick' ); ?>
-		<?php do_settings_sections( 'freteclick' ); ?>
-		<table class="form-table">
-			<tr valign="top">
-				<th scope="row">CEP de Origem</th>
-				<td><input type="text" id="cep-origin" name="FC_CEP_ORIGIN" class="fc-input-cep" value="<?php echo esc_attr( get_option('FC_CEP_ORIGIN') ); ?>" /></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row">Rua</th>
-				<td><input type="text" id="street-origin" name="FC_STREET_ORIGIN" class="form-control" value="<?php echo esc_attr( get_option('FC_STREET_ORIGIN') ); ?>" /></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row">Número</th>
-				<td><input type="text" id="number-origin" name="FC_NUMBER_ORIGIN" class="form-control" value="<?php echo esc_attr( get_option('FC_NUMBER_ORIGIN') ); ?>" /></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row">Complemento</th>
-				<td><input type="text" id="complement-origin" name="FC_COMPLEMENT_ORIGIN" class="form-control" value="<?php echo esc_attr( get_option('FC_COMPLEMENT_ORIGIN') ); ?>" /></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row">Bairro</th>
-				<td><input type="text" id="district-origin" name="FC_DISTRICT_ORIGIN" class="form-control" value="<?php echo esc_attr( get_option('FC_DISTRICT_ORIGIN') ); ?>" /></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row">Cidade de Origem</th>
-				<td><input type="text" id="city-origin" name="FC_CITY_ORIGIN" class="form-control" value="<?php echo esc_attr( get_option('FC_CITY_ORIGIN') ); ?>" /></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row">Estado de Origem</th>
-				<td><input type="text" id="state-origin" name="FC_STATE_ORIGIN" class="form-control" value="<?php echo esc_attr( get_option('FC_STATE_ORIGIN') ); ?>" /></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row">Paìs de Origem</th>
-				<td><input type="text" id="country-origin" name="FC_CONTRY_ORIGIN" class="form-control" value="<?php echo esc_attr( get_option('FC_CONTRY_ORIGIN') ); ?>" /></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row">Chave da API</th>
-				<td><input type="text" name="FC_API_KEY" value="<?php echo esc_attr( get_option('FC_API_KEY') ); ?>" /></td>
-			</tr>
-			<tr valign="top">
-				<td>
-				<?php fc_create_section_for_radio(array("name" => "Exibir box na página do produto?",
-				"id" => "FC_INFO_PROD",
-				"type" => "radio",
-				"desc" => "Exibe uma caixa de cotação de envio na tela de descrição do produto.",
-				"options" => array("sim" => "Sim", "nao" => "Não"),
-				"std" => get_option('FC_INFO_PROD'))); ?>
-				</td>
-			</tr>
-			<tr valign="top">
-				<td>
-				<?php fc_create_section_for_radio(array("name" => "Exibir box no rodapé do carrinho?",
-				"id" => "FC_SHOP_CART",
-				"type" => "radio",
-				"desc" => "Exibe uma caixa de cotação de envio na tela do carrinho.",
-				"options" => array("sim" => "Sim", "nao" => "Não"),
-				"std" => get_option('FC_SHOP_CART'))); ?>
-				</td>
-			</tr>
-		</table>
-		
-		<?php submit_button(); ?>
-
-	</form>
-</div>
-	<?php
+function fc_is_disabled(){
+	global $url_freteclick_settings;
+	printf("<div class='notice notice-warning is-dismissible'><p>O Frete Click está desabilitado. <a href='$url_freteclick_settings'>Ative</a> o Frete Click para voltar a usa-lo.</p></div>");
 };
-
-
-//Outras Funções
-function fc_create_opening_tag($value) { 
-	$group_class = "";
-	if (isset($value['grouping'])) {
-		$group_class = "suf-grouping-rhs";
-	}
-	echo '<div class="suf-section fix">'."\n";
-	if ($group_class != "") {
-		echo "<div class='$group_class fix'>\n";
-	}
-	if (isset($value['name'])) {
-		echo "<h3>" . $value['name'] . "</h3>\n";
-	}
-	if (isset($value['desc']) && !(isset($value['type']) && $value['type'] == 'checkbox')) {
-		echo $value['desc']."<br />";
-	}
-	if (isset($value['note'])) {
-		echo "<span class=\"note\">".$value['note']."</span><br />";
-	}
-}
-function fc_create_section_for_radio($value) { 
-	fc_create_opening_tag($value);
-	foreach ($value['options'] as $option_value => $option_text) {
-		$checked = ' ';
-		if (get_option($value['id']) == $option_value) {
-			$checked = ' checked="checked" ';
-		}
-		else if (get_option($value['id']) === FALSE && $value['std'] == $option_value){
-			$checked = ' checked="checked" ';
-		}
-		else {
-			$checked = ' ';
-		}
-		echo '<div class="mnt-radio"><input type="radio" name="'.$value['id'].'" value="'.
-			$option_value.'" '.$checked."/>".$option_text."</div>\n";
-	}
-	fc_create_opening_tag($value);
+function fc_missing_address(){
+	global $url_freteclick_settings;
+	printf("<div class='notice notice-warning is-dismissible'><p>Por favor, para que o Frete Click funcione, informe o <a href='$url_freteclick_settings'>endereço completo</a> para a coleta dos produtos.</p></div>");
 };
-
-add_action("init", "fc_init");
 ?>
