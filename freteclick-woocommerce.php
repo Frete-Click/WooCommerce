@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name:  FreteClick
+Plugin Name:  Frete Click WooCommerce
 Plugin URI:   https://freteclick.com.br/
 Description:  Cálculo do frete com o serviço da web Frete Click
 Version:      1.0
@@ -395,4 +395,3 @@ function fc_pedido_alterado($order_id, $old_status, $new_status){
 	error_log(json_encode($shipping_data));
 	error_log(json_encode($data));
 };
-?>
