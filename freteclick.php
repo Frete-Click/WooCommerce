@@ -29,14 +29,21 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				 * @access public
 				 * @return void
 				 */
-				public function __construct() {
+				public function __construct($instance_id = 0) {
 					global $url_freteclick_settings;
+					$this->instance_id = absint( $instance_id );
 					$this->id = 'freteclick';
-					$this->method_title = __( 'Frete Click' ); 
-					$this->method_description = __( 'Cálculo do frete com o serviço da web Frete Click' );
 					$this->title = "Frete Click";
+					$this->method_description = __( 'Cálculo do frete com o serviço da web Frete Click' );
+					$this->method_title = __( 'Frete Click' ); 
 					$this->availability = 'including';
 					$this->countries = array('BR');
+
+					$this->supports  = array(
+						'shipping-zones',
+						'instance-settings',
+						'instance-settings-modal',
+					);
 
 					$url_freteclick_settings = "admin.php?page=wc-settings&tab=shipping&section=".$this->id;
 					$this->error = array();
@@ -62,7 +69,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
 				}
 				function init_form_fields() {
-					$this->form_fields = array(
+					$this->instance_form_fields = array(
 						'FC_IS_ACTIVE' => array(
 							'title' => __( 'Status do Frete Click' ),
 							'type' => 'checkbox',
@@ -152,6 +159,9 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 						)
 					);
 			   }
+			  	public function is_available( $package ){
+					return true;
+			  	}
 				/**
 				 * calculate_shipping function.
 				 *
@@ -159,7 +169,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				 * @param mixed $package
 				 * @return void
 				 */
-				public function calculate_shipping( $package ) {
+				public function calculate_shipping( $package = array() ) {
 					session_start();
 					$array_resp = array();
 					/*Dados de origem*/
@@ -171,25 +181,29 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 						'complement-origin' => strlen($this->settings['FC_COMPLEMENT_ORIGIN']) > 0 ? $this->settings['FC_COMPLEMENT_ORIGIN'] : "",
 						'district-origin' => $this->settings['FC_DISTRICT_ORIGIN'],
 						'state-origin' => $this->settings['FC_STATE_ORIGIN'],
-						'country-origin' => $this->settings['FC_CONTRY_ORIGIN']
+						'country-origin' => $this->settings['FC_CONTRY_ORIGIN'],
+						"order" => "total"
 					);
 					/*Dados do produto*/
 					$_pf = new WC_Product_Factory();
 					$prod_nomes = array();
+					$prodKey = 0;
 					foreach($package['contents'] as $key => $item){
 						$product = $_pf->get_product($item['product_id']);
 						$p_data = $product->get_data();
-						$array_data['product-package'][$key]['qtd'] = $item['quantity'];
-						$array_data['product-package'][$key]['weight'] = number_format($p_data['weight'], 10, ',', '');
-						$array_data['product-package'][$key]['height'] = number_format($p_data['height'] / 100, 10, ',', '');
-						$array_data['product-package'][$key]['width'] = number_format($p_data['width'] / 100, 10, ',', '');
-						$array_data['product-package'][$key]['depth'] = number_format($p_data['length'] / 100, 10, ',', '');
+						$array_data['product-package'][$prodKey]['qtd'] = $item['quantity'];
+						$array_data['product-package'][$prodKey]['weight'] = number_format($p_data['weight'], 10, ',', '');
+						$array_data['product-package'][$prodKey]['height'] = number_format($p_data['height'] / 100, 10, ',', '');
+						$array_data['product-package'][$prodKey]['width'] = number_format($p_data['width'] / 100, 10, ',', '');
+						$array_data['product-package'][$prodKey]['depth'] = number_format($p_data['length'] / 100, 10, ',', '');
 						array_push($prod_nomes, $p_data['name']);
+						$prodKey++;
 					}
 					$array_data['product-type'] = implode(',', array_values($prod_nomes));
 					$array_data['product-total-price'] = number_format($package['cart_subtotal'], 2, ',', '.');
 					/*Dados do destino*/
 					$dest = $package['destination'];
+					
 					$data_cep = $this->fc_get_cep_data($dest['postcode']);
 
 					if (!$data_cep->erro){
@@ -211,7 +225,6 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					$array_data['cep-destination'] = $dest['postcode'];
 					$dest_number = preg_replace('/[^0-9]/', '', $dest['address']);
 					$array_data['address-number-destination'] = strlen($dest_number) > 0 ? $dest_number : 1;
-					
 					/*Fazer cotação*/
 					$quote_key = md5(json_encode($array_data));
 					if (isset($_SESSION[$quote_key])){
