@@ -171,91 +171,93 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				 */
 				public function calculate_shipping( $package = array() ) {
 					session_start();
-					$array_resp = array();
-					/*Dados de origem*/
-					$array_data = array(
-						'city-origin' => $this->settings['FC_CITY_ORIGIN'],
-						'cep-origin' => $this->settings['FC_CEP_ORIGIN'],
-						'street-origin' => $this->settings['FC_STREET_ORIGIN'],
-						'address-number-origin' => $this->settings['FC_NUMBER_ORIGIN'],
-						'complement-origin' => strlen($this->settings['FC_COMPLEMENT_ORIGIN']) > 0 ? $this->settings['FC_COMPLEMENT_ORIGIN'] : "",
-						'district-origin' => $this->settings['FC_DISTRICT_ORIGIN'],
-						'state-origin' => $this->settings['FC_STATE_ORIGIN'],
-						'country-origin' => $this->settings['FC_CONTRY_ORIGIN'],
-						"order" => "total"
-					);
-					/*Dados do produto*/
-					$_pf = new WC_Product_Factory();
-					$prod_nomes = array();
-					$prodKey = 0;
-					foreach($package['contents'] as $key => $item){
-						$product = $_pf->get_product($item['product_id']);
-						$p_data = $product->get_data();
-						$array_data['product-package'][$prodKey]['qtd'] = $item['quantity'];
-						$array_data['product-package'][$prodKey]['weight'] = number_format($p_data['weight'], 10, ',', '');
-						$array_data['product-package'][$prodKey]['height'] = number_format($p_data['height'] / 100, 10, ',', '');
-						$array_data['product-package'][$prodKey]['width'] = number_format($p_data['width'] / 100, 10, ',', '');
-						$array_data['product-package'][$prodKey]['depth'] = number_format($p_data['length'] / 100, 10, ',', '');
-						array_push($prod_nomes, $p_data['name']);
-						$prodKey++;
-					}
-					$array_data['product-type'] = implode(',', array_values($prod_nomes));
-					$array_data['product-total-price'] = number_format($package['cart_subtotal'], 2, ',', '.');
-					/*Dados do destino*/
 					$dest = $package['destination'];
-					
-					$data_cep = $this->fc_get_cep_data($dest['postcode']);
-
-					if (!$data_cep->erro){
-						$array_data['city-destination'] = $data_cep->localidade;
-						$array_data['street-destination'] = preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $data_cep->logradouro);
-						$array_data['district-destination'] = $data_cep->bairro;
-						$array_data['state-destination'] = $data_cep->uf;
-						$array_data['country-destination'] = 'Brasil';
-						$array_data['complement-destination'] = $data_cep->complemento;
-					}
-					else{
-						$array_data['city-destination'] = $dest['city'];
-						$array_data['street-destination'] = preg_replace('/[^A-Z a-z]/', '', preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $dest['address']));
-						$array_data['district-destination'] = $dest['address_2'];
-						$array_data['state-destination'] = $dest['state'];
-						$array_data['country-destination'] = $dest['country'];
-						$array_data['complement-destination'] = "";
-					}					
-					$array_data['cep-destination'] = $dest['postcode'];
-					$dest_number = preg_replace('/[^0-9]/', '', $dest['address']);
-					$array_data['address-number-destination'] = strlen($dest_number) > 0 ? $dest_number : 1;
-					/*Fazer cotação*/
-					$quote_key = md5(json_encode($array_data));
-					if (isset($_SESSION[$quote_key])){
-						$array_resp = json_decode($_SESSION[$quote_key]);
-					}
-					else{
-						$array_resp = $this->fc_get_quotes($array_data);
+					if (!empty($dest['postcode'])){
+						$array_resp = array();
+						/*Dados de origem*/
+						$array_data = array(
+							'city-origin' => $this->settings['FC_CITY_ORIGIN'],
+							'cep-origin' => $this->settings['FC_CEP_ORIGIN'],
+							'street-origin' => $this->settings['FC_STREET_ORIGIN'],
+							'address-number-origin' => $this->settings['FC_NUMBER_ORIGIN'],
+							'complement-origin' => strlen($this->settings['FC_COMPLEMENT_ORIGIN']) > 0 ? $this->settings['FC_COMPLEMENT_ORIGIN'] : "",
+							'district-origin' => $this->settings['FC_DISTRICT_ORIGIN'],
+							'state-origin' => $this->settings['FC_STATE_ORIGIN'],
+							'country-origin' => $this->settings['FC_CONTRY_ORIGIN'],
+							"order" => "total"
+						);
+						/*Dados do produto*/
+						$_pf = new WC_Product_Factory();
+						$prod_nomes = array();
+						$prodKey = 0;
+						foreach($package['contents'] as $key => $item){
+							$product = $_pf->get_product($item['product_id']);
+							$p_data = $product->get_data();
+							$array_data['product-package'][$prodKey]['qtd'] = $item['quantity'];
+							$array_data['product-package'][$prodKey]['weight'] = number_format($p_data['weight'], 10, ',', '');
+							$array_data['product-package'][$prodKey]['height'] = number_format($p_data['height'] / 100, 10, ',', '');
+							$array_data['product-package'][$prodKey]['width'] = number_format($p_data['width'] / 100, 10, ',', '');
+							$array_data['product-package'][$prodKey]['depth'] = number_format($p_data['length'] / 100, 10, ',', '');
+							array_push($prod_nomes, $p_data['name']);
+							$prodKey++;
+						}
+						$array_data['product-type'] = implode(',', array_values($prod_nomes));
+						$array_data['product-total-price'] = number_format($package['cart_subtotal'], 2, ',', '.');
+						/*Dados do destino*/
+						
+						$data_cep = $this->fc_get_cep_data($dest['postcode']);
+	
+						if (!$data_cep->erro){
+							$array_data['city-destination'] = $data_cep->localidade;
+							$array_data['street-destination'] = preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $data_cep->logradouro);
+							$array_data['district-destination'] = $data_cep->bairro;
+							$array_data['state-destination'] = $data_cep->uf;
+							$array_data['country-destination'] = 'Brasil';
+							$array_data['complement-destination'] = $data_cep->complemento;
+						}
+						else{
+							$array_data['city-destination'] = $dest['city'];
+							$array_data['street-destination'] = preg_replace('/[^A-Z a-z]/', '', preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $dest['address']));
+							$array_data['district-destination'] = $dest['address_2'];
+							$array_data['state-destination'] = $dest['state'];
+							$array_data['country-destination'] = $dest['country'];
+							$array_data['complement-destination'] = "";
+						}					
+						$array_data['cep-destination'] = $dest['postcode'];
+						$dest_number = preg_replace('/[^0-9]/', '', $dest['address']);
+						$array_data['address-number-destination'] = strlen($dest_number) > 0 ? $dest_number : 1;
+						/*Fazer cotação*/
+						$quote_key = md5(json_encode($array_data));
+						if (isset($_SESSION[$quote_key])){
+							$array_resp = json_decode($_SESSION[$quote_key]);
+						}
+						else{
+							$array_resp = $this->fc_get_quotes($array_data);
+							if ($array_resp->response->data != false){
+								$_SESSION[$quote_key] = json_encode($array_resp);
+							}
+						}
 						if ($array_resp->response->data != false){
-							$_SESSION[$quote_key] = json_encode($array_resp);
+							foreach ($array_resp->response->data->quote as $key => $quote){
+								$quote = (array) $quote;
+								$carrier_data = array(
+									'id' => $quote['quote-id'],
+									'label' => $quote['carrier-alias'],
+									'cost' => $quote['total'],
+									'calc_tax' => 'per_item',
+									'meta_data' => array(
+										'Código de Rastreamento' => $quote['order-id'],
+										'Nome da Transportadora' => $quote['carrier-name'],
+										'Cotação' => $quote['quote-id']
+									)
+								);
+								$this->add_rate( $carrier_data );
+							}
 						}
-					}
-					if ($array_resp->response->data != false){
-						foreach ($array_resp->response->data->quote as $key => $quote){
-							$quote = (array) $quote;
-							$carrier_data = array(
-								'id' => $quote['quote-id'],
-								'label' => $quote['carrier-alias'],
-								'cost' => $quote['total'],
-								'calc_tax' => 'per_item',
-								'meta_data' => array(
-									'Código de Rastreamento' => $quote['order-id'],
-									'Nome da Transportadora' => $quote['carrier-name'],
-									'Cotação' => $quote['quote-id']
-								)
-							);
-							$this->add_rate( $carrier_data );
+						else{
+							error_log(json_encode($array_data));
+							error_log(json_encode($array_resp));
 						}
-					}
-					else{
-						error_log(json_encode($array_data));
-						error_log(json_encode($array_resp));
 					}
 				}
 				public function fc_get_cep_data($cep){					
@@ -267,7 +269,8 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					curl_close($_cep);
 					return $data_cep;
 				}
-				function fc_get_quotes($array_data){
+				function fc_get_quotes($array_data){										
+					global $url_shipping_quote;
 					$array_resp = array();
 					try {							
 						$ch = curl_init();
@@ -283,7 +286,8 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 						$array_resp = array(
 							'response' => array('success' => false, 'error' => $ex->getMessage())
 						);
-					}
+					}										
+					
 					return $array_resp;
 				}
 				function fc_check_settings($set){
