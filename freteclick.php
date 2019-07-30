@@ -11,7 +11,7 @@ License:      Todos os Direitos Reservados
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 	/*Variáveis globais*/
 	$url_freteclick_settings;
-	$url_shipping_quote = "https://api.freteclick.com.br/sales/shipping-quote.json";
+	$url_shipping_quote = "https://app.freteclick.com.br/sales/shipping-quote.json";
 	$url_origin_company = "https://app.freteclick.com.br/sales/add-quote-origin-company.json";
 	$url_destination_client = "https://app.freteclick.com.br/sales/add-quote-destination-client.json";
 	if (is_admin()){
@@ -180,7 +180,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 							'cep-origin' => $this->settings['FC_CEP_ORIGIN'],
 							'street-origin' => $this->settings['FC_STREET_ORIGIN'],
 							'address-number-origin' => $this->settings['FC_NUMBER_ORIGIN'],
-							'complement-origin' => strlen($this->settings['FC_COMPLEMENT_ORIGIN']) > 0 ? $this->settings['FC_COMPLEMENT_ORIGIN'] : "",
+							'complement-origin' => strlen($this->settings['FC_COMPLEMENT_ORIGIN']) > 0 ? $this->settings['FC_COMPLEMENT_ORIGIN'] : "SEM COMPLEMENTO",
 							'district-origin' => $this->settings['FC_DISTRICT_ORIGIN'],
 							'state-origin' => $this->settings['FC_STATE_ORIGIN'],
 							'country-origin' => $this->settings['FC_CONTRY_ORIGIN'],
@@ -213,7 +213,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 							$array_data['district-destination'] = $data_cep->bairro;
 							$array_data['state-destination'] = $data_cep->uf;
 							$array_data['country-destination'] = 'Brasil';
-							$array_data['complement-destination'] = $data_cep->complemento;
+							$array_data['complement-destination'] = strlen($data_cep->complemento) ? $data_cep->complemento : "SEM COMPLEMENTO";
 						}
 						else{
 							$array_data['city-destination'] = $dest['city'];
@@ -221,11 +221,12 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 							$array_data['district-destination'] = $dest['address_2'];
 							$array_data['state-destination'] = $dest['state'];
 							$array_data['country-destination'] = $dest['country'];
-							$array_data['complement-destination'] = "";
+							$array_data['complement-destination'] = "SEM COMPLEMENTO";
 						}					
 						$array_data['cep-destination'] = $dest['postcode'];
 						$dest_number = preg_replace('/[^0-9]/', '', $dest['address']);
 						$array_data['address-number-destination'] = strlen($dest_number) > 0 ? $dest_number : 1;
+
 						/*Fazer cotação*/
 						$quote_key = md5(json_encode($array_data));
 						if (isset($_SESSION[$quote_key])){
