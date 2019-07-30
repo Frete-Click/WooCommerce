@@ -11,7 +11,7 @@ License:      Todos os Direitos Reservados
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 	/*Variáveis globais*/
 	$url_freteclick_settings;
-	$url_shipping_quote = "https://app.freteclick.com.br/sales/shipping-quote.json";
+	$url_shipping_quote = "https://api.freteclick.com.br/sales/shipping-quote.json";
 	$url_origin_company = "https://app.freteclick.com.br/sales/add-quote-origin-company.json";
 	$url_destination_client = "https://app.freteclick.com.br/sales/add-quote-destination-client.json";
 	if (is_admin()){
