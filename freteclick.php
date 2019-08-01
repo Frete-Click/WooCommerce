@@ -17,6 +17,31 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	if (is_admin()){
 		fc_add_scripts();
 	}
+
+	function fc_options_register_fields(){
+		add_option( 'freteclick_display_product', '0');
+		register_setting( 'freteclick_options_page', 'freteclick_display_product', array(
+			"type" => "boolean",
+			"description" => "Isso vai adicionar um campo de cálculo de frete nas páginas de produto"
+		) );
+	}
+	function fc_options_page(){
+		add_options_page("Frete Click", "Frete Click", "manage_options", "freteclick", "fc_options_page_layout");
+	}
+	function fc_options_page_layout(){
+		include "views/templates/options_page_layout.php";
+	}
+
+	function fc_display_product_layout(){
+		if (get_option('freteclick_display_product') == 1){
+			include "views/templates/display_product_layout.php";
+		}
+	}
+
+	add_action( 'woocommerce_product_meta_start', 'fc_display_product_layout', 10, 0 );
+
+	add_action('admin_init', 'fc_options_register_fields');
+	add_action('admin_menu', 'fc_options_page');
 	
 	function fc_shipping_methods() {
 		/*Adicionar os métidos de entrega*/
