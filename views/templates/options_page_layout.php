@@ -1,6 +1,7 @@
+<?php global $pluginName; ?>
 <div class="wrap">
-    <h1>Frete Click</h1>
-    <h2>Configurações Gerais do Frete Click</h2>
+    <h1><?= $pluginName ?></h1>
+    <h2>Configurações Gerais do <?= $pluginName ?></h2>
     <form method="post" action="options.php">
         <?php
             settings_fields( 'freteclick_options_page' );

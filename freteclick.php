@@ -9,40 +9,19 @@ Author URI:   http://twitter.com/guilhermeCDP7
 License:      Todos os Direitos Reservados
 */
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
-	/*Variáveis globais*/
-	$url_freteclick_settings;
-	$url_shipping_quote = "https://api.freteclick.com.br/sales/shipping-quote.json";
-	$url_origin_company = "https://app.freteclick.com.br/sales/add-quote-origin-company.json";
-	$url_destination_client = "https://app.freteclick.com.br/sales/add-quote-destination-client.json";
+	$pluginDir = plugin_dir_path(__FILE__);
+
+	require_once("includes/variables.php");
+	require_once("includes/functions.php");
+
 	if (is_admin()){
 		fc_add_scripts();
 	}
-
-	function fc_options_register_fields(){
-		add_option( 'freteclick_display_product', '0');
-		register_setting( 'freteclick_options_page', 'freteclick_display_product', array(
-			"type" => "boolean",
-			"description" => "Isso vai adicionar um campo de cálculo de frete nas páginas de produto"
-		) );
-	}
-	function fc_options_page(){
-		add_options_page("Frete Click", "Frete Click", "manage_options", "freteclick", "fc_options_page_layout");
-	}
-	function fc_options_page_layout(){
-		include "views/templates/options_page_layout.php";
-	}
-
-	function fc_display_product_layout(){
-		if (get_option('freteclick_display_product') == 1){
-			include "views/templates/display_product_layout.php";
-		}
-	}
-
-	add_action( 'woocommerce_product_meta_start', 'fc_display_product_layout', 10, 0 );
-
+	
 	add_action('admin_init', 'fc_options_register_fields');
 	add_action('admin_menu', 'fc_options_page');
-	
+	add_action( 'woocommerce_product_meta_start', 'fc_display_product_layout', 10, 0 );
+
 	function fc_shipping_methods() {
 		/*Adicionar os métidos de entrega*/
 		if ( ! class_exists( 'Fc_shipping_methods' ) ) {
@@ -55,22 +34,18 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				 * @return void
 				 */
 				public function __construct($instance_id = 0) {
-					global $url_freteclick_settings;
+					global $pluginId, $pluginName, $pluginDescription, $pluginCountries, $pluginSupports;
+
 					$this->instance_id = absint( $instance_id );
-					$this->id = 'freteclick';
-					$this->title = "Frete Click";
-					$this->method_description = __( 'Cálculo do frete com o serviço da web Frete Click' );
-					$this->method_title = __( 'Frete Click' ); 
+					$this->id = $pluginId;
+					$this->title = $pluginName;
+					$this->method_description = $pluginDescription;
+					$this->method_title = $pluginName; 
 					$this->availability = 'including';
-					$this->countries = array('BR');
+					$this->countries = $pluginCountries;
 
-					$this->supports  = array(
-						'shipping-zones',
-						'instance-settings',
-						'instance-settings-modal',
-					);
+					$this->supports = $pluginSupports;
 
-					$url_freteclick_settings = "admin.php?page=wc-settings&tab=shipping&section=".$this->id;
 					$this->error = array();
 
 					$this->init();
@@ -230,7 +205,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 						$array_data['product-total-price'] = number_format($package['cart_subtotal'], 2, ',', '.');
 						/*Dados do destino*/
 						
-						$data_cep = $this->fc_get_cep_data($dest['postcode']);
+						$data_cep = fc_get_cep_data($dest['postcode']);
 	
 						if (!$data_cep->erro){
 							$array_data['city-destination'] = $data_cep->localidade;
@@ -285,15 +260,6 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 							error_log(json_encode($array_resp));
 						}
 					}
-				}
-				public function fc_get_cep_data($cep){					
-					/*Obter dados viacep*/
-					$_cep = curl_init();
-					curl_setopt($_cep, CURLOPT_URL, 'https://viacep.com.br/ws/'.$cep.'/json/');
-					curl_setopt($_cep, CURLOPT_RETURNTRANSFER, true);
-					$data_cep = json_decode(curl_exec($_cep));
-					curl_close($_cep);
-					return $data_cep;
 				}
 				function fc_get_quotes($array_data){										
 					global $url_shipping_quote;
@@ -387,55 +353,4 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 else {
 	add_action( 'admin_notices', 'fc_wc_missing_notice' );
 }
-
-function fc_add_scripts(){
-	$plugin_uri = plugin_dir_url( __FILE__ );
-	
-	//Adicionando estilos
-	wp_enqueue_script("freteclick", $plugin_uri."views/js/Freteclick.js", array( 'jquery', 'jquery-ui-autocomplete' ), "1.0", true);
-
-};
-/*Funções*/
-function fc_wc_missing_notice(){
-	printf("<div class='notice notice-warning'><p>O WooCommerce não está intalado, para usar o Frete Click é necessário <a href='https://br.wordpress.org/plugins/woocommerce/' target='blanck'>instalar o WooCommerce</a>.</p></div>");
-};
-function fc_missing_apikey(){
-	global $url_freteclick_settings;
-	printf("<div class='notice notice-warning is-dismissible'><p>Por favor, para que o Frete Click funcione, <a href='$url_freteclick_settings'>informe sua Chave de API</a></p></div>");
-};
-function fc_is_disabled(){
-	global $url_freteclick_settings;
-	printf("<div class='notice notice-warning is-dismissible'><p>O Frete Click está desabilitado. <a href='$url_freteclick_settings'>Ative</a> o Frete Click para voltar a usa-lo.</p></div>");
-};
-function fc_missing_address(){
-	global $url_freteclick_settings;
-	printf("<div class='notice notice-warning is-dismissible'><p>Por favor, para que o Frete Click funcione, informe o <a href='$url_freteclick_settings'>endereço completo</a> para a coleta dos produtos.</p></div>");
-};
-function fc_pedido_alterado($order_id, $old_status, $new_status){
-	$order = new WC_Order( $order_id );
-	$data = $order->get_data();
-	$shipping = $order->get_items('shipping');
-	$shipping_data = array();
-	$array_data = array();
-
-	foreach($shipping as $key => $shipping_item){
-		$s_data = $shipping_item->get_data();
-		$shipping_data[$key] = $s_data;
-	}
-
-	$status_espera = array(
-		'pending',
-		'processing',
-		'on-hold'
-	);
-
-	if (in_array($data['status'], $status_espera)){
-
-	}
-
-	error_log($old_status);
-	error_log($new_status);
-	error_log(json_encode($shipping_data));
-	error_log(json_encode($data));
-};
 ?>
