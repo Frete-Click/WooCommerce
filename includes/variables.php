@@ -8,6 +8,7 @@ $pluginSupports = array(
     'instance-settings',
     'instance-settings-modal',
 );
+$fc_errors = array();
 
 /*Variáveis globais*/
 $url_shipping_quote = "https://api.freteclick.com.br/sales/shipping-quote.json";

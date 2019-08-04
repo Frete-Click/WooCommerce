@@ -17,16 +17,11 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	if (is_admin()){
 		fc_add_scripts();
 	}
-	
-	add_action('admin_init', 'fc_options_register_fields');
-	add_action('admin_menu', 'fc_options_page');
-	add_action( 'woocommerce_product_meta_start', 'fc_display_product_layout', 10, 0 );
 
 	function fc_shipping_methods() {
 		/*Adicionar os métidos de entrega*/
 		if ( ! class_exists( 'Fc_shipping_methods' ) ) {
 			class Fc_shipping_methods extends WC_Shipping_Method {
-				public $error;
 				/**
 				 * Constructor for your shipping class
 				 *
@@ -45,8 +40,6 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					$this->countries = $pluginCountries;
 
 					$this->supports = $pluginSupports;
-
-					$this->error = array();
 
 					$this->init();
 				}
@@ -151,11 +144,6 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 							 'description' => __( '' ),
 							 'default' => 'Brasil',
 							 'class' => 'country-origin'
-						),
-						'FC_API_KEY' => array(
-							 'title' => __( 'Chave da API' ),
-							 'type' => 'text',
-							 'description' => __( '' )
 						)
 					);
 			   }
@@ -169,173 +157,41 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				 * @param mixed $package
 				 * @return void
 				 */
-				public function calculate_shipping( $package = array() ) {
-					session_start();
-					$dest = $package['destination'];
-					if (!empty($dest['postcode'])){
-						$array_resp = array();
-						/*Dados de origem*/
-						$array_data = array(
-							'city-origin' => $this->settings['FC_CITY_ORIGIN'],
-							'cep-origin' => $this->settings['FC_CEP_ORIGIN'],
-							'street-origin' => $this->settings['FC_STREET_ORIGIN'],
-							'address-number-origin' => $this->settings['FC_NUMBER_ORIGIN'],
-							'complement-origin' => strlen($this->settings['FC_COMPLEMENT_ORIGIN']) > 0 ? $this->settings['FC_COMPLEMENT_ORIGIN'] : "SEM COMPLEMENTO",
-							'district-origin' => $this->settings['FC_DISTRICT_ORIGIN'],
-							'state-origin' => $this->settings['FC_STATE_ORIGIN'],
-							'country-origin' => $this->settings['FC_CONTRY_ORIGIN'],
-							"order" => "total"
-						);
-						/*Dados do produto*/
-						$_pf = new WC_Product_Factory();
-						$prod_nomes = array();
-						$prodKey = 0;
-						foreach($package['contents'] as $key => $item){
-							$product = $_pf->get_product($item['product_id']);
-							$p_data = $product->get_data();
-							$array_data['product-package'][$prodKey]['qtd'] = $item['quantity'];
-							$array_data['product-package'][$prodKey]['weight'] = number_format($p_data['weight'], 10, ',', '');
-							$array_data['product-package'][$prodKey]['height'] = number_format($p_data['height'] / 100, 10, ',', '');
-							$array_data['product-package'][$prodKey]['width'] = number_format($p_data['width'] / 100, 10, ',', '');
-							$array_data['product-package'][$prodKey]['depth'] = number_format($p_data['length'] / 100, 10, ',', '');
-							array_push($prod_nomes, $p_data['name']);
-							$prodKey++;
-						}
-						$array_data['product-type'] = implode(',', array_values($prod_nomes));
-						$array_data['product-total-price'] = number_format($package['cart_subtotal'], 2, ',', '.');
-						/*Dados do destino*/
-						
-						$data_cep = fc_get_cep_data($dest['postcode']);
-	
-						if (!$data_cep->erro){
-							$array_data['city-destination'] = $data_cep->localidade;
-							$array_data['street-destination'] = preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $data_cep->logradouro);
-							$array_data['district-destination'] = $data_cep->bairro;
-							$array_data['state-destination'] = $data_cep->uf;
-							$array_data['country-destination'] = 'Brasil';
-							$array_data['complement-destination'] = strlen($data_cep->complemento) ? $data_cep->complemento : "SEM COMPLEMENTO";
-						}
-						else{
-							$array_data['city-destination'] = $dest['city'];
-							$array_data['street-destination'] = preg_replace('/[^A-Z a-z]/', '', preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $dest['address']));
-							$array_data['district-destination'] = $dest['address_2'];
-							$array_data['state-destination'] = $dest['state'];
-							$array_data['country-destination'] = $dest['country'];
-							$array_data['complement-destination'] = "SEM COMPLEMENTO";
-						}					
-						$array_data['cep-destination'] = $dest['postcode'];
-						$dest_number = preg_replace('/[^0-9]/', '', $dest['address']);
-						$array_data['address-number-destination'] = strlen($dest_number) > 0 ? $dest_number : 1;
-
-						/*Fazer cotação*/
-						$quote_key = md5(json_encode($array_data));
-						if (isset($_SESSION[$quote_key])){
-							$array_resp = json_decode($_SESSION[$quote_key]);
-						}
-						else{
-							$array_resp = $this->fc_get_quotes($array_data);
-							if ($array_resp->response->data != false){
-								$_SESSION[$quote_key] = json_encode($array_resp);
-							}
-						}
-						if ($array_resp->response->data != false){
-							foreach ($array_resp->response->data->quote as $key => $quote){
-								$quote = (array) $quote;
-								$carrier_data = array(
-									'id' => $quote['quote-id'],
-									'label' => $quote['carrier-alias'],
-									'cost' => $quote['total'],
-									'calc_tax' => 'per_item',
-									'meta_data' => array(
-										'Código de Rastreamento' => $quote['order-id'],
-										'Nome da Transportadora' => $quote['carrier-name'],
-										'Cotação' => $quote['quote-id']
-									)
-								);
-								$this->add_rate( $carrier_data );
-							}
-						}
-						else{
-							error_log(json_encode($array_data));
-							error_log(json_encode($array_resp));
+				public function calculate_shipping($package = array()){
+					$array_resp = fc_calculate_shipping($package);
+					
+					if ($array_resp->response->data != false){
+						foreach ($array_resp->response->data->quote as $key => $quote){
+							$quote = (array) $quote;
+							$carrier_data = array(
+								'id' => $quote['quote-id'],
+								'label' => $quote['carrier-alias'],
+								'cost' => $quote['total'],
+								'calc_tax' => 'per_item',
+								'meta_data' => array(
+									'Código de Rastreamento' => $quote['order-id'],
+									'Nome da Transportadora' => $quote['carrier-name'],
+									'Cotação' => $quote['quote-id']
+								)
+							);
+							$this->add_rate( $carrier_data );
 						}
 					}
-				}
-				function fc_get_quotes($array_data){										
-					global $url_shipping_quote;
-					$array_resp = array();
-					try {							
-						$ch = curl_init();
-						$array_data['api-key'] = $this->settings['FC_API_KEY'];
-						curl_setopt($ch, CURLOPT_URL, $url_shipping_quote);
-						curl_setopt($ch, CURLOPT_POST, true);
-						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-						curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($array_data));
-						$resp = curl_exec($ch);
-						curl_close($ch);
-						$array_resp = $this->orderByPrice($this->filterJson($resp));
-					} catch (Exception $ex) {
-						$array_resp = array(
-							'response' => array('success' => false, 'error' => $ex->getMessage())
-						);
-					}										
-					
-					return $array_resp;
+					else{
+						error_log(json_encode($array_data));
+						error_log(json_encode($array_resp));
+					}
 				}
 				function fc_check_settings($set){
 					if ($set['FC_IS_ACTIVE'] != 'yes' && isset($set['FC_IS_ACTIVE'])){
 						add_action( 'admin_notices', 'fc_is_disabled' );
 					}
-					else if (strlen($set['FC_API_KEY']) <= 0){
+					else if (strlen(get_option('FC_API_KEY')) <= 0){
 						add_action( 'admin_notices', 'fc_missing_apikey' );
 					}
 					else if (strlen($set['FC_CEP_ORIGIN']) <= 0 || strlen($set['FC_CITY_ORIGIN']) <= 0 || strlen($set['FC_STREET_ORIGIN']) <= 0 || strlen($set['FC_NUMBER_ORIGIN']) <= 0 || strlen($set['FC_STATE_ORIGIN']) <= 0 || strlen($set['FC_CONTRY_ORIGIN']) <= 0 || strlen($set['FC_DISTRICT_ORIGIN']) <= 0){
 						add_action( 'admin_notices', 'fc_missing_address' );
 					}
-				}				
-				public function orderByPrice($arrJson)
-				{
-					$quotes = (array) $arrJson->response->data->quote;
-					usort($quotes, function ($a, $b) {
-						return $a->total > $b->total;
-					});
-					$arrJson->response->data->quote = $quotes;
-					return $arrJson;
-				}
-				public function filterJson($json)
-				{
-					$arrJson = json_decode($json);
-					if (!$arrJson) {
-						$this->addError('Erro ao recuperar dados');
-					}
-					if ($arrJson->response->success === false) {
-						if ($arrJson->response->error) {
-							foreach ($arrJson->response->error as $error) {
-								$this->addError($error->message);
-							}
-						}
-						$this->addError('Erro ao recuperar dados');
-					}
-					return $this->getErrors() ? : $arrJson;
-				}
-				public function getErrors()
-				{
-					return $this->error ? array(
-						'response' => array(
-							'data' => 'false',
-							'count' => 0,
-							'success' => false,
-							'error' => $this->error
-						)
-					) : false;
-				}
-				public function addError($error)
-				{
-					array_push($this->error, array(
-						'code' => md5($error),
-						'message' => $error
-					));
-					return $this->getErrors();
 				}
 			}
 		}
@@ -349,6 +205,13 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 	/*Hooks para status dos pedidos*/
 	add_action('woocommerce_order_status_changed', 'fc_pedido_alterado', 10, 3);
+
+	/* Hooks para página de configurações globais */
+	add_action('admin_init', 'fc_options_register_fields');
+	add_action('admin_menu', 'fc_options_page');
+
+	/* Hook para busca frete no carrinho */
+	add_action( 'woocommerce_product_meta_start', 'fc_display_product_layout', 10, 0 );
 }
 else {
 	add_action( 'admin_notices', 'fc_wc_missing_notice' );
