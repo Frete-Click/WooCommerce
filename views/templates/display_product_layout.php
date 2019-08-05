@@ -86,8 +86,16 @@ function createResult(dds){
     else{
         var div = document.createElement("div");
 
+        div.style.textAlign = "center";
+
+        var logo = "<?= site_url() ?>/wp-content/plugins/freteclick/logo.png";
+        
+        if (dds["carrier-logo"] != null){
+            logo = dds["carrier-logo"];
+        }
+
         div.innerHTML = 
-        "<img src='"+dds["carrier-logo"]+"' style='max-height:30px;' title='"+dds["carrier-name"]+"'/>" +
+        "<img src='"+logo+"' style='max-height:40px;' title='"+dds["carrier-name"]+"'/><br/>" +
         "<label>"+dds["carrier-alias"]+"</label> " +
         "<strong>R$: "+Number(dds["total"]).toFixed(2)+"</strong><hr/>";
 
