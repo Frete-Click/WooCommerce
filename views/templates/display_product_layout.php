@@ -2,7 +2,7 @@
 global $product;
 $data = $product->get_data();
 ?>
-<form id="formCalcFrete" class="woocommerce-shipping-calculator" method="post">
+<form id="formCalcFrete" class="woocommerce-shipping-calculator" accept-charset="utf-8" method="post">
     <h4>Calcular Frete</h4>
     <section class="shipping-calculator-form" style="">
         <p class="form-row form-row-wide" id="calc_shipping_postcode_field">
@@ -10,7 +10,7 @@ $data = $product->get_data();
         </p>
 
 		<p>
-            <button type="submit" name="calc_shipping" value="1" class="button">Calcular</button>
+            <button id="btFcSubmit" type="submit" name="calc_shipping" value="1" class="button">Calcular</button>
         </p>
 		<?php wp_nonce_field( 'woocommerce-shipping-calculator', 'woocommerce-shipping-calculator-nonce' ); ?>
     </section>
@@ -31,10 +31,15 @@ $data = $product->get_data();
     <input type="hidden" name="product_length" value="<?= $data["length"] ?>" />
     <input id="fc_prod_quantity" type="hidden" name="product_quantity" value="" />
 </form>
-<script>
+<section id="fc_freteResults">
+</section>
+<script type="text/javascript">
 document.addEventListener("DOMContentLoaded", function () {
     jQuery("#formCalcFrete").submit(function (e){
         e.preventDefault();
+        var btFcSubmit = document.getElementById("btFcSubmit");
+
+        btFcSubmit.disabled = true;
 
         jQuery("#fc_prod_quantity").val(jQuery("input[name='quantity']").val());
 
@@ -44,13 +49,49 @@ document.addEventListener("DOMContentLoaded", function () {
                 type: "POST",
                 data: jQuery("#formCalcFrete").serialize(),
                 success: function (data){
-                    console.log(data);
+                    btFcSubmit.disabled = false;
+                    data = JSON.parse(data);
+                    var fc_freteResults = document.getElementById("fc_freteResults");
+                    fc_freteResults.innerHTML = "";
+                    var res = data.response;
+                    if (res.data){
+                        var quotes = res.data.quote;
+                        if (quotes.length){
+                            for(var i = 0; i < quotes.length; i++){
+                                createResult(quotes[i]);
+                            }
+                        }
+                        else{
+                            createResult(null);
+                        }
+                    }
+                    else{
+                        createResult(null);
+                    }
                 },
                 error: function (error){
+                    btFcSubmit.disabled = false;
                     console.log(error);
+                    createResult(null);
                 }
             });
         }
     });
 });
+function createResult(dds){
+    var fc_freteResults = document.getElementById("fc_freteResults");
+    if (!dds){
+        fc_freteResults.innerHTML = "Nenhuma Transportadora Encontrada!";
+    }
+    else{
+        var div = document.createElement("div");
+
+        div.innerHTML = 
+        "<img src='"+dds["carrier-logo"]+"' style='max-height:30px;' title='"+dds["carrier-name"]+"'/>" +
+        "<label>"+dds["carrier-alias"]+"</label> " +
+        "<strong>R$: "+Number(dds["total"]).toFixed(2)+"</strong><hr/>";
+
+        fc_freteResults.appendChild(div);
+    }
+}
 </script>

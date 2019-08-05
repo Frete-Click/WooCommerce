@@ -1,7 +1,7 @@
 <?php
-$pluginId = __("freteclick");
-$pluginName = __("Frete Click");
-$pluginDescription = __( 'Cálculo do frete com o serviço da web Frete Click' );
+$pluginId = "freteclick";
+$pluginName = "Frete Click";
+$pluginDescription = 'Cálculo do frete com o serviço da web Frete Click';
 $pluginCountries = array('BR');
 $pluginSupports = array(
     'shipping-zones',

@@ -71,7 +71,7 @@ function fc_display_product_layout(){
         include $pluginDir . "views/templates/display_product_layout.php";
     }
 }
-function fc_config($name, $default){
+function fc_config($name, $default = array()){
 	global $pluginId;
 	if (function_exists("WC")){
 		$carriers = WC()->shipping->get_shipping_methods();
@@ -126,7 +126,7 @@ function fc_calculate_shipping( $package = array(), $orign = array() ) {
 		
 		$data_cep = fc_get_cep_data($dest['postcode']);
 
-		if (!$data_cep->erro){
+		if (!isset($data_cep->erro)){
 			$array_data['city-destination'] = $data_cep->localidade;
 			$array_data['street-destination'] = preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $data_cep->logradouro);
 			$array_data['district-destination'] = $data_cep->bairro;
@@ -170,8 +170,7 @@ function fc_get_quotes($array_data, $orign = array()){
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($array_data));
-		//echo json_encode($array_data);
-		/*echo*/ $resp = curl_exec($ch); /*exit;*/
+		$resp = curl_exec($ch);
 		curl_close($ch);
 		$array_resp = orderByPrice(filterJson($resp));
 	} catch (Exception $ex) {

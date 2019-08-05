@@ -1,19 +1,21 @@
 <?php
+header("Content-type: text/html; charset=utf-8");
 if ($_POST["calc_shipping_postcode"]){
+    require_once "variables.php";
     require_once "functions.php";
 
     $api_key = $_GET["k"];
     $cep_orign = $_POST["cep_orign"];
-    $street_orign = $_POST["street_orign"];
+    $street_orign = utf8_encode($_POST["street_orign"]);
     $number_orign = $_POST["number_orign"];
-    $complement_orign = $_POST["complement_orign"];
-    $district_orign = $_POST["district_orign"];
-    $city_orign = $_POST["city_orign"];
+    $complement_orign = utf8_encode($_POST["complement_orign"]);
+    $district_orign = utf8_encode($_POST["district_orign"]);
+    $city_orign = utf8_encode($_POST["city_orign"]);
     $state_orign = $_POST["state_orign"];
-    $contry_orign = $_POST["contry_orign"];
+    $contry_orign = utf8_encode($_POST["contry_orign"]);
 
     $product_id = $_POST["product_id"];
-    $product_name = $_POST["product_name"];
+    $product_name = utf8_encode($_POST["product_name"]);
     $product_price = $_POST["product_price"];
     $product_weight = $_POST["product_weight"];
     $product_height = $_POST["product_height"];
@@ -45,7 +47,7 @@ if ($_POST["calc_shipping_postcode"]){
         "api_key" => $api_key,
         "FC_CITY_ORIGIN" => $city_orign,
         "FC_CEP_ORIGIN" => $cep_orign,
-        "FC_STREET_ORIGIN" => $state_orign,
+        "FC_STREET_ORIGIN" => $street_orign,
         "FC_NUMBER_ORIGIN" => $number_orign,
         "FC_COMPLEMENT_ORIGIN" => $complement_orign,
         "FC_DISTRICT_ORIGIN" => $district_orign,
