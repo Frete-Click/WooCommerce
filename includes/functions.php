@@ -128,8 +128,8 @@ function fc_calculate_shipping( $package = array(), $orign = array() ) {
 
 		if (!isset($data_cep->erro)){
 			$array_data['city-destination'] = $data_cep->localidade;
-			$array_data['street-destination'] = preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $data_cep->logradouro);
-			$array_data['district-destination'] = $data_cep->bairro;
+			$array_data['street-destination'] = preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $data_cep->logradouro)?:'Rua não encontrada';
+			$array_data['district-destination'] = $data_cep->bairro?:'Bairro não encontrado';
 			$array_data['state-destination'] = $data_cep->uf;
 			$array_data['country-destination'] = 'Brasil';
 			$array_data['complement-destination'] = strlen($data_cep->complemento) ? $data_cep->complemento : "SEM COMPLEMENTO";
