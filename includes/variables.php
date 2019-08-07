@@ -12,6 +12,6 @@ $fc_errors = array();
 
 /*Variáveis globais*/
 $url_shipping_quote = "https://api.freteclick.com.br/sales/shipping-quote.json";
-$url_origin_company = "https://app.freteclick.com.br/sales/add-quote-origin-company.json";
-$url_destination_client = "https://app.freteclick.com.br/sales/add-quote-destination-client.json";
+$url_origin_company = "https://api.freteclick.com.br/sales/add-quote-origin-company.json";
+$url_destination_client = "https://api.freteclick.com.br/sales/add-quote-destination-client.json";
 
