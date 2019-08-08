@@ -22,6 +22,8 @@ if ($_POST["calc_shipping_postcode"]){
     $product_width = $_POST["product_width"];
     $product_length = $_POST["product_length"];
     $product_quantity = $_POST["product_quantity"];
+
+    $quote_type = $_POST["freteclick_quote_type"];
     
     $calc_shipping_postcode = $_POST["calc_shipping_postcode"];
     
@@ -52,7 +54,8 @@ if ($_POST["calc_shipping_postcode"]){
         "FC_COMPLEMENT_ORIGIN" => $complement_orign,
         "FC_DISTRICT_ORIGIN" => $district_orign,
         "FC_STATE_ORIGIN" => $state_orign,
-        "FC_CONTRY_ORIGIN" => $contry_orign
+        "FC_CONTRY_ORIGIN" => $contry_orign,
+        "freteclick_quote_type" => $quote_type
     ));
     
     echo json_encode($result);

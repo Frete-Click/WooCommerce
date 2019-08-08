@@ -1,9 +1,10 @@
 <?php
-global $product;
+global $product, $pluginName;
 $data = $product->get_data();
 ?>
-<form id="formCalcFrete" class="woocommerce-shipping-calculator" accept-charset="utf-8" method="post">
-    <h4>Calcular Frete</h4>
+<form id="formCalcFrete" style="text-transform: uppercase;" class="woocommerce-shipping-calculator" accept-charset="utf-8" method="post">
+    <h4 style="margin-bottom: 0;">Calcular Frete</h4>
+    <small><?= $pluginName ?></small>
     <section class="shipping-calculator-form" style="">
         <p class="form-row form-row-wide" id="calc_shipping_postcode_field">
             <input type="text" class="input-text" value="<?php echo esc_attr( WC()->customer->get_shipping_postcode() ); ?>" placeholder="<?php esc_attr_e( 'Postcode / ZIP', 'woocommerce' ); ?>" name="calc_shipping_postcode" id="calc_shipping_postcode" />
@@ -29,9 +30,10 @@ $data = $product->get_data();
     <input type="hidden" name="product_height" value="<?= $data["height"] ?>" />
     <input type="hidden" name="product_width" value="<?= $data["width"] ?>" />
     <input type="hidden" name="product_length" value="<?= $data["length"] ?>" />
+    <input type="hidden" name="freteclick_quote_type" value="<?= get_option("freteclick_quote_type") ?>" />
     <input id="fc_prod_quantity" type="hidden" name="product_quantity" value="" />
 </form>
-<section id="fc_freteResults">
+<section style="text-transform: uppercase;" id="fc_freteResults">
 </section>
 <script type="text/javascript">
 document.addEventListener("DOMContentLoaded", function () {
@@ -88,14 +90,7 @@ function createResult(dds){
 
         div.style.textAlign = "center";
 
-        var logo = "<?= site_url() ?>/wp-content/plugins/freteclick/logo.png";
-        
-        if (dds["carrier-logo"] != null){
-            logo = dds["carrier-logo"];
-        }
-
         div.innerHTML = 
-        "<img src='"+logo+"' style='max-height:40px;' title='"+dds["carrier-name"]+"'/><br/>" +
         "<label>"+dds["carrier-alias"]+"</label> " +
         "<strong>R$: "+Number(dds["total"]).toFixed(2)+"</strong><hr/>";
 

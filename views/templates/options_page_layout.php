@@ -7,7 +7,7 @@
             settings_fields( 'freteclick_options_page' );
             do_settings_sections( 'freteclick_options_page' );
         ?>
-        <table>
+        <table class="form-table">
             <tr valign="top">
                 <th scope="row">
                     <label for="FC_API_KEY"><?= __( 'Chave da API' ) ?></label>
@@ -25,6 +25,22 @@
                         <?php $vl = get_option('freteclick_display_product'); $sl = " selected='selected'"; ?>
                         <option value="0"<?= $vl == 0 ? $sl : "" ?>><?= __("Não") ?></option>
                         <option value="1"<?= $vl == 1 ? $sl : "" ?>><?= __("Sim") ?></option>
+                    </select>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">
+                    <label for="freteclick_quote_type"><?= __('Tipo de Cotação') ?></label>
+                    <p>
+                        <strong>Cotação Completa:</strong> Mostra todas as opções de frete disponíveis<br/>
+                        <strong>Cotação Simples:</strong> Mostra apenas as opções de frete mais rápida e mais econômica
+                    </p>
+                </th>
+                <td>
+                    <select id="freteclick_quote_type" name="freteclick_quote_type">
+                        <?php $vl = get_option('freteclick_quote_type'); $sl = " selected='selected'"; ?>
+                        <option value="full"<?= $vl == "full" ? $sl : "" ?>><?= __("Cotação Completa") ?></option>
+                        <option value="simple"<?= $vl == "simple" ? $sl : "" ?>><?= __("Cotação Simples") ?></option>
                     </select>
                 </td>
             </tr>

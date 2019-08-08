@@ -44,8 +44,9 @@ function fc_pedido_alterado($order_id, $old_status, $new_status){
 };
 /* Página de Configurações */
 function fc_options_register_fields(){
+	add_option( "freteclick_quote_type", "0" );
     add_option( 'freteclick_display_product', '0');
-    add_option( 'FC_API_KEY', '');
+	add_option( 'FC_API_KEY', '');
     register_setting( 'freteclick_options_page', 'FC_API_KEY', array(
         "type" => "string",
         "description" => ""
@@ -53,6 +54,10 @@ function fc_options_register_fields(){
     register_setting( 'freteclick_options_page', 'freteclick_display_product', array(
         "type" => "boolean",
         "description" => "Isso vai adicionar um campo de cálculo de frete nas páginas de produto"
+    ) );
+    register_setting( 'freteclick_options_page', 'freteclick_quote_type', array(
+        "type" => "string",
+        "description" => ""
     ) );
 }
 function fc_options_page(){
@@ -87,6 +92,7 @@ function fc_calculate_shipping( $package = array(), $orign = array() ) {
 		$array_resp = array();
 		/*Dados de origem*/
 		$array_data = array(
+			'quote-type' => isset($orign["freteclick_quote_type"]) ? $orign["freteclick_quote_type"] : get_option("freteclick_quote_type"),
 			'city-origin' => fc_config('FC_CITY_ORIGIN', $orign),
 			'cep-origin' => fc_config('FC_CEP_ORIGIN', $orign),
 			'street-origin' => fc_config('FC_STREET_ORIGIN', $orign),
