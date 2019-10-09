@@ -1,0 +1,43 @@
+[08-Aug-2019 14:14:37 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_option() in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php:95
+Stack trace:
+#0 /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/get_shipping.php(58): fc_calculate_shipping(Array, Array)
+#1 {main}
+  thrown in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 95
+[08-Aug-2019 17:06:30 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_option() in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php:95
+Stack trace:
+#0 /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/get_shipping.php(58): fc_calculate_shipping(Array, Array)
+#1 {main}
+  thrown in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 95
+[08-Aug-2019 19:36:12 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_option() in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php:95
+Stack trace:
+#0 /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/get_shipping.php(58): fc_calculate_shipping(Array, Array)
+#1 {main}
+  thrown in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 95
+[09-Aug-2019 21:38:43 UTC] PHP Warning:  Creating default object from empty value in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 195
+[12-Aug-2019 13:30:36 UTC] PHP Warning:  number_format() expects parameter 1 to be float, string given in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 122
+[12-Aug-2019 13:30:36 UTC] PHP Warning:  A non-numeric value encountered in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 123
+[12-Aug-2019 13:30:36 UTC] PHP Warning:  A non-numeric value encountered in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 124
+[12-Aug-2019 13:30:36 UTC] PHP Warning:  A non-numeric value encountered in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 125
+[12-Aug-2019 13:30:37 UTC] PHP Warning:  Creating default object from empty value in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 195
+[12-Aug-2019 13:42:03 UTC] PHP Warning:  number_format() expects parameter 1 to be float, string given in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 122
+[12-Aug-2019 13:42:03 UTC] PHP Warning:  A non-numeric value encountered in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 123
+[12-Aug-2019 13:42:03 UTC] PHP Warning:  A non-numeric value encountered in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 124
+[12-Aug-2019 13:42:03 UTC] PHP Warning:  A non-numeric value encountered in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 125
+[12-Aug-2019 13:42:05 UTC] PHP Warning:  Creating default object from empty value in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 195
+[12-Aug-2019 13:42:13 UTC] PHP Warning:  number_format() expects parameter 1 to be float, string given in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 122
+[12-Aug-2019 13:42:13 UTC] PHP Warning:  A non-numeric value encountered in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 123
+[12-Aug-2019 13:42:13 UTC] PHP Warning:  A non-numeric value encountered in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 124
+[12-Aug-2019 13:42:13 UTC] PHP Warning:  A non-numeric value encountered in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 125
+[12-Aug-2019 13:42:14 UTC] PHP Warning:  Creating default object from empty value in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 195
+[22-Aug-2019 16:55:52 UTC] PHP Warning:  Creating default object from empty value in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 195
+[22-Aug-2019 20:59:43 UTC] PHP Warning:  Creating default object from empty value in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 195
+[26-Aug-2019 21:41:13 UTC] PHP Warning:  number_format() expects parameter 1 to be float, string given in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 122
+[26-Aug-2019 21:41:13 UTC] PHP Warning:  A non-numeric value encountered in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 123
+[26-Aug-2019 21:41:13 UTC] PHP Warning:  A non-numeric value encountered in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 124
+[26-Aug-2019 21:41:13 UTC] PHP Warning:  A non-numeric value encountered in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 125
+[26-Aug-2019 21:41:21 UTC] PHP Warning:  Creating default object from empty value in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 195
+[30-Aug-2019 18:52:06 UTC] PHP Warning:  Creating default object from empty value in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 195
+[31-Aug-2019 12:49:20 UTC] PHP Warning:  Creating default object from empty value in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 195
+[05-Sep-2019 19:47:26 UTC] PHP Warning:  Creating default object from empty value in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 195
+[09-Sep-2019 14:59:04 UTC] PHP Warning:  Creating default object from empty value in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 195
+[25-Sep-2019 18:51:02 UTC] PHP Warning:  Creating default object from empty value in /home/mdjferramentasco/public_html/wp-content/plugins/freteclick/includes/functions.php on line 195
