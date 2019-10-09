@@ -6,22 +6,24 @@ if ($_POST["calc_shipping_postcode"]){
 
     $api_key = $_GET["k"];
     $cep_orign = $_POST["cep_orign"];
-    $street_orign = utf8_encode($_POST["street_orign"]);
+    $street_orign = $_POST["street_orign"];
     $number_orign = $_POST["number_orign"];
-    $complement_orign = utf8_encode($_POST["complement_orign"]);
-    $district_orign = utf8_encode($_POST["district_orign"]);
-    $city_orign = utf8_encode($_POST["city_orign"]);
+    $complement_orign = $_POST["complement_orign"];
+    $district_orign = $_POST["district_orign"];
+    $city_orign = $_POST["city_orign"];
     $state_orign = $_POST["state_orign"];
-    $contry_orign = utf8_encode($_POST["contry_orign"]);
+    $contry_orign = $_POST["contry_orign"];
 
     $product_id = $_POST["product_id"];
-    $product_name = utf8_encode($_POST["product_name"]);
+    $product_name = $_POST["product_name"];
     $product_price = $_POST["product_price"];
     $product_weight = $_POST["product_weight"];
     $product_height = $_POST["product_height"];
     $product_width = $_POST["product_width"];
     $product_length = $_POST["product_length"];
     $product_quantity = $_POST["product_quantity"];
+
+    $quote_type = $_POST["freteclick_quote_type"];
     
     $calc_shipping_postcode = $_POST["calc_shipping_postcode"];
     
@@ -52,7 +54,8 @@ if ($_POST["calc_shipping_postcode"]){
         "FC_COMPLEMENT_ORIGIN" => $complement_orign,
         "FC_DISTRICT_ORIGIN" => $district_orign,
         "FC_STATE_ORIGIN" => $state_orign,
-        "FC_CONTRY_ORIGIN" => $contry_orign
+        "FC_CONTRY_ORIGIN" => $contry_orign,
+        "freteclick_quote_type" => $quote_type
     ));
     
     echo json_encode($result);
