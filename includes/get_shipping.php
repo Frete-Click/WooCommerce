@@ -60,4 +60,3 @@ if ($_POST["calc_shipping_postcode"]){
     
     echo json_encode($result);
 }
-?>
