@@ -90,8 +90,15 @@ function createResult(dds){
 
         div.style.textAlign = "center";
 
+	    var deadline = '';
+	    if (dds["deadline"] > 1){
+		    deadline = dds["deadline"] + ' dias';
+	    }else{
+		    deadline = dds["deadline"] + ' dia';
+	    }
+	    
         div.innerHTML = 
-        "<label>"+dds["carrier-alias"]+"</label> " +
+        "<label>"+dds["carrier-alias"]+" ("+deadline+")"+"</label> " +
         "<strong>R$: "+Number(dds["total"]).toFixed(2)+"</strong><hr/>";
 
         fc_freteResults.appendChild(div);
