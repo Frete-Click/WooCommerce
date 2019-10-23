@@ -76,11 +76,24 @@ function fc_display_product_layout(){
         include $pluginDir . "views/templates/display_product_layout.php";
     }
 }
+function fc_get_zone_id(){
+	if (function_exists("WC")){
+		$shipping_packages =  WC()->cart->get_shipping_packages();
+		$shipping_zone = wc_get_shipping_zone( reset( $shipping_packages ) );
+		return $shipping_zone->get_id();
+	}
+	return false;
+}
 function fc_config($name, $default = array()){
 	global $pluginId;
-	if (function_exists("WC")){
-		$carriers = WC()->shipping->get_shipping_methods();
-		return $carriers[$pluginId]->settings[$name];
+	if (class_exists("WC_Shipping_Zones")){
+		$zone = WC_Shipping_Zones::get_zone_by('zone_id', fc_get_zone_id());
+		$carriers = $zone->get_shipping_methods();
+		foreach($carriers as $carrier){
+			if ($carrier->id == $pluginId){
+				return $carrier->get_option($name);
+			}
+		}
 	}
 	return $default[$name];
 }
