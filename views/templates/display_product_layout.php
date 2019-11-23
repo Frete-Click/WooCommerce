@@ -15,6 +15,7 @@ $data = $product->get_data();
         </p>
 		<?php wp_nonce_field( 'woocommerce-shipping-calculator', 'woocommerce-shipping-calculator-nonce' ); ?>
     </section>
+    <input type="hidden" name="k" value="<?= get_option("FC_API_KEY") ?>"/>
     <input type="hidden" name="cep_orign" value="<?= fc_config("FC_CEP_ORIGIN"); ?>"/>
     <input type="hidden" name="street_orign" value="<?= fc_config("FC_STREET_ORIGIN"); ?>"/>
     <input type="hidden" name="number_orign" value="<?= fc_config("FC_NUMBER_ORIGIN"); ?>"/>
@@ -47,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (this.calc_shipping_postcode.value.length){    
             jQuery.ajax({
-                url: "<?= get_site_url() ?>/wp-content/plugins/freteclick/includes/get_shipping.php?k=<?= get_option("FC_API_KEY") ?>",
+                url: "<?= get_rest_url() ?>freteclick/get_shipping",
                 type: "POST",
                 data: jQuery("#formCalcFrete").serialize(),
                 success: function (data){
