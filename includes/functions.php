@@ -126,7 +126,7 @@ function rest_get_shipping(WP_REST_Request $request){
         "freteclick_quote_type" => $quote_type
     ));
     
-    echo json_encode($result);
+    die(json_encode($result));
 }
 function fc_display_product_layout(){
     if (get_option('freteclick_display_product') == 1){
