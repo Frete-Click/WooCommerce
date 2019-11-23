@@ -246,14 +246,14 @@ function fc_get_quotes($array_data, $orign = array()){
 	global $url_shipping_quote;
 	$array_resp = array();
 	try {
-		$ch = curl_init();
 		$array_data['api-key'] = !empty($orign) ? $orign["api_key"] : get_option('FC_API_KEY');
-		curl_setopt($ch, CURLOPT_URL, $url_shipping_quote);
-		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($array_data));
-		$resp = curl_exec($ch);
-		curl_close($ch);
+		
+		$args = array(
+			'body' => $array_data
+		);
+
+		$resp = wp_remote_post($url_shipping_quote, $args);
+		
 		$array_resp = orderByPrice(filterJson($resp));
 	} catch (Exception $ex) {
 		$array_resp = array(
