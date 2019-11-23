@@ -137,9 +137,11 @@ function fc_display_product_layout(){
 }
 function fc_get_zone_id(){
 	if (function_exists("WC")){
-		$shipping_packages =  WC()->cart->get_shipping_packages();
-		$shipping_zone = wc_get_shipping_zone( reset( $shipping_packages ) );
-		return $shipping_zone->get_id();
+		if (isset(WC()->cart)){
+			$shipping_packages = WC()->cart->get_shipping_packages();
+			$shipping_zone = wc_get_shipping_zone( reset( $shipping_packages ) );
+			return $shipping_zone->get_id();
+		}
 	}
 	return false;
 }
