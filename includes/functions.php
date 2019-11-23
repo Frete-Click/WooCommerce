@@ -149,10 +149,12 @@ function fc_config($name, $default = array()){
 	global $pluginId;
 	if (class_exists("WC_Shipping_Zones")){
 		$zone = WC_Shipping_Zones::get_zone_by('zone_id', fc_get_zone_id());
-		$carriers = $zone->get_shipping_methods();
-		foreach($carriers as $carrier){
-			if ($carrier->id == $pluginId){
-				return $carrier->get_option($name);
+		if ($zone){
+			$carriers = $zone->get_shipping_methods();
+			foreach($carriers as $carrier){
+				if ($carrier->id == $pluginId){
+					return $carrier->get_option($name);
+				}
 			}
 		}
 	}
