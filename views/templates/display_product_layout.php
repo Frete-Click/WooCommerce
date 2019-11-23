@@ -53,7 +53,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 data: jQuery("#formCalcFrete").serialize(),
                 success: function (data){
                     btFcSubmit.disabled = false;
-                    data = JSON.parse(data);
+                    if (typeof data == "string"){
+                        data = JSON.parse(data);
+                    }
                     var fc_freteResults = document.getElementById("fc_freteResults");
                     fc_freteResults.innerHTML = "";
                     var res = data.response;
