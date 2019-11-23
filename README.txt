@@ -1,6 +1,6 @@
 === FreteClick ===
 
-Tags: FreteClick, Frete, Click, Carriers, Carrier, Transportadoras, Transportadora, Correios
+Tags: FreteClick, Frete Click, Frete, Click, Carriers, Carrier, Transportadoras, Transportadora, Correios, Frete, Cálculo de Frete
 
 Requires at least: 5.0
 
