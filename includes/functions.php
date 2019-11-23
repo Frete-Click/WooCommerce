@@ -69,6 +69,9 @@ function fc_options_page_layout(){
     include $pluginDir . "views/templates/options_page_layout.php";
 }
 /* Formulário na página de produto */
+function rest_get_shipping(WP_REST_Request $request){
+	var_dump($request->get_params());
+}
 function fc_display_product_layout(){
     if (get_option('freteclick_display_product') == 1){
         global $pluginDir;
@@ -182,7 +185,7 @@ function fc_calculate_shipping( $package = array(), $orign = array() ) {
 function fc_get_quotes($array_data, $orign = array()){
 	global $url_shipping_quote;
 	$array_resp = array();
-	try {							
+	try {
 		$ch = curl_init();
 		$array_data['api-key'] = !empty($orign) ? $orign["api_key"] : get_option('FC_API_KEY');
 		curl_setopt($ch, CURLOPT_URL, $url_shipping_quote);
