@@ -69,6 +69,65 @@ function fc_options_page_layout(){
     include $pluginDir . "views/templates/options_page_layout.php";
 }
 /* Formulário na página de produto */
+function rest_get_shipping(WP_REST_Request $request){
+	$data = $request->get_params();
+	
+    $api_key = $data["k"];
+    $cep_orign = $data["cep_orign"];
+    $street_orign = $data["street_orign"];
+    $number_orign = $data["number_orign"];
+    $complement_orign = $data["complement_orign"];
+    $district_orign = $data["district_orign"];
+    $city_orign = $data["city_orign"];
+    $state_orign = $data["state_orign"];
+    $contry_orign = $data["contry_orign"];
+
+    $product_id = $data["product_id"];
+    $product_name = $data["product_name"];
+    $product_price = $data["product_price"];
+    $product_weight = $data["product_weight"];
+    $product_height = $data["product_height"];
+    $product_width = $data["product_width"];
+    $product_length = $data["product_length"];
+	$product_quantity = $data["product_quantity"];
+	
+    $quote_type = $data["freteclick_quote_type"];
+	
+	$calc_shipping_postcode = $data["calc_shipping_postcode"];
+	
+    $result = fc_calculate_shipping(array(
+        "cart_subtotal" => $product_price * $product_quantity,
+        "destination" => array(
+            "postcode" => $calc_shipping_postcode
+        ),
+        "contents" => array(
+            array(
+                "product_id" => $product_id,
+                "quantity" => $product_quantity,
+                "data" => array(
+                    "name" => $product_name,
+                    "weight" => $product_weight,
+                    "height" => $product_height,
+                    "width" => $product_width,
+                    "length" => $product_length
+                )
+            )
+        )
+    ), array(
+        "api_key" => $api_key,
+        "FC_CITY_ORIGIN" => $city_orign,
+        "FC_CEP_ORIGIN" => $cep_orign,
+        "FC_STREET_ORIGIN" => $street_orign,
+        "FC_NUMBER_ORIGIN" => $number_orign,
+        "FC_COMPLEMENT_ORIGIN" => $complement_orign,
+        "FC_DISTRICT_ORIGIN" => $district_orign,
+        "FC_STATE_ORIGIN" => $state_orign,
+        "FC_CONTRY_ORIGIN" => $contry_orign,
+        "freteclick_quote_type" => $quote_type
+    ));
+    
+    die(json_encode($result));
+}
 function fc_display_product_layout(){
     if (get_option('freteclick_display_product') == 1){
         global $pluginDir;
@@ -78,9 +137,11 @@ function fc_display_product_layout(){
 }
 function fc_get_zone_id(){
 	if (function_exists("WC")){
-		$shipping_packages =  WC()->cart->get_shipping_packages();
-		$shipping_zone = wc_get_shipping_zone( reset( $shipping_packages ) );
-		return $shipping_zone->get_id();
+		if (isset(WC()->cart)){
+			$shipping_packages = WC()->cart->get_shipping_packages();
+			$shipping_zone = wc_get_shipping_zone( reset( $shipping_packages ) );
+			return $shipping_zone->get_id();
+		}
 	}
 	return false;
 }
@@ -88,10 +149,12 @@ function fc_config($name, $default = array()){
 	global $pluginId;
 	if (class_exists("WC_Shipping_Zones")){
 		$zone = WC_Shipping_Zones::get_zone_by('zone_id', fc_get_zone_id());
-		$carriers = $zone->get_shipping_methods();
-		foreach($carriers as $carrier){
-			if ($carrier->id == $pluginId){
-				return $carrier->get_option($name);
+		if ($zone){
+			$carriers = $zone->get_shipping_methods();
+			foreach($carriers as $carrier){
+				if ($carrier->id == $pluginId){
+					return $carrier->get_option($name);
+				}
 			}
 		}
 	}
@@ -182,15 +245,15 @@ function fc_calculate_shipping( $package = array(), $orign = array() ) {
 function fc_get_quotes($array_data, $orign = array()){
 	global $url_shipping_quote;
 	$array_resp = array();
-	try {							
-		$ch = curl_init();
+	try {
 		$array_data['api-key'] = !empty($orign) ? $orign["api_key"] : get_option('FC_API_KEY');
-		curl_setopt($ch, CURLOPT_URL, $url_shipping_quote);
-		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($array_data));
-		$resp = curl_exec($ch);
-		curl_close($ch);
+		
+		$args = array(
+			'body' => $array_data
+		);
+
+		$resp = wp_remote_post($url_shipping_quote, $args);
+		
 		$array_resp = orderByPrice(filterJson($resp));
 	} catch (Exception $ex) {
 		$array_resp = array(

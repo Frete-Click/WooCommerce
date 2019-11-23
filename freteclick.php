@@ -212,6 +212,14 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 	/* Hook para busca frete no carrinho */
 	add_action( 'woocommerce_product_meta_start', 'fc_display_product_layout', 10, 0 );
+
+	/* registrando rota rest para buscar cotações */
+	add_action("rest_api_init", function () {
+		register_rest_route("freteclick", "/get_shipping", array(
+			'methods' => 'POST',
+			'callback' => 'rest_get_shipping'
+		));
+	});
 }
 else {
 	add_action( 'admin_notices', 'fc_wc_missing_notice' );
