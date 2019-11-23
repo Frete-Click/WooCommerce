@@ -1,7 +1,9 @@
 === FreteClick ===
 
 Tags: FreteClick, Frete, Click, Carriers, Carrier, Transportadoras, Transportadora, Correios
+
 Requires at least: 5.0
+
 Tested up to: 5.2.4
 
 Módulo para realização de frete com a Frete Click na plataforma Woocommerce.
