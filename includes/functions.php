@@ -1,15 +1,11 @@
 <?php
 function fc_get_cep_data($cep){					
     /*Obter dados viacep*/
-    $_cep = curl_init();
-    curl_setopt($_cep, CURLOPT_URL, 'https://viacep.com.br/ws/'.$cep.'/json/');
-    curl_setopt($_cep, CURLOPT_RETURNTRANSFER, true);
-    $data_cep = json_decode(curl_exec($_cep));
-    curl_close($_cep);
+	$data_cep = wp_remote_get('https://viacep.com.br/ws/'.$cep.'/json/', array());
     return $data_cep;
 };
 function fc_add_scripts(){
-	$plugin_uri = plugin_dir_url( __FILE__ );
+	$plugin_uri = str_replace('/includes', '', plugin_dir_url( __FILE__ ));
 	
 	//Adicionando estilos
 	wp_enqueue_script("freteclick", $plugin_uri."views/js/Freteclick.js", array( 'jquery', 'jquery-ui-autocomplete' ), "1.0", true);
