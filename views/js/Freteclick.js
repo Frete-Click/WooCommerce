@@ -20,6 +20,28 @@ function addRowError(message) {
     return '<tr><td> ' + message + ' </td></tr>';
 }
 
+function get_settings_click(onClick) {
+    var as = document.getElementsByTagName("a");
+    var link = null, all = null;
+
+    for(var i = 0; i < as.length; i++){
+        if (as[i].innerText == "Frete Click"){
+            link = as[i];
+        }
+    }
+
+    if (link){
+        var href = link.href;
+
+        href = href.split('admin.php')[1];
+        href = 'admin.php' + href;
+
+        jQuery("[href='"+href+"']").click(function () {
+            setTimeout(onClick, 500);
+        });
+    }
+}
+
 jQuery(function ($) {
     $(document).ready(function () {
         $.fn.extend({
@@ -152,65 +174,67 @@ jQuery(function ($) {
                 return false;
             }
         });
-		
-		$(".fc-input-cep").keypress(function (event) {
-			maskCep(this, "#####-###");
-		});
-		
-		//ViaCep
-		var tb_cep, tb_rua, tb_cidade, tb_bairro, se_estado, span_estado, tb_pais;
 
-		tb_cep = document.getElementsByClassName("cep-origin");
-		tb_rua = document.getElementsByClassName("street-origin");
-		tb_cidade = document.getElementsByClassName("city-origin");
-		tb_bairro = document.getElementsByClassName("district-origin");
-		se_estado = document.getElementsByClassName("state-origin");
-		tb_pais = document.getElementsByClassName("country-origin");
-		if (tb_cep.length > 0){
-            var tb_cep_keyup = function(n){
-                var reseta = function (i) {
-                    tb_cep[i].disabled = false;
-                    tb_rua[i].disabled = false;
-                    tb_cidade[i].disabled = false;
-                    tb_bairro[i].disabled = false;
-                    se_estado[i].disabled = false;			 
-                };
-                var num = tb_cep[n].value.length;
-                if (num == 9){
-                    tb_cep[n].disabled = true;
-                    tb_rua[n].disabled = true;
-                    tb_cidade[n].disabled = true;
-                    tb_bairro[n].disabled = true;
-                    se_estado[n].disabled = true;
-                
-                    $.ajax({
-                        url: "https://viacep.com.br/ws/"+tb_cep[n].value+"/json/",
-                        data: null,
-                        success: function (data) {
-                            if (!data.erro){
-                                tb_rua[n].value = data.logradouro;
-                                tb_cidade[n].value = data.localidade;
-                                tb_bairro[n].value = data.bairro;
-                                se_estado[n].value = data.uf;
-                            }
-                            reseta(n);
-                        },
-                        dataType: "json"
-                    });
+        get_settings_click(function () {
+            $(".fc-input-cep").keypress(function (event) {
+                maskCep(this, "#####-###");
+            });
+            
+            //ViaCep
+            var tb_cep, tb_rua, tb_cidade, tb_bairro, se_estado, span_estado, tb_pais;
+    
+            tb_cep = document.getElementsByClassName("cep-origin");
+            tb_rua = document.getElementsByClassName("street-origin");
+            tb_cidade = document.getElementsByClassName("city-origin");
+            tb_bairro = document.getElementsByClassName("district-origin");
+            se_estado = document.getElementsByClassName("state-origin");
+            tb_pais = document.getElementsByClassName("country-origin");
+            if (tb_cep.length > 0){
+                var tb_cep_keyup = function(n){
+                    var reseta = function (i) {
+                        tb_cep[i].disabled = false;
+                        tb_rua[i].disabled = false;
+                        tb_cidade[i].disabled = false;
+                        tb_bairro[i].disabled = false;
+                        se_estado[i].disabled = false;			 
+                    };
+                    var num = tb_cep[n].value.length;
+                    if (num == 9){
+                        tb_cep[n].disabled = true;
+                        tb_rua[n].disabled = true;
+                        tb_cidade[n].disabled = true;
+                        tb_bairro[n].disabled = true;
+                        se_estado[n].disabled = true;
+                    
+                        $.ajax({
+                            url: "https://viacep.com.br/ws/"+tb_cep[n].value+"/json/",
+                            data: null,
+                            success: function (data) {
+                                if (!data.erro){
+                                    tb_rua[n].value = data.logradouro;
+                                    tb_cidade[n].value = data.localidade;
+                                    tb_bairro[n].value = data.bairro;
+                                    se_estado[n].value = data.uf;
+                                }
+                                reseta(n);
+                            },
+                            dataType: "json"
+                        });
+                    }
+                    else{
+                        reseta(n);
+                    }
                 }
-                else{
-                    reseta(n);
+                for (var i = 0; i < tb_cep.length; i++){
+                    (function (num) {
+                        tb_cep[num].onkeyup = function () { tb_cep_keyup(num); }
+                    })(i);
+                    if (tb_pais[i]){
+                        tb_pais[i].value = "Brasil";
+                    }
                 }
             }
-            for (var i = 0; i < tb_cep.length; i++){
-                (function (num) {
-                    tb_cep[num].onkeyup = function () { tb_cep_keyup(num); }
-                })(i);
-                if (tb_pais[i]){
-                    tb_pais[i].value = "Brasil";
-                }
-            }
-		}
+        });
 
     });
 }
