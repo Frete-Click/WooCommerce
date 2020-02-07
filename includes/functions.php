@@ -2,7 +2,7 @@
 function fc_get_cep_data($cep){					
     /*Obter dados viacep*/
 	$data_cep = wp_remote_get('https://viacep.com.br/ws/'.$cep.'/json/', array());
-    return $data_cep;
+    return json_decode(wp_remote_retrieve_body($data_cep));
 };
 function fc_add_scripts(){
 	$plugin_uri = str_replace('/includes', '', plugin_dir_url( __FILE__ ));
