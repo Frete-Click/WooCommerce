@@ -131,28 +131,26 @@ function fc_display_product_layout(){
         include $pluginDir . "views/templates/display_product_layout.php";
     }
 }
-function fc_get_zone_id(){
-	if (function_exists("WC")){
-		if (isset(WC()->cart)){
-			$shipping_packages = WC()->cart->get_shipping_packages();
-			$shipping_zone = wc_get_shipping_zone( reset( $shipping_packages ) );
-			return $shipping_zone->get_id();
+function fc_get_mathod(){
+	global $pluginId;
+	if (class_exists("WC_Shipping_Zones")){
+		$zones = WC_Shipping_Zones::get_zones();
+		foreach ($zones as $zone){
+			$methods = $zone["shipping_methods"];
+			foreach ($methods as $method) {
+				if ($method->id === $pluginId){
+					return $method;
+				}
+			}
 		}
 	}
 	return false;
 }
 function fc_config($name, $default = array()){
 	global $pluginId;
-	if (class_exists("WC_Shipping_Zones")){
-		$zone = WC_Shipping_Zones::get_zone_by('zone_id', fc_get_zone_id());
-		if ($zone){
-			$carriers = $zone->get_shipping_methods();
-			foreach($carriers as $carrier){
-				if ($carrier->id == $pluginId){
-					return $carrier->get_option($name);
-				}
-			}
-		}
+	$method = fc_get_mathod();
+	if ($method){
+		return $method->get_option($name);
 	}
 	return $default[$name];
 }
@@ -235,6 +233,7 @@ function fc_calculate_shipping( $package = array(), $orign = array() ) {
 				$_SESSION[$quote_key] = json_encode($array_resp);
 			}
 		}
+
 		return $array_resp;
 	}
 }
@@ -245,6 +244,11 @@ function fc_get_quotes($array_data, $orign = array()){
 		$array_data['api-key'] = !empty($orign) ? $orign["api_key"] : get_option('FC_API_KEY');
 		
 		$args = array(
+			'method' => 'POST',
+			'headers' => array(
+				'Content-type: application/x-www-form-urlencoded'
+			),
+			'sslverify' => false,
 			'body' => $array_data
 		);
 
