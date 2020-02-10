@@ -254,7 +254,7 @@ function fc_get_quotes($array_data, $orign = array()){
 
 		$resp = wp_remote_post($url_shipping_quote, $args);
 		
-		$array_resp = orderByPrice(filterJson($resp));
+		$array_resp = orderByPrice(filterJson(wp_remote_retrieve_body($resp)));
 	} catch (Exception $ex) {
 		$array_resp = array(
 			'response' => array('success' => false, 'error' => $ex->getMessage())
