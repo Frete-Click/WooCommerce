@@ -245,6 +245,7 @@ function fc_get_quotes($array_data, $orign = array()){
 		
 		$args = array(
 			'method' => 'POST',
+			'timeout' => 600,
 			'headers' => array(
 				'Content-type: application/x-www-form-urlencoded'
 			),
