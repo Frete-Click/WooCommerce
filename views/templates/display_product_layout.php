@@ -85,10 +85,10 @@ $data = $product->get_data();
                     aux += 1;
                 });
 
-                jQuery("#product_weight").val(variations[selected].weight)
-                jQuery("#product_height").val(variations[selected].dimensions.height)
-                jQuery("#product_width").val(variations[selected].dimensions.width)
-                jQuery("#product_length").val(variations[selected].dimensions.length)
+                jQuery("#product_weight").val(variations[selected].product_weight)
+                jQuery("#product_height").val(variations[selected].product_height)
+                jQuery("#product_width").val(variations[selected].product_width)
+                jQuery("#product_length").val(variations[selected].product_length)
             }
 
             jQuery("#fc_prod_quantity").val(jQuery("input[name='quantity']").val());
