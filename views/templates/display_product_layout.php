@@ -4,6 +4,15 @@ global $product, $pluginName, $woocommerce, $post;
  * get product variables
  */
 $available_variations = $product->is_type('variable') ? $available_variations = $product->get_available_variations() : null;
+$variations = [];
+foreach ($available_variations as $variation) {
+    $variations[] = [
+        'product_weight' => $variation['weight'],
+        'product_height' => $variation['dimensions']['height'],
+        'product_width' => $variation['dimensions']['width'],
+        'product_length' => $variation['dimensions']['length']
+    ];
+}
 
 $data = $product->get_data();
 ?>
@@ -53,7 +62,7 @@ $data = $product->get_data();
 
             let variations = [];
             try {
-                variations = JSON.parse('<?php echo json_encode($available_variations); ?>');
+                variations = JSON.parse('<?php echo json_encode($variations); ?>');
             } catch (e) {
                 console.error(e);
             }
