@@ -6,12 +6,13 @@ global $product, $pluginName, $woocommerce, $post;
 $available_variations = $product->is_type('variable') ? $available_variations = $product->get_available_variations() : null;
 $variations = [];
 foreach ($available_variations as $variation) {
-    $variations[] = [
+    array_push($variations, [
+        'attribute_tamanho' => $variation['attributes']['attribute_tamanho'],
         'product_weight' => $variation['weight'],
         'product_height' => $variation['dimensions']['height'],
         'product_width' => $variation['dimensions']['width'],
         'product_length' => $variation['dimensions']['length']
-    ];
+    ]);
 }
 
 $data = $product->get_data();
@@ -70,25 +71,19 @@ $data = $product->get_data();
             btFcSubmit.disabled = true;
 
             if (variations && variations.length > 0) {
-                if (jQuery("#tamanho").val() === '') {
+                const variation = variations.find(variation => {
+                    return variation.attribute_tamanho === jQuery('#tamanho').val();
+                });
+                if (!variation) {
                     alert('Selecione um tamanho antes de calcular o frete');
                     btFcSubmit.disabled = false;
                     return;
                 }
 
-                let aux = -1;
-                let selected = 0;
-                jQuery("#tamanho option").each(function () {
-                    if (jQuery(this)[0].selected) {
-                        selected = aux;
-                    }
-                    aux += 1;
-                });
-
-                jQuery("#product_weight").val(variations[selected].product_weight)
-                jQuery("#product_height").val(variations[selected].product_height)
-                jQuery("#product_width").val(variations[selected].product_width)
-                jQuery("#product_length").val(variations[selected].product_length)
+                jQuery("#product_weight").val(variation.product_weight)
+                jQuery("#product_height").val(variation.product_height)
+                jQuery("#product_width").val(variation.product_width)
+                jQuery("#product_length").val(variation.product_length)
             }
 
             jQuery("#fc_prod_quantity").val(jQuery("input[name='quantity']").val());
