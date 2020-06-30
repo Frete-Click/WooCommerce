@@ -1,48 +1,48 @@
 <?php
-function fc_get_cep_data($cep){					
+function fc_get_cep_data($cep){
     /*Obter dados viacep*/
-	$data_cep = wp_remote_get('https://viacep.com.br/ws/'.$cep.'/json/', array());
+    $data_cep = wp_remote_get('https://viacep.com.br/ws/'.$cep.'/json/', array());
     return json_decode(wp_remote_retrieve_body($data_cep));
 };
 function fc_add_scripts(){
-	$plugin_uri = str_replace('/includes', '', plugin_dir_url( __FILE__ ));
-	
-	//Adicionando estilos
-	wp_enqueue_script("freteclick", $plugin_uri."views/js/Freteclick.js", array( 'jquery', 'jquery-ui-autocomplete' ), "1.0", true);
+    $plugin_uri = str_replace('/includes', '', plugin_dir_url( __FILE__ ));
+
+    //Adicionando estilos
+    wp_enqueue_script("freteclick", $plugin_uri."views/js/Freteclick.js", array( 'jquery', 'jquery-ui-autocomplete' ), "1.0", true);
 
 };
 function fc_pedido_alterado($order_id, $old_status, $new_status){
-	$order = new WC_Order( $order_id );
-	$data = $order->get_data();
-	$shipping = $order->get_items('shipping');
-	$shipping_data = array();
-	$array_data = array();
+    $order = new WC_Order( $order_id );
+    $data = $order->get_data();
+    $shipping = $order->get_items('shipping');
+    $shipping_data = array();
+    $array_data = array();
 
-	foreach($shipping as $key => $shipping_item){
-		$s_data = $shipping_item->get_data();
-		$shipping_data[$key] = $s_data;
-	}
+    foreach($shipping as $key => $shipping_item){
+        $s_data = $shipping_item->get_data();
+        $shipping_data[$key] = $s_data;
+    }
 
-	$status_espera = array(
-		'pending',
-		'processing',
-		'on-hold'
-	);
+    $status_espera = array(
+        'pending',
+        'processing',
+        'on-hold'
+    );
 
-	if (in_array($data['status'], $status_espera)){
+    if (in_array($data['status'], $status_espera)){
 
-	}
+    }
 
-	error_log($old_status);
-	error_log($new_status);
-	error_log(json_encode($shipping_data));
-	error_log(json_encode($data));
+    error_log($old_status);
+    error_log($new_status);
+    error_log(json_encode($shipping_data));
+    error_log(json_encode($data));
 };
 /* Página de Configurações */
 function fc_options_register_fields(){
-	add_option( "freteclick_quote_type", "0" );
+    add_option( "freteclick_quote_type", "0" );
     add_option( 'freteclick_display_product', '0');
-	add_option( 'FC_API_KEY', '');
+    add_option( 'FC_API_KEY', '');
     register_setting( 'freteclick_options_page', 'FC_API_KEY', array(
         "type" => "string",
         "description" => ""
@@ -66,255 +66,246 @@ function fc_options_page_layout(){
 }
 /* Formulário na página de produto */
 function rest_get_shipping(WP_REST_Request $request){
-	$data = $request->get_params();
-	
-    $api_key = $data["k"];
-    $cep_orign = $data["cep_orign"];
-    $street_orign = $data["street_orign"];
-    $number_orign = $data["number_orign"];
-    $complement_orign = $data["complement_orign"];
-    $district_orign = $data["district_orign"];
-    $city_orign = $data["city_orign"];
-    $state_orign = $data["state_orign"];
-    $contry_orign = $data["contry_orign"];
+    $data = $request->get_params();
 
-    $product_id = $data["product_id"];
-    $product_name = $data["product_name"];
-    $product_price = $data["product_price"];
-    $product_weight = $data["product_weight"];
-    $product_height = $data["product_height"];
-    $product_width = $data["product_width"];
-    $product_length = $data["product_length"];
-	$product_quantity = $data["product_quantity"];
-	
-    $quote_type = $data["freteclick_quote_type"];
-	
-	$calc_shipping_postcode = $data["calc_shipping_postcode"];
-	
     $result = fc_calculate_shipping(array(
-        "cart_subtotal" => $product_price * $product_quantity,
+        "cart_subtotal" => $data["product_price"] * $data["product_quantity"],
         "destination" => array(
-            "postcode" => $calc_shipping_postcode
+            "postcode" => $data["calc_shipping_postcode"]
         ),
         "contents" => array(
             array(
-                "product_id" => $product_id,
-                "quantity" => $product_quantity,
+                "product_id" => $data["product_id"],
+                "quantity" => $data["product_quantity"],
                 "data" => array(
-                    "name" => $product_name,
-                    "weight" => $product_weight,
-                    "height" => $product_height,
-                    "width" => $product_width,
-                    "length" => $product_length
+                    "name" => $data["product_name"],
+                    "weight" => $data["product_weight"],
+                    "height" => $data["product_height"],
+                    "width" => $data["product_width"],
+                    "length" => $data["product_length"]
                 )
             )
         )
     ), array(
-        "api_key" => $api_key,
-        "FC_CITY_ORIGIN" => $city_orign,
-        "FC_CEP_ORIGIN" => $cep_orign,
-        "FC_STREET_ORIGIN" => $street_orign,
-        "FC_NUMBER_ORIGIN" => $number_orign,
-        "FC_COMPLEMENT_ORIGIN" => $complement_orign,
-        "FC_DISTRICT_ORIGIN" => $district_orign,
-        "FC_STATE_ORIGIN" => $state_orign,
-        "FC_CONTRY_ORIGIN" => $contry_orign,
-        "freteclick_quote_type" => $quote_type
+        "api_key" => $data["k"],
+        "FC_CITY_ORIGIN" => $data["city_orign"],
+        "FC_CEP_ORIGIN" => $data["cep_orign"],
+        "FC_STREET_ORIGIN" => $data["street_orign"],
+        "FC_NUMBER_ORIGIN" => $data["number_orign"],
+        "FC_COMPLEMENT_ORIGIN" => $data["complement_orign"],
+        "FC_DISTRICT_ORIGIN" => $data["district_orign"],
+        "FC_STATE_ORIGIN" => $data["state_orign"],
+        "FC_CONTRY_ORIGIN" => $data["contry_orign"],
+        "freteclick_quote_type" => $data["freteclick_quote_type"]
     ));
-    
+
     die(json_encode($result));
 }
 function fc_display_product_layout(){
     if (get_option('freteclick_display_product') == 1){
         global $pluginDir;
-    
+
         include $pluginDir . "views/templates/display_product_layout.php";
     }
 }
 function fc_get_mathod(){
-	global $pluginId;
-	if (class_exists("WC_Shipping_Zones")){
-		$zones = WC_Shipping_Zones::get_zones();
-		foreach ($zones as $zone){
-			$methods = $zone["shipping_methods"];
-			foreach ($methods as $method) {
-				if ($method->id === $pluginId){
-					return $method;
-				}
-			}
-		}
-	}
-	return false;
+    global $pluginId;
+    if (class_exists("WC_Shipping_Zones")){
+        $zones = WC_Shipping_Zones::get_zones();
+        foreach ($zones as $zone){
+            $methods = $zone["shipping_methods"];
+            foreach ($methods as $method) {
+                if ($method->id === $pluginId){
+                    return $method;
+                }
+            }
+        }
+    }
+    return false;
 }
 function fc_config($name, $default = array()){
-	global $pluginId;
-	$method = fc_get_mathod();
-	if ($method){
-		return $method->get_option($name);
-	}
-	return $default[$name];
+    global $pluginId;
+    $method = fc_get_mathod();
+    if ($method){
+        return $method->get_option($name);
+    }
+    return $default[$name];
 }
 /* Fazer Cotação */
 function fc_calculate_shipping( $package = array(), $orign = array() ) {
-	session_start();
-	$dest = $package['destination'];
-	if (!empty($dest['postcode'])){
-		$array_resp = array();
-		/*Dados de origem*/
-		$array_data = array(
-			'quote-type' => isset($orign["freteclick_quote_type"]) ? $orign["freteclick_quote_type"] : get_option("freteclick_quote_type"),
-			'city-origin' => fc_config('FC_CITY_ORIGIN', $orign),
-			'cep-origin' => fc_config('FC_CEP_ORIGIN', $orign),
-			'street-origin' => fc_config('FC_STREET_ORIGIN', $orign),
-			'address-number-origin' => fc_config('FC_NUMBER_ORIGIN', $orign),
-			'complement-origin' => strlen(fc_config('FC_COMPLEMENT_ORIGIN', $orign)) > 0 ? fc_config('FC_COMPLEMENT_ORIGIN', $orign) : "SEM COMPLEMENTO",
-			'district-origin' => fc_config('FC_DISTRICT_ORIGIN', $orign),
-			'state-origin' => fc_config('FC_STATE_ORIGIN', $orign),
-			'country-origin' => fc_config('FC_CONTRY_ORIGIN', $orign),
-			"order" => "total"
-		);
-		/*Dados do produto*/
-		if (class_exists("WC_Product_Factory")){
-			$_pf = new WC_Product_Factory();
-		}
-		$prod_nomes = array();
-		$prodKey = 0;
-		foreach($package['contents'] as $key => $item){
-			if (class_exists("WC_Product_Factory")){
-				$product = $_pf->get_product($item['product_id']);
-				$p_data = $product->get_data();
-			}
-			else{
-				$product = $item;
-				$p_data = $item["data"];
-			}
-			$array_data['product-package'][$prodKey]['qtd'] = $item['quantity'];
-			$array_data['product-package'][$prodKey]['weight'] = number_format($p_data['weight'], 10, ',', '');
-			$array_data['product-package'][$prodKey]['height'] = number_format($p_data['height'] / 100, 10, ',', '');
-			$array_data['product-package'][$prodKey]['width'] = number_format($p_data['width'] / 100, 10, ',', '');
-			$array_data['product-package'][$prodKey]['depth'] = number_format($p_data['length'] / 100, 10, ',', '');
-			array_push($prod_nomes, $p_data['name']);
-			$prodKey++;
-		}
-		$array_data['product-type'] = implode(',', array_values($prod_nomes));
-		$array_data['product-total-price'] = number_format($package['cart_subtotal'], 2, ',', '.');
-		/*Dados do destino*/
-		
-		$data_cep = fc_get_cep_data($dest['postcode']);
+    session_start();
+    $dest = $package['destination'];
 
-		if (!isset($data_cep->erro)){
-			$array_data['city-destination'] = $data_cep->localidade;
-			$array_data['street-destination'] = preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $data_cep->logradouro)?:'Rua não encontrada';
-			$array_data['district-destination'] = $data_cep->bairro?:'Bairro não encontrado';
-			$array_data['state-destination'] = $data_cep->uf;
-			$array_data['country-destination'] = 'Brasil';
-			$array_data['complement-destination'] = strlen($data_cep->complemento) ? $data_cep->complemento : "SEM COMPLEMENTO";
-		}
-		else{
-			$array_data['city-destination'] = $dest['city'];
-			$array_data['street-destination'] = preg_replace('/[^A-Z a-z]/', '', preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $dest['address']));
-			$array_data['district-destination'] = $dest['address_2'];
-			$array_data['state-destination'] = $dest['state'];
-			$array_data['country-destination'] = $dest['country'];
-			$array_data['complement-destination'] = "SEM COMPLEMENTO";
-		}					
-		$array_data['cep-destination'] = $dest['postcode'];
-		$dest_number = preg_replace('/[^0-9]/', '', $dest['address']);
-		$array_data['address-number-destination'] = strlen($dest_number) > 0 ? $dest_number : 1;
+    if (!empty($dest['postcode'])){
+        $array_resp = array();
+        /*Dados de origem*/
+        $array_data = array(
+            'quote-type' => isset($orign["freteclick_quote_type"]) ? $orign["freteclick_quote_type"] : get_option("freteclick_quote_type"),
+            'city-origin' => fc_config('FC_CITY_ORIGIN', $orign),
+            'cep-origin' => fc_config('FC_CEP_ORIGIN', $orign),
+            'street-origin' => fc_config('FC_STREET_ORIGIN', $orign),
+            'address-number-origin' => fc_config('FC_NUMBER_ORIGIN', $orign),
+            'complement-origin' => strlen(fc_config('FC_COMPLEMENT_ORIGIN', $orign)) > 0 ? fc_config('FC_COMPLEMENT_ORIGIN', $orign) : "SEM COMPLEMENTO",
+            'district-origin' => fc_config('FC_DISTRICT_ORIGIN', $orign),
+            'state-origin' => fc_config('FC_STATE_ORIGIN', $orign),
+            'country-origin' => fc_config('FC_CONTRY_ORIGIN', $orign),
+            "order" => "total"
+        );
 
-		/*Fazer cotação*/
-		$quote_key = md5(json_encode($array_data));
-		if (isset($_SESSION[$quote_key])){
-			$array_resp = json_decode($_SESSION[$quote_key]);
-		}
-		else{
-			$array_resp = fc_get_quotes($array_data, $orign);
-			if ($array_resp->response->data != false){
-				$_SESSION[$quote_key] = json_encode($array_resp);
-			}
-		}
+        /*Dados do produto*/
+        if (class_exists("WC_Product_Factory")){
+            $_pf = new WC_Product_Factory();
+        }
 
-		return $array_resp;
-	}
+        $prod_nomes = array();
+        $prodKey = 0;
+        foreach($package['contents'] as $key => $item){
+            if (class_exists("WC_Product_Factory")){
+                $product = $_pf->get_product($item['product_id']);
+                $p_data = $product->get_data();
+            } else{
+                $product = $item;
+                $p_data = $item["data"];
+            }
+
+            if ($p_data['weight']) {
+
+                $array_data['product-package'][$prodKey]['qtd'] = $item['quantity'];
+                $array_data['product-package'][$prodKey]['weight'] = number_format($p_data['weight'], 10, ',', '');
+                $array_data['product-package'][$prodKey]['height'] = number_format($p_data['height'] / 100, 10, ',', '');
+                $array_data['product-package'][$prodKey]['width'] = number_format($p_data['width'] / 100, 10, ',', '');
+                $array_data['product-package'][$prodKey]['depth'] = number_format($p_data['length'] / 100, 10, ',', '');
+                array_push($prod_nomes, $p_data['name']);
+
+            } else {
+                $array_data['product-package'][$prodKey]['qtd'] = $item['quantity'];
+                $array_data['product-package'][$prodKey]['weight'] = number_format($item['data']['weight'], 10, ',', '');
+                $array_data['product-package'][$prodKey]['height'] = number_format($item['data']['height'] / 100, 10, ',', '');
+                $array_data['product-package'][$prodKey]['width'] = number_format($item['data']['width'] / 100, 10, ',', '');
+                $array_data['product-package'][$prodKey]['depth'] = number_format($item['data']['length'] / 100, 10, ',', '');
+                array_push($prod_nomes, $item['data']['name']);
+            }
+            $prodKey++;
+        }
+        $array_data['product-type'] = implode(',', array_values($prod_nomes));
+        $array_data['product-total-price'] = number_format($package['cart_subtotal'], 2, ',', '.');
+        /*Dados do destino*/
+
+        $data_cep = fc_get_cep_data($dest['postcode']);
+
+        if (!isset($data_cep->erro)){
+            $array_data['city-destination'] = $data_cep->localidade;
+            $array_data['street-destination'] = preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $data_cep->logradouro)?:'Rua não encontrada';
+            $array_data['district-destination'] = $data_cep->bairro?:'Bairro não encontrado';
+            $array_data['state-destination'] = $data_cep->uf;
+            $array_data['country-destination'] = 'Brasil';
+            $array_data['complement-destination'] = strlen($data_cep->complemento) ? $data_cep->complemento : "SEM COMPLEMENTO";
+        }
+        else{
+            $array_data['city-destination'] = $dest['city'];
+            $array_data['street-destination'] = preg_replace('/[^A-Z a-z]/', '', preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $dest['address']));
+            $array_data['district-destination'] = $dest['address_2'];
+            $array_data['state-destination'] = $dest['state'];
+            $array_data['country-destination'] = $dest['country'];
+            $array_data['complement-destination'] = "SEM COMPLEMENTO";
+        }
+        $array_data['cep-destination'] = $dest['postcode'];
+        $dest_number = preg_replace('/[^0-9]/', '', $dest['address']);
+        $array_data['address-number-destination'] = strlen($dest_number) > 0 ? $dest_number : 1;
+
+        /*Fazer cotação*/
+        $quote_key = md5(json_encode($array_data));
+        if (isset($_SESSION[$quote_key])){
+            $array_resp = json_decode($_SESSION[$quote_key]);
+        }
+        else{
+            $array_resp = fc_get_quotes($array_data, $orign);
+            if ($array_resp->response->data != false){
+                $_SESSION[$quote_key] = json_encode($array_resp);
+            }
+        }
+
+        return $array_resp;
+    }
 }
 function fc_get_quotes($array_data, $orign = array()){
-	global $url_shipping_quote;
-	$array_resp = array();
-	try {
-		$array_data['api-key'] = !empty($orign) ? $orign["api_key"] : get_option('FC_API_KEY');
-		
-		$args = array(
-			'method' => 'POST',
-			'timeout' => 600,
-			'headers' => array(
-				'Content-type: application/x-www-form-urlencoded'
-			),
-			'sslverify' => false,
-			'body' => $array_data
-		);
+    global $url_shipping_quote;
+    $array_resp = array();
+    try {
+        $array_data['api-key'] = !empty($orign) ? $orign["api_key"] : get_option('FC_API_KEY');
 
-		$resp = wp_remote_post($url_shipping_quote, $args);
-		
-		$array_resp = orderByPrice(filterJson(wp_remote_retrieve_body($resp)));
-	} catch (Exception $ex) {
-		$array_resp = array(
-			'response' => array('success' => false, 'error' => $ex->getMessage())
-		);
-	}										
-	
-	return $array_resp;
+        $args = array(
+            'method' => 'POST',
+            'timeout' => 600,
+            'headers' => array(
+                'Content-type: application/x-www-form-urlencoded'
+            ),
+            'sslverify' => false,
+            'body' => $array_data
+        );
+
+        $resp = wp_remote_post($url_shipping_quote, $args);
+
+        $array_resp = orderByPrice(filterJson(wp_remote_retrieve_body($resp)));
+    } catch (Exception $ex) {
+        $array_resp = array(
+            'response' => array('success' => false, 'error' => $ex->getMessage())
+        );
+    }
+
+    return $array_resp;
 }
 function orderByPrice($arrJson){
-	$quotes = (array) $arrJson->response->data->quote;
-	usort($quotes, function ($a, $b) {
-		return $a->total > $b->total;
-	});
-	$arrJson->response->data->quote = $quotes;
-	return $arrJson;
+    $quotes = (array) $arrJson->response->data->quote;
+    usort($quotes, function ($a, $b) {
+        return $a->total > $b->total;
+    });
+    $arrJson->response->data->quote = $quotes;
+    return $arrJson;
 }
 function filterJson($json){
-	$arrJson = json_decode($json);
-	if (!$arrJson) {
-		addError('Erro ao recuperar dados');
-	}
-	if ($arrJson->response->success === false) {
-		if ($arrJson->response->error) {
-			foreach ($arrJson->response->error as $error) {
-				addError($error->message);
-			}
-		}
-		addError('Erro ao recuperar dados');
-	}
-	return getErrors() ? : $arrJson;
+    $arrJson = json_decode($json);
+    if (!$arrJson) {
+        addError('Erro ao recuperar dados');
+    }
+    if ($arrJson->response->success === false) {
+        if ($arrJson->response->error) {
+            foreach ($arrJson->response->error as $error) {
+                addError($error->message);
+            }
+        }
+        addError('Erro ao recuperar dados');
+    }
+    return getErrors() ? : $arrJson;
 }
 function addError($error){
-	global $fc_errors;
-	array_push($fc_errors, array(
-		'code' => md5($error),
-		'message' => $error
-	));
-	return getErrors();
+    global $fc_errors;
+    array_push($fc_errors, array(
+        'code' => md5($error),
+        'message' => $error
+    ));
+    return getErrors();
 }
 function getErrors(){
-	return $fc_errors ? array(
-		'response' => array(
-			'data' => 'false',
-			'count' => 0,
-			'success' => false,
-			'error' => $fc_errors
-		)
-	) : false;
+    return $fc_errors ? array(
+        'response' => array(
+            'data' => 'false',
+            'count' => 0,
+            'success' => false,
+            'error' => $fc_errors
+        )
+    ) : false;
 }
 /* Frete Click Mensagens */
 function fc_wc_missing_notice(){
-	printf("<div class='notice notice-warning'><p>O WooCommerce não está intalado, para usar o Frete Click é necessário <a href='https://br.wordpress.org/plugins/woocommerce/' target='blanck'>instalar o WooCommerce</a>.</p></div>");
+    printf("<div class='notice notice-warning'><p>O WooCommerce não está intalado, para usar o Frete Click é necessário <a href='https://br.wordpress.org/plugins/woocommerce/' target='blanck'>instalar o WooCommerce</a>.</p></div>");
 };
 function fc_missing_apikey(){
-	printf("<div class='notice notice-warning is-dismissible'><p>Por favor, para que o Frete Click funcione, informe sua Chave de API</p></div>");
+    printf("<div class='notice notice-warning is-dismissible'><p>Por favor, para que o Frete Click funcione, informe sua Chave de API</p></div>");
 };
 function fc_is_disabled(){
-	printf("<div class='notice notice-warning is-dismissible'><p>O Frete Click está desabilitado. Ative o Frete Click para voltar a usa-lo.</p></div>");
+    printf("<div class='notice notice-warning is-dismissible'><p>O Frete Click está desabilitado. Ative o Frete Click para voltar a usa-lo.</p></div>");
 };
 function fc_missing_address(){
-	printf("<div class='notice notice-warning is-dismissible'><p>Por favor, para que o Frete Click funcione, informe o endereço completo para a coleta dos produtos.</p></div>");
+    printf("<div class='notice notice-warning is-dismissible'><p>Por favor, para que o Frete Click funcione, informe o endereço completo para a coleta dos produtos.</p></div>");
 };
