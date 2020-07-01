@@ -74,10 +74,8 @@ $data = $product->get_data();
 
             btFcSubmit.disabled = true;
 
-            console.log('variations', variations);
             if (variations && variations.length > 0) {
                 const variation = variations.find(variation => {
-                    console.log('variation', variation);
                     return variation.attribute.description === jQuery(`#${variation.attribute.name}`).val();
                 });
                 if (!variation) {

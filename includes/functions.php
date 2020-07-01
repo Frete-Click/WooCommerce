@@ -194,9 +194,8 @@ function fc_calculate_shipping($package = array(), $orign = array())
         if (count($items) > 0) {
             $array_data['product-total-price'] = 0;
             foreach ($items as $item) {
-
                 $array_data['product-package'][$prodKey]['qtd'] = $item['quantity'];
-                $array_data['product-package'][$prodKey]['weight'] = number_format($item['data']->get_weight(), 10, ',', '');
+                $array_data['product-package'][$prodKey]['weight'] = number_format($item['data']->get_weight() / 1000, 10, ',', '');
                 $array_data['product-package'][$prodKey]['height'] = number_format($item['data']->get_height() / 100, 10, ',', '');
                 $array_data['product-package'][$prodKey]['width'] = number_format($item['data']->get_width() / 100, 10, ',', '');
                 $array_data['product-package'][$prodKey]['depth'] = number_format($item['data']->get_length() / 100, 10, ',', '');
@@ -220,7 +219,7 @@ function fc_calculate_shipping($package = array(), $orign = array())
                 }
 
                 $array_data['product-package'][$prodKey]['qtd'] = $item['quantity'];
-                $array_data['product-package'][$prodKey]['weight'] = number_format($p_data['weight'], 10, ',', '');
+                $array_data['product-package'][$prodKey]['weight'] = number_format($p_data['weight'] / 1000, 10, ',', '');
                 $array_data['product-package'][$prodKey]['height'] = number_format($p_data['height'] / 100, 10, ',', '');
                 $array_data['product-package'][$prodKey]['width'] = number_format($p_data['width'] / 100, 10, ',', '');
                 $array_data['product-package'][$prodKey]['depth'] = number_format($p_data['length'] / 100, 10, ',', '');
