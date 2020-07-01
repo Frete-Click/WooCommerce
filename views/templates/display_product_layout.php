@@ -3,8 +3,9 @@ global $product, $pluginName, $woocommerce, $post;
 /**
  * get product variables
  */
-$available_variations = $product->is_type('variable') ? $available_variations = $product->get_available_variations() : null;
+$available_variations = $product->is_type('variable') ? $available_variations = $product->get_available_variations() : [];
 $variations = [];
+
 foreach ($available_variations as $variation) {
     array_push($variations, [
         'attribute_tamanho' => $variation['attributes']['attribute_tamanho'],
@@ -70,7 +71,9 @@ $data = $product->get_data();
 
             btFcSubmit.disabled = true;
 
+            console.log('variations', variations);
             if (variations && variations.length > 0) {
+                console.log('variation', variation);
                 const variation = variations.find(variation => {
                     return variation.attribute_tamanho === jQuery('#tamanho').val();
                 });
