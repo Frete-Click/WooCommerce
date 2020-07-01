@@ -8,7 +8,10 @@ $variations = [];
 
 foreach ($available_variations as $variation) {
     array_push($variations, [
-        'attribute_tamanho' => $variation['attributes']['attribute_tamanho'],
+        'attribute' => [
+            'name' => substr(key($variation['attributes']), 1+strpos(key($variation['attributes']), '_')),
+            'description' => $variation['attributes'][key($variation['attributes'])]
+        ],
         'product_weight' => $variation['weight'],
         'product_height' => $variation['dimensions']['height'],
         'product_width' => $variation['dimensions']['width'],
@@ -73,9 +76,9 @@ $data = $product->get_data();
 
             console.log('variations', variations);
             if (variations && variations.length > 0) {
-                console.log('variation', variation);
                 const variation = variations.find(variation => {
-                    return variation.attribute_tamanho === jQuery('#tamanho').val();
+                    console.log('variation', variation);
+                    return variation.attribute.description === jQuery(`#${variation.attribute.name}`).val();
                 });
                 if (!variation) {
                     alert('Selecione um tamanho antes de calcular o frete');
