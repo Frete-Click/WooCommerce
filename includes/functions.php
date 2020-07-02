@@ -53,7 +53,12 @@ function fc_options_register_fields()
     add_option("freteclick_quote_type", "0");
     add_option('freteclick_display_product', '0');
     add_option('FC_API_KEY', '');
+    add_option('FC_PRAZO_EXTRA', '');
     register_setting('freteclick_options_page', 'FC_API_KEY', array(
+        "type" => "string",
+        "description" => ""
+    ));
+    register_setting('freteclick_options_page', 'FC_PRAZO_EXTRA', array(
         "type" => "string",
         "description" => ""
     ));
