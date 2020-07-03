@@ -139,10 +139,13 @@ $data = $product->get_data();
             div.style.textAlign = "center";
 
             var deadline = '';
+            var fc_get_prazo_extra = "<?php echo get_option("FC_PRAZO_EXTRA") ;?>";
+            var fc_add_prazo_extra = parseInt(fc_get_prazo_extra);
             if (dds["deadline"] > 1) {
-                deadline = dds["deadline"] + ' dias';
+
+                deadline = dds["deadline"] +  fc_add_prazo_extra  + ' dias' ;
             } else {
-                deadline = dds["deadline"] + ' dia';
+                deadline = dds["deadline"] + fc_add_prazo_extra + ' dia';
             }
 
             div.innerHTML =

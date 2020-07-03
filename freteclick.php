@@ -3,7 +3,7 @@
 Plugin Name:  FreteClick
 Plugin URI:   https://freteclick.com.br/
 Description:  Cálculo do frete com o serviço da web Frete Click
-Version:      1.0
+Version:      1.0.2
 Author:       Frete Click
 Author URI:   https://www.freteclick.com.br
 License:      Todos os Direitos Reservados
@@ -35,11 +35,11 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					$this->id = $pluginId;
 					$this->title = $pluginName;
 					$this->method_description = $pluginDescription;
-					$this->method_title = $pluginName; 
+					$this->method_title = $pluginName ; 
 					$this->availability = 'including';
-					$this->countries = $pluginCountries;
+					$this->countries = $pluginCountries ;
 
-					$this->supports = $pluginSupports;
+					$this->supports = $pluginSupports ;
 
 					$this->init();
 				}
@@ -163,14 +163,15 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					if ($array_resp->response->data != false){
 						foreach ($array_resp->response->data->quote as $key => $quote){
 							$quote = (array) $quote;
+							$fc_deadline =  intval($quote['deadline']) + intval(get_option("FC_PRAZO_EXTRA"));
 							$carrier_data = array(
 								'id' => $quote['quote-id'],
-								'label' => $quote['carrier-alias'],
+								'label' =>  $quote['carrier-alias'] . "  (" . $fc_deadline ."  dias úteis)" ,
 								'cost' => $quote['total'],
 								'calc_tax' => 'per_item',
 								'meta_data' => array(
 									'Código de Rastreamento' => $quote['order-id'],
-									'Nome da Transportadora' => $quote['carrier-name'],
+									'Nome da Transportadora' => $quote['carrier-name'] ,
 									'Cotação' => $quote['quote-id']
 								)
 							);
