@@ -3,7 +3,7 @@ Tags: FreteClick, Frete Click, Frete, Click, Carriers, Carrier, Transportadoras,
 Requires at least: 5.0
 Contributors: freteclick
 Stable tag: 1.0
-Tested up to: 5.2.4
+Tested up to: 5.4.2
 Requires PHP: 7.2
 Módulo para realização de frete com a Frete Click na plataforma Woocommerce.
 == Description ==
