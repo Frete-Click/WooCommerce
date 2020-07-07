@@ -5,6 +5,8 @@ Contributors: freteclick
 Stable tag: 1.0
 Tested up to: 5.4.2
 Requires PHP: 7.2
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Módulo para realização de frete com a Frete Click na plataforma Woocommerce.
 == Description ==
 Módulo para realização de frete com a Frete Click na plataforma Woocommerce.
