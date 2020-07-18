@@ -3,11 +3,15 @@ global $product, $pluginName, $woocommerce, $post;
 /**
  * get product variables
  */
-$available_variations = $product->is_type('variable') ? $available_variations = $product->get_available_variations() : null;
+$available_variations = $product->is_type('variable') ? $available_variations = $product->get_available_variations() : [];
 $variations = [];
+
 foreach ($available_variations as $variation) {
     array_push($variations, [
-        'attribute_tamanho' => $variation['attributes']['attribute_tamanho'],
+        'attribute' => [
+            'name' => substr(key($variation['attributes']), 1+strpos(key($variation['attributes']), '_')),
+            'description' => $variation['attributes'][key($variation['attributes'])]
+        ],
         'product_weight' => $variation['weight'],
         'product_height' => $variation['dimensions']['height'],
         'product_width' => $variation['dimensions']['width'],
@@ -72,7 +76,7 @@ $data = $product->get_data();
 
             if (variations && variations.length > 0) {
                 const variation = variations.find(variation => {
-                    return variation.attribute_tamanho === jQuery('#tamanho').val();
+                    return variation.attribute.description === jQuery(`#${variation.attribute.name}`).val();
                 });
                 if (!variation) {
                     alert('Selecione um tamanho antes de calcular o frete');

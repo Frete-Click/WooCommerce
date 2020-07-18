@@ -46,7 +46,6 @@ function fc_pedido_alterado($order_id, $old_status, $new_status)
     error_log(json_encode($data));
 }
 
-;
 /* Página de Configurações */
 function fc_options_register_fields()
 {
@@ -195,14 +194,13 @@ function fc_calculate_shipping($package = array(), $orign = array())
         $prod_nomes = array();
         $prodKey = 0;
 
-        $items = $woocommerce->cart->get_cart();
+        $items = isset($woocommerce->cart) ? $woocommerce->cart->get_cart() : [];
 
         if (count($items) > 0) {
             $array_data['product-total-price'] = 0;
             foreach ($items as $item) {
-
                 $array_data['product-package'][$prodKey]['qtd'] = $item['quantity'];
-                $array_data['product-package'][$prodKey]['weight'] = number_format($item['data']->get_weight(), 10, ',', '');
+                $array_data['product-package'][$prodKey]['weight'] = number_format($item['data']->get_weight() / 1000, 10, ',', '');
                 $array_data['product-package'][$prodKey]['height'] = number_format($item['data']->get_height() / 100, 10, ',', '');
                 $array_data['product-package'][$prodKey]['width'] = number_format($item['data']->get_width() / 100, 10, ',', '');
                 $array_data['product-package'][$prodKey]['depth'] = number_format($item['data']->get_length() / 100, 10, ',', '');
@@ -226,7 +224,7 @@ function fc_calculate_shipping($package = array(), $orign = array())
                 }
 
                 $array_data['product-package'][$prodKey]['qtd'] = $item['quantity'];
-                $array_data['product-package'][$prodKey]['weight'] = number_format($p_data['weight'], 10, ',', '');
+                $array_data['product-package'][$prodKey]['weight'] = number_format($p_data['weight'] / 1000, 10, ',', '');
                 $array_data['product-package'][$prodKey]['height'] = number_format($p_data['height'] / 100, 10, ',', '');
                 $array_data['product-package'][$prodKey]['width'] = number_format($p_data['width'] / 100, 10, ',', '');
                 $array_data['product-package'][$prodKey]['depth'] = number_format($p_data['length'] / 100, 10, ',', '');
@@ -362,14 +360,17 @@ function fc_wc_missing_notice()
 {
     printf("<div class='notice notice-warning'><p>O WooCommerce não está intalado, para usar o Frete Click é necessário <a href='https://br.wordpress.org/plugins/woocommerce/' target='blanck'>instalar o WooCommerce</a>.</p></div>");
 }
+
 function fc_missing_apikey()
 {
     printf("<div class='notice notice-warning is-dismissible'><p>Por favor, para que o Frete Click funcione, informe sua Chave de API</p></div>");
 }
+
 function fc_is_disabled()
 {
     printf("<div class='notice notice-warning is-dismissible'><p>O Frete Click está desabilitado. Ative o Frete Click para voltar a usa-lo.</p></div>");
 }
+
 function fc_missing_address()
 {
     printf("<div class='notice notice-warning is-dismissible'><p>Por favor, para que o Frete Click funcione, informe o endereço completo para a coleta dos produtos.</p></div>");
