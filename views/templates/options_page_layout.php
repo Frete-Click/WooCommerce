@@ -38,6 +38,14 @@
             </tr>
             <tr valign="top">
                 <th scope="row">
+                    <label for="freteclick_display_product"><?= __('Prazo variado em dias opcional') ?></label>
+                </th>
+                <td>
+                    <input name="FC_PRAZO_VARIADO" type="text" id="FC_PRAZO_VARIADO" value="<?= get_option("FC_PRAZO_VARIADO") ?>" >
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">
                     <label for="freteclick_quote_type"><?= __('Tipo de Cotação') ?></label>
                     <p>
                         <strong>Cotação Completa:</strong> Mostra todas as opções de frete disponíveis<br/>

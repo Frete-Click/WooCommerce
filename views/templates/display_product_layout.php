@@ -140,12 +140,17 @@ $data = $product->get_data();
 
             var deadline = '';
             var fc_get_prazo_extra = "<?php echo get_option("FC_PRAZO_EXTRA") ;?>";
+            var fc_get_prazo_variado = "<?php echo get_option("FC_PRAZO_VARIADO") ;?>";
             var fc_add_prazo_extra = parseInt(fc_get_prazo_extra);
+            if(fc_get_prazo_variado > 1){
+                var fc_add_prazo_variado = " até " + fc_get_prazo_variado;
+            }
+
             if (dds["deadline"] > 1) {
 
-                deadline = dds["deadline"] +  fc_add_prazo_extra  + ' dias' ;
+                deadline = dds["deadline"] +  fc_add_prazo_extra + fc_add_prazo_variado  + '  dias úteis' ;
             } else {
-                deadline = dds["deadline"] + fc_add_prazo_extra + ' dia';
+                deadline = dds["deadline"];
             }
 
             div.innerHTML =
