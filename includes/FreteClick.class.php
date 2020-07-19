@@ -277,7 +277,7 @@ class FreteClick{
 	}
 
 	/* Formulário na página de produto */
-	pubic static function rest_get_shipping(WP_REST_Request $request){
+	public static function rest_get_shipping(WP_REST_Request $request){
 		$data = $request->get_params();
 
 
