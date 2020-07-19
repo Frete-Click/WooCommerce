@@ -204,8 +204,5 @@ function freteclick_shipping_methods() {
 					}
 				}
 			}
-		}
-		public static function fc_missing_address(){
-			printf("<div class='notice notice-warning is-dismissible'><p>Por favor, para que o Frete Click funcione, informe o endereço completo para a coleta dos produtos.</p></div>");
 		}		
 	}
