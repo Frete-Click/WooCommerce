@@ -9,22 +9,7 @@ Author URI:    https://www.freteclick.com.br
 License:           Todos os Direitos Reservados
 */
 $pluginDir = plugin_dir_path(__FILE__);
-$pluginId = "freteclick";
-$pluginName = "Frete Click";
-$pluginDescription = 'Cálculo do frete com o serviço da web Frete Click';
-$pluginCountries = array('BR');
-$pluginSupports = array(
-    'shipping-zones',
-    'instance-settings',
-    'instance-settings-modal',
-);
-$fc_errors = array();
-
-/*Variáveis globais*/
-$url_shipping_quote = "https://app.freteclick.com.br/sales/shipping-quote.json";
-$url_origin_company = "https://app.freteclick.com.br/sales/add-quote-origin-company.json";
-$url_destination_client = "https://app.freteclick.com.br/sales/add-quote-destination-client.json";
-
+require_once("includes/variables.php");
 require_once("includes/FreteClick.class.php");
 
 
