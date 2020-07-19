@@ -1,6 +1,6 @@
 <?php
 class FreteClick{
-	public static init(){
+	public static function init(){
 		if (is_admin()){
 			self::fc_add_scripts();
 		}
