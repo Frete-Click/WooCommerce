@@ -8,7 +8,7 @@ class FreteClick{
 		}
 		
 		
-		add_action( 'woocommerce_shipping_init', array('freteclick_shipping_methods');	
+		add_action( 'woocommerce_shipping_init', 'freteclick_shipping_methods');	
 		add_filter( 'woocommerce_shipping_methods', array('FreteClick','add_fc_shipping_methods'));
 
 		/*Hooks para status dos pedidos*/
