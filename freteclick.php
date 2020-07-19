@@ -8,7 +8,7 @@ Author:            Frete Click
 Author URI:    https://www.freteclick.com.br
 License:           Todos os Direitos Reservados
 */
-
+$pluginDir = plugin_dir_path(__FILE__);
 require_once("includes/variables.php");
 require_once("includes/FreteClick.class.php");
 
