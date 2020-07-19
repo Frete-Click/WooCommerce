@@ -1,4 +1,6 @@
 <?php
+require_once("variables.php");
+
 class FreteClick{
 	public static function init(){
 		if (is_admin()){
