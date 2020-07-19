@@ -138,23 +138,36 @@ $data = $product->get_data();
 
             div.style.textAlign = "center";
 
-            var deadline = '';
-            var fc_get_prazo_extra = "<?php echo get_option("FC_PRAZO_EXTRA") ;?>";
-            var fc_get_prazo_variado = "<?php echo get_option("FC_PRAZO_VARIADO") ;?>";
-            var fc_add_prazo_extra = parseInt(fc_get_prazo_extra);
-            if(fc_get_prazo_variado > 1){
-                var fc_add_prazo_variado = " até " + fc_get_prazo_variado;
-            }
+            var deadline = ' ';
+            var deadline_extras = "<?php echo get_option("FC_PRAZO_EXTRA") ;?>";
+            var deadline_varied = "<?php echo get_option("FC_PRAZO_VARIADO") ;?>";
 
             if (dds["deadline"] > 1) {
+                //add deadline extras
+                if(deadline_extras > 1){
+                    deadline = dds["deadline"] + parseInt(deadline_extras); 
+                }else{
+                    deadline = dds["deadline"]; 
+                }
+                //add deadline varied
+                if(deadline_varied > 1){
+                    deadline = dds["deadline"] + " até " + deadline_varied;
+                }else{
+                    deadline = dds["deadline"];
+                }
+                //add deadline extras end varied
+                if(deadline_extras > 1 && deadline_varied > 1){
+                    deadline = dds["deadline"] + parseInt(deadline_extras) + " até " + deadline_varied;
+                }else{
+                    deadline = dds["deadline"];
+                }
 
-                deadline = dds["deadline"] +  fc_add_prazo_extra + fc_add_prazo_variado  + '  dias úteis' ;
             } else {
                 deadline = dds["deadline"];
             }
-
+            
             div.innerHTML =
-                "<label>" + dds["carrier-alias"] + " (" + deadline + ")" + "</label> " +
+                "<label>" + dds["carrier-alias"] + " (" + deadline  + " dias úteis )" + "</label> " +
                 "<strong>R$: " + Number(dds["total"]).toFixed(2) + "</strong><hr/>";
 
             fc_freteResults.appendChild(div);
