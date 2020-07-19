@@ -1,12 +1,12 @@
 <?php
 /*
 Plugin Name:  FreteClick
-Plugin URI:   https://freteclick.com.br/
-Description:  Cálculo do frete com o serviço da web Frete Click
-Version:      1.0.2
-Author:       Frete Click
-Author URI:   https://www.freteclick.com.br
-License:      Todos os Direitos Reservados
+Plugin URI:     https://freteclick.com.br/
+Description:     Cálculo do frete com o serviço da web Frete Click
+Version:           1.0.3
+Author:            Frete Click
+Author URI:    https://www.freteclick.com.br
+License:           Todos os Direitos Reservados
 */
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 	$pluginDir = plugin_dir_path(__FILE__);
@@ -164,9 +164,14 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 						foreach ($array_resp->response->data->quote as $key => $quote){
 							$quote = (array) $quote;
 							$fc_deadline =  intval($quote['deadline']) + intval(get_option("FC_PRAZO_EXTRA"));
+							$fc_deadline_variation = "";
+							if(!empty(get_option("FC_PRAZO_VARIADO"))){
+								$fc_deadline_variation = " até " . get_option("FC_PRAZO_VARIADO");
+							}
 							$carrier_data = array(
 								'id' => $quote['quote-id'],
-								'label' =>  $quote['carrier-alias'] . "  (" . $fc_deadline ."  dias úteis)" ,
+								'label' =>  $quote['carrier-alias'] . "  (" . $fc_deadline . $fc_deadline_variation . "  dias úteis)",
+								'cost' => $quote['total'],
 								'cost' => $quote['total'],
 								'calc_tax' => 'per_item',
 								'meta_data' => array(
