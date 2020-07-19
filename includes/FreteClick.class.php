@@ -206,7 +206,7 @@ class FreteClick{
 	public static function fc_options_page(){
 		add_options_page("Frete Click", "Frete Click", "manage_options", "freteclick", array('FreteClick',"fc_options_page_layout"));
 	}
-	public static function function fc_options_page_layout(){
+	public static function fc_options_page_layout(){
 		global $pluginDir;
 
 		include $pluginDir . "views/templates/options_page_layout.php";
