@@ -6,7 +6,7 @@ class FreteClick{
 		}
 		
 		
-		add_action( 'woocommerce_shipping_init', array('FreteClick','fc_shipping_methods'));	//Verificar este
+		add_action( 'woocommerce_shipping_init', array('FreteClick','freteclick_shipping_methods'));	
 		add_filter( 'woocommerce_shipping_methods', array('FreteClick','add_fc_shipping_methods'));
 
 		/*Hooks para status dos pedidos*/
@@ -212,7 +212,7 @@ class FreteClick{
 		include $pluginDir . "views/templates/options_page_layout.php";
 	}	
 	public static function add_fc_shipping_methods( $methods ) {
-		$methods['freteclick'] = 'Fc_shipping_methods';
+		$methods['freteclick'] = 'freteclick_shipping_methods';
 		return $methods;
 	}
 	
