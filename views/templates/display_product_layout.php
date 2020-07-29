@@ -39,14 +39,14 @@ $data = $product->get_data();
         <?php wp_nonce_field('woocommerce-shipping-calculator', 'woocommerce-shipping-calculator-nonce'); ?>
     </section>
     <input type="hidden" name="k" value="<?= get_option("FC_API_KEY") ?>"/>
-    <input type="hidden" name="cep_orign" value="<?= fc_config("FC_CEP_ORIGIN"); ?>"/>
-    <input type="hidden" name="street_orign" value="<?= fc_config("FC_STREET_ORIGIN"); ?>"/>
-    <input type="hidden" name="number_orign" value="<?= fc_config("FC_NUMBER_ORIGIN"); ?>"/>
-    <input type="hidden" name="complement_orign" value="<?= fc_config("FC_COMPLEMENT_ORIGIN"); ?>"/>
-    <input type="hidden" name="district_orign" value="<?= fc_config("FC_DISTRICT_ORIGIN"); ?>"/>
-    <input type="hidden" name="city_orign" value="<?= fc_config("FC_CITY_ORIGIN"); ?>"/>
-    <input type="hidden" name="state_orign" value="<?= fc_config("FC_STATE_ORIGIN"); ?>"/>
-    <input type="hidden" name="contry_orign" value="<?= fc_config("FC_CONTRY_ORIGIN"); ?>"/>
+    <input type="hidden" name="cep_orign" value="<?= FreteClick::fc_config("FC_CEP_ORIGIN"); ?>"/>
+    <input type="hidden" name="street_orign" value="<?= FreteClick::fc_config("FC_STREET_ORIGIN"); ?>"/>
+    <input type="hidden" name="number_orign" value="<?= FreteClick::fc_config("FC_NUMBER_ORIGIN"); ?>"/>
+    <input type="hidden" name="complement_orign" value="<?= FreteClick::fc_config("FC_COMPLEMENT_ORIGIN"); ?>"/>
+    <input type="hidden" name="district_orign" value="<?= FreteClick::fc_config("FC_DISTRICT_ORIGIN"); ?>"/>
+    <input type="hidden" name="city_orign" value="<?= FreteClick::fc_config("FC_CITY_ORIGIN"); ?>"/>
+    <input type="hidden" name="state_orign" value="<?= FreteClick::fc_config("FC_STATE_ORIGIN"); ?>"/>
+    <input type="hidden" name="contry_orign" value="<?= FreteClick::fc_config("FC_CONTRY_ORIGIN"); ?>"/>
     <input type="hidden" name="product_id" value="<?= $product->get_id() ?>"/>
     <input type="hidden" name="product_name" value="<?= $data["name"] ?>"/>
     <input id="product_price" type="hidden" name="product_price" value="<?= $product->get_price() ?>"/>
