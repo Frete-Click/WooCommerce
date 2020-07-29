@@ -183,13 +183,14 @@ $data = $product->get_data();
 <style>
 .button_loading:after {
     background: url('/wp-content/plugins/FreteClick/views/img/load.svg') no-repeat !important;    	
-    display: block;
+    display: block !important;
     opacity: 1 !important;
     content: "" !important;
-    width: 50px;
-    height: 50px;
+    width: 50px !important;
+    height: 50px !important;
     margin-left: 100px !important;
-    top: 0;
+    top: 0 !important;
     background-size: 50px !important;
+    position: absolute !important;
 }
 <style>
