@@ -34,7 +34,7 @@ $data = $product->get_data();
         </p>
 
         <p>
-            <button id="btFcSubmit" type="submit" name="calc_shipping" value="1" class="button">Calcular</button>
+            <button id="btFcSubmit" type="button" name="calc_shipping" value="1" class="button">Calcular</button>
         </p>
         <?php wp_nonce_field('woocommerce-shipping-calculator', 'woocommerce-shipping-calculator-nonce'); ?>
     </section>
@@ -61,7 +61,7 @@ $data = $product->get_data();
 </section>
 <script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function () {
-        jQuery("#formCalcFrete").submit(function (e) {
+        jQuery("#formCalcFrete").click(function (e) {
             e.preventDefault();
             var btFcSubmit = document.getElementById("btFcSubmit");
 
@@ -131,8 +131,7 @@ $data = $product->get_data();
 						jQuery('#btFcSubmit').removeClass('button_loading');
 					}
                 });
-            }
-            btFcSubmit.disabled = false;
+            }            
         });
     });
 
