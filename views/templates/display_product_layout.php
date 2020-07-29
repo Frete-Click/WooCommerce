@@ -81,6 +81,7 @@ $data = $product->get_data();
                 });
                 if (!variation) {
                     alert('Selecione um tamanho antes de calcular o frete');
+					jQuery('#btFcSubmit').removeClass('button_loading');
                     btFcSubmit.disabled = false;
                     return;
                 }
