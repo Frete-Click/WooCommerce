@@ -73,6 +73,7 @@ $data = $product->get_data();
             }
 
             btFcSubmit.disabled = true;
+			jQuery('#btFcSubmit').addClass('button_loading');
 
             if (variations && variations.length > 0) {
                 const variation = variations.find(variation => {
@@ -99,6 +100,7 @@ $data = $product->get_data();
                     data: jQuery("#formCalcFrete").serialize(),
                     success: function (data) {
                         btFcSubmit.disabled = false;
+						jQuery('#btFcSubmit').removeClass('button_loading');
                         if (typeof data == "string") {
                             data = JSON.parse(data);
                         }
@@ -120,9 +122,13 @@ $data = $product->get_data();
                     },
                     error: function (error) {
                         btFcSubmit.disabled = false;
+						jQuery('#btFcSubmit').removeClass('button_loading');
                         console.log(error);
                         createResult(null);
-                    }
+                    },
+					done: function (){
+						jQuery('#btFcSubmit').removeClass('button_loading');
+					}
                 });
             }
             btFcSubmit.disabled = false;
@@ -174,3 +180,16 @@ $data = $product->get_data();
         }
     }
 </script>
+<style>
+.button_loading:after {
+    background: url('/wp-content/plugins/FreteClick/views/img/load.svg') no-repeat !important;    	
+    display: block;
+    opacity: 1 !important;
+    content: "" !important;
+    width: 50px;
+    height: 50px;
+    margin-left: 100px !important;
+    top: 0;
+    background-size: 50px !important;
+}
+<style>
