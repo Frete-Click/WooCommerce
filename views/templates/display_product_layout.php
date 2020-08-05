@@ -34,19 +34,22 @@ $data = $product->get_data();
         </p>
 
         <p>
-            <button id="btFcSubmit" type="submit" name="calc_shipping" value="1" class="button">Calcular</button>
+            <div class="frtck-wrap-button">
+                <button  type="button" name="calc_shipping" value="1" class="button frtck-button">Calcular</button>
+                <div id="btFcSubmit" class="frtck-loader"></div>
+            </div>
         </p>
         <?php wp_nonce_field('woocommerce-shipping-calculator', 'woocommerce-shipping-calculator-nonce'); ?>
     </section>
     <input type="hidden" name="k" value="<?= get_option("FC_API_KEY") ?>"/>
-    <input type="hidden" name="cep_orign" value="<?= fc_config("FC_CEP_ORIGIN"); ?>"/>
-    <input type="hidden" name="street_orign" value="<?= fc_config("FC_STREET_ORIGIN"); ?>"/>
-    <input type="hidden" name="number_orign" value="<?= fc_config("FC_NUMBER_ORIGIN"); ?>"/>
-    <input type="hidden" name="complement_orign" value="<?= fc_config("FC_COMPLEMENT_ORIGIN"); ?>"/>
-    <input type="hidden" name="district_orign" value="<?= fc_config("FC_DISTRICT_ORIGIN"); ?>"/>
-    <input type="hidden" name="city_orign" value="<?= fc_config("FC_CITY_ORIGIN"); ?>"/>
-    <input type="hidden" name="state_orign" value="<?= fc_config("FC_STATE_ORIGIN"); ?>"/>
-    <input type="hidden" name="contry_orign" value="<?= fc_config("FC_CONTRY_ORIGIN"); ?>"/>
+    <input type="hidden" name="cep_orign" value="<?= FreteClick::fc_config("FC_CEP_ORIGIN"); ?>"/>
+    <input type="hidden" name="street_orign" value="<?= FreteClick::fc_config("FC_STREET_ORIGIN"); ?>"/>
+    <input type="hidden" name="number_orign" value="<?= FreteClick::fc_config("FC_NUMBER_ORIGIN"); ?>"/>
+    <input type="hidden" name="complement_orign" value="<?= FreteClick::fc_config("FC_COMPLEMENT_ORIGIN"); ?>"/>
+    <input type="hidden" name="district_orign" value="<?= FreteClick::fc_config("FC_DISTRICT_ORIGIN"); ?>"/>
+    <input type="hidden" name="city_orign" value="<?= FreteClick::fc_config("FC_CITY_ORIGIN"); ?>"/>
+    <input type="hidden" name="state_orign" value="<?= FreteClick::fc_config("FC_STATE_ORIGIN"); ?>"/>
+    <input type="hidden" name="contry_orign" value="<?= FreteClick::fc_config("FC_CONTRY_ORIGIN"); ?>"/>
     <input type="hidden" name="product_id" value="<?= $product->get_id() ?>"/>
     <input type="hidden" name="product_name" value="<?= $data["name"] ?>"/>
     <input id="product_price" type="hidden" name="product_price" value="<?= $product->get_price() ?>"/>
@@ -61,7 +64,7 @@ $data = $product->get_data();
 </section>
 <script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function () {
-        jQuery("#formCalcFrete").submit(function (e) {
+        jQuery("#formCalcFrete").click(function (e) {
             e.preventDefault();
             var btFcSubmit = document.getElementById("btFcSubmit");
 
@@ -73,6 +76,7 @@ $data = $product->get_data();
             }
 
             btFcSubmit.disabled = true;
+			jQuery('#btFcSubmit').addClass('button_loading');
 
             if (variations && variations.length > 0) {
                 const variation = variations.find(variation => {
@@ -80,6 +84,7 @@ $data = $product->get_data();
                 });
                 if (!variation) {
                     alert('Selecione um tamanho antes de calcular o frete');
+					jQuery('#btFcSubmit').removeClass('button_loading');
                     btFcSubmit.disabled = false;
                     return;
                 }
@@ -99,6 +104,7 @@ $data = $product->get_data();
                     data: jQuery("#formCalcFrete").serialize(),
                     success: function (data) {
                         btFcSubmit.disabled = false;
+						jQuery('#btFcSubmit').removeClass('button_loading');
                         if (typeof data == "string") {
                             data = JSON.parse(data);
                         }
@@ -120,12 +126,15 @@ $data = $product->get_data();
                     },
                     error: function (error) {
                         btFcSubmit.disabled = false;
+						jQuery('#btFcSubmit').removeClass('button_loading');
                         console.log(error);
                         createResult(null);
-                    }
+                    },
+					done: function (){
+						jQuery('#btFcSubmit').removeClass('button_loading');
+					}
                 });
-            }
-            btFcSubmit.disabled = false;
+            }            
         });
     });
 

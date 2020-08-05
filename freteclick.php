@@ -8,20 +8,24 @@ Author:            Frete Click
 Author URI:    https://www.freteclick.com.br
 License:           Todos os Direitos Reservados
 */
+$pluginDir = plugin_dir_path(__FILE__);
+require_once("includes/variables.php");
+require_once("includes/FreteClick.class.php");
+
+
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
-	$pluginDir = plugin_dir_path(__FILE__);
+	FreteClick::init();
+} else {
+	add_action( 'admin_notices', array('FreteClick','fc_wc_missing_notice') );
+}
 
-	require_once("includes/variables.php");
-	require_once("includes/functions.php");
 
-	if (is_admin()){
-		fc_add_scripts();
-	}
 
-	function fc_shipping_methods() {
+
+function freteclick_shipping_methods() {
 		/*Adicionar os métidos de entrega*/
-		if ( ! class_exists( 'Fc_shipping_methods' ) ) {
-			class Fc_shipping_methods extends WC_Shipping_Method {
+		if ( ! class_exists( 'freteclick_shipping_methods' ) ) {
+			class freteclick_shipping_methods extends WC_Shipping_Method {
 				/**
 				 * Constructor for your shipping class
 				 *
@@ -158,7 +162,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				 * @return void
 				 */
 				public function calculate_shipping($package = array()){
-					$array_resp = fc_calculate_shipping($package);
+					$array_resp = FreteClick::fc_calculate_shipping($package);
 					
 					if ($array_resp->response->data != false){
 						foreach ($array_resp->response->data->quote as $key => $quote){
@@ -190,44 +194,15 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				}
 				function fc_check_settings($set){
 					if ($set['FC_IS_ACTIVE'] != 'yes' && isset($set['FC_IS_ACTIVE'])){
-						add_action( 'admin_notices', 'fc_is_disabled' );
+						add_action( 'admin_notices', array('FreteClick','fc_is_disabled') );
 					}
 					else if (strlen(get_option('FC_API_KEY')) <= 0){
-						add_action( 'admin_notices', 'fc_missing_apikey' );
+						add_action( 'admin_notices', array('FreteClick','fc_missing_apikey' ));
 					}
 					else if (strlen($set['FC_CEP_ORIGIN']) <= 0 || strlen($set['FC_CITY_ORIGIN']) <= 0 || strlen($set['FC_STREET_ORIGIN']) <= 0 || strlen($set['FC_NUMBER_ORIGIN']) <= 0 || strlen($set['FC_STATE_ORIGIN']) <= 0 || strlen($set['FC_CONTRY_ORIGIN']) <= 0 || strlen($set['FC_DISTRICT_ORIGIN']) <= 0){
-						add_action( 'admin_notices', 'fc_missing_address' );
+						add_action( 'admin_notices', array('FreteClick','fc_missing_address') );
 					}
 				}
 			}
-		}
+		}		
 	}
-	add_action( 'woocommerce_shipping_init', 'fc_shipping_methods' );
-	function add_fc_shipping_methods( $methods ) {
-		$methods['freteclick'] = 'Fc_shipping_methods';
-		return $methods;
-	}
-	add_filter( 'woocommerce_shipping_methods', 'add_fc_shipping_methods' );
-
-	/*Hooks para status dos pedidos*/
-	add_action('woocommerce_order_status_changed', 'fc_pedido_alterado', 10, 3);
-
-	/* Hooks para página de configurações globais */
-	add_action('admin_init', 'fc_options_register_fields');
-	add_action('admin_menu', 'fc_options_page');
-
-	/* Hook para busca frete no carrinho */
-	add_action( 'woocommerce_product_meta_start', 'fc_display_product_layout', 10, 0 );
-
-	/* registrando rota rest para buscar cotações */
-	add_action("rest_api_init", function () {
-		register_rest_route("freteclick", "/get_shipping", array(
-			'methods' => 'POST',
-			'callback' => 'rest_get_shipping'
-		));
-	});
-}
-else {
-	add_action( 'admin_notices', 'fc_wc_missing_notice' );
-}
-?>
