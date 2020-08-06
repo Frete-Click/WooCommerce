@@ -18,7 +18,7 @@ Este plugin utiliza o serviço externo da Frete Click para realizar o calculo do
 https://app.freteclick.com.br/
 
 Para mais informações:
-http://freteclick.com.br/
+https://www.freteclick.com.br/termos-e-condicoes
 
 == Installation ==
 1. Carregue os arquivos do plug-in no diretório `/wp-content/plugins/freteclick` ou instale o plug-in diretamente na tela de plug-ins do WordPress.
