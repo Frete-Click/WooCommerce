@@ -193,6 +193,6 @@ $data = $product->get_data();
     margin-left: 100px !important;
     background-size: 40px !important;
     position: absolute !important;
-    margin-top: -35px !important;
+    margin-top: -30px !important;
 }
 <style>
