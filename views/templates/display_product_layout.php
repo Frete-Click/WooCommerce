@@ -70,10 +70,7 @@ $data = $product->get_data();
                 variations = JSON.parse('<?php echo json_encode($variations); ?>');
             } catch (e) {
                 console.error(e);
-            }
-
-            btFcSubmit.disabled = true;
-			jQuery('#btFcSubmit').addClass('button_loading');
+            }            			
 
             if (variations && variations.length > 0) {
                 const variation = variations.find(variation => {
@@ -128,7 +125,12 @@ $data = $product->get_data();
                         createResult(null);
                     },
 					done: function (){
+						btFcSubmit.disabled = false;
 						jQuery('#btFcSubmit').removeClass('button_loading');
+					},
+					beforeSend: function(){
+						jQuery('#btFcSubmit').addClass('button_loading');
+						btFcSubmit.disabled = true;
 					}
                 });
             }            
@@ -182,15 +184,15 @@ $data = $product->get_data();
 </script>
 <style>
 .button_loading:after {
-    background: url('/wp-content/plugins/FreteClick/views/img/load.svg') no-repeat !important;    	
+    background: url(/wp-content/plugins/FreteClick/views/img/load.svg) no-repeat !important;
     display: block !important;
     opacity: 1 !important;
     content: "" !important;
-    width: 50px !important;
-    height: 50px !important;
+    width: 40px !important;
+    height: 40px !important;
     margin-left: 100px !important;
-    top: 0 !important;
     background-size: 50px !important;
     position: absolute !important;
+    margin-top: -35px !important;
 }
 <style>
