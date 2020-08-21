@@ -185,7 +185,7 @@ $data = $product->get_data();
 </script>
 <style>
 .button_loading:after {
-    background: url(/wp-content/plugins/FreteClick/views/img/load.svg) no-repeat !important;
+    background: url('<?=plugin_dir_url( __FILE__ )?>/../img/load.svg') no-repeat !important;
     display: block !important;
     opacity: 1 !important;
     content: "" !important;
