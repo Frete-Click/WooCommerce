@@ -175,9 +175,13 @@ $data = $product->get_data();
                 deadline = dds["deadline"];
             }
             
+			var total = Number(dds["total"]).toFixed(2).replace(',', '').replace('.', ',');
+			
+
+			
             div.innerHTML =
                 "<label>" + dds["carrier-alias"] + " (" + deadline  + " dias úteis )" + "</label> " +
-                "<strong>R$: " + Number(dds["total"]).toFixed(2) + "</strong><hr/>";
+                "<strong>R$: " + total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})  + "</strong><hr/>";
 
             fc_freteResults.appendChild(div);
         }
