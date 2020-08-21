@@ -61,7 +61,7 @@ $data = $product->get_data();
 </section>
 <script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function () {
-        jQuery("#formCalcFrete").click(function (e) {
+        jQuery("#btFcSubmit").click(function (e) {
             e.preventDefault();
             var btFcSubmit = document.getElementById("btFcSubmit");
 
@@ -91,7 +91,7 @@ $data = $product->get_data();
 
             jQuery("#fc_prod_quantity").val(jQuery("input[name='quantity']").val());
 
-            if (this.calc_shipping_postcode.value.length) {
+            if (jQuery("#calc_shipping_postcode").val().length) {
                 jQuery.ajax({
                     url: "<?= get_rest_url() ?>freteclick/get_shipping",
                     type: "POST",
@@ -129,6 +129,7 @@ $data = $product->get_data();
 						jQuery('#btFcSubmit').removeClass('button_loading');
 					},
 					beforeSend: function(){
+						jQuery('#fc_freteResults').html('');
 						jQuery('#btFcSubmit').addClass('button_loading');
 						btFcSubmit.disabled = true;
 					}
@@ -184,7 +185,7 @@ $data = $product->get_data();
 </script>
 <style>
 .button_loading:after {
-    background: url('<?=plugin_dir_url( __FILE__ )?>/../img/load.svg') no-repeat !important;
+    background: url(/wp-content/plugins/FreteClick/views/img/load.svg) no-repeat !important;
     display: block !important;
     opacity: 1 !important;
     content: "" !important;
