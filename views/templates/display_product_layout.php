@@ -35,7 +35,7 @@ $data = $product->get_data();
 
         <p>
             <div class="frtck-wrap-button">
-                <button  type="button" name="calc_shipping" value="1" class="button frtck-button">Calcular</button>
+                <button  id="btFcSend" type="button" name="calc_shipping" value="1" class="button frtck-button">Calcular</button>
                 <div id="btFcSubmit" class="frtck-loader"></div>
             </div>
         </p>
@@ -64,7 +64,7 @@ $data = $product->get_data();
 </section>
 <script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function () {
-        jQuery("#formCalcFrete").click(function (e) {
+        jQuery("#btFcSend").click(function (e) {
             e.preventDefault();
             var btFcSubmit = document.getElementById("btFcSubmit");
 
@@ -97,7 +97,7 @@ $data = $product->get_data();
 
             jQuery("#fc_prod_quantity").val(jQuery("input[name='quantity']").val());
 
-            if (this.calc_shipping_postcode.value.length) {
+            if (jQuery("#calc_shipping_postcode").val().length) {
                 jQuery.ajax({
                     url: "<?= get_rest_url() ?>freteclick/get_shipping",
                     type: "POST",
@@ -132,6 +132,11 @@ $data = $product->get_data();
                     },
 					done: function (){
 						jQuery('#btFcSubmit').removeClass('button_loading');
+					},
+					beforeSend: function(){
+						jQuery('#fc_freteResults').html('');
+						jQuery('#btFcSubmit').addClass('button_loading');
+						btFcSubmit.disabled = true;
 					}
                 });
             }            
@@ -174,10 +179,10 @@ $data = $product->get_data();
             } else {
                 deadline = dds["deadline"];
             }
-            
+            var total = Number(dds["total"]).toFixed(2).replace(',', '').replace('.', ',');
             div.innerHTML =
                 "<label>" + dds["carrier-alias"] + " (" + deadline  + " dias úteis )" + "</label> " +
-                "<strong>R$: " + Number(dds["total"]).toFixed(2) + "</strong><hr/>";
+                "<strong>R$: " + total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})  + "</strong><hr/>";
 
             fc_freteResults.appendChild(div);
         }
