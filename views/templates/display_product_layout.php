@@ -62,9 +62,18 @@ $data = $product->get_data();
 </form>
 <section style="text-transform: uppercase;" id="fc_freteResults">
 </section>
+
 <script type="text/javascript">
-    document.addEventListener("DOMContentLoaded", function () {
+ document.addEventListener("DOMContentLoaded", function () {
         jQuery("#btFcSend").click(function (e) {
+
+            if(document.getElementById("calc_shipping_postcode").value == ""){
+                alert('Por favor, preencha o campo CEP');
+                document.getElementById("calc_shipping_postcode").focus();
+                jQuery('#fc_freteResults').html('');
+                return false
+            }
+
             e.preventDefault();
             var btFcSubmit = document.getElementById("btFcSubmit");
 
@@ -138,8 +147,9 @@ $data = $product->get_data();
 						jQuery('#btFcSubmit').addClass('button_loading');
 						btFcSubmit.disabled = true;
 					}
+                    
                 });
-            }            
+            }         
         });
     });
 
