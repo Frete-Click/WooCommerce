@@ -34,7 +34,10 @@ $data = $product->get_data();
         </p>
 
         <p>
-            <button id="btFcSubmit" type="button" name="calc_shipping" value="1" class="button">Calcular</button>
+            <div class="frtck-wrap-button">
+                <button  id="btFcSend" type="button" name="calc_shipping" value="1" class="button frtck-button">Calcular</button>
+                <div id="btFcSubmit" class="frtck-loader"></div>
+            </div>
         </p>
         <?php wp_nonce_field('woocommerce-shipping-calculator', 'woocommerce-shipping-calculator-nonce'); ?>
     </section>
@@ -59,9 +62,18 @@ $data = $product->get_data();
 </form>
 <section style="text-transform: uppercase;" id="fc_freteResults">
 </section>
+
 <script type="text/javascript">
-    document.addEventListener("DOMContentLoaded", function () {
-        jQuery("#btFcSubmit").click(function (e) {
+ document.addEventListener("DOMContentLoaded", function () {
+        jQuery("#btFcSend").click(function (e) {
+
+            if(document.getElementById("calc_shipping_postcode").value == ""){
+                alert('Por favor, preencha o campo CEP');
+                document.getElementById("calc_shipping_postcode").focus();
+                jQuery('#fc_freteResults').html('');
+                return false
+            }
+
             e.preventDefault();
             var btFcSubmit = document.getElementById("btFcSubmit");
 
@@ -70,7 +82,10 @@ $data = $product->get_data();
                 variations = JSON.parse('<?php echo json_encode($variations); ?>');
             } catch (e) {
                 console.error(e);
-            }            			
+            }
+
+            btFcSubmit.disabled = true;
+			jQuery('#btFcSubmit').addClass('button_loading');
 
             if (variations && variations.length > 0) {
                 const variation = variations.find(variation => {
@@ -125,7 +140,6 @@ $data = $product->get_data();
                         createResult(null);
                     },
 					done: function (){
-						btFcSubmit.disabled = false;
 						jQuery('#btFcSubmit').removeClass('button_loading');
 					},
 					beforeSend: function(){
@@ -134,8 +148,18 @@ $data = $product->get_data();
 						btFcSubmit.disabled = true;
 					}
                 });
-            }            
+            }
         });
+    });
+    //clear result
+    document.addEventListener('keydown', function(event) {
+        const key = event.key; 
+        if (key === "Delete") {
+            jQuery('#fc_freteResults').html('');
+        }
+        if(key === "Backspace"){
+            jQuery('#fc_freteResults').html('');
+        }
     });
 
     function createResult(dds) {
@@ -174,11 +198,7 @@ $data = $product->get_data();
             } else {
                 deadline = dds["deadline"];
             }
-            
-			var total = Number(dds["total"]).toFixed(2).replace(',', '').replace('.', ',');
-			
-
-			
+            var total = Number(dds["total"]).toFixed(2).replace(',', '').replace('.', ',');
             div.innerHTML =
                 "<label>" + dds["carrier-alias"] + " (" + deadline  + " dias úteis )" + "</label> " +
                 "<strong>R$: " + total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})  + "</strong><hr/>";
@@ -187,17 +207,3 @@ $data = $product->get_data();
         }
     }
 </script>
-<style>
-.button_loading:after {
-    background: url('<?=plugin_dir_url( __FILE__ )?>/../img/load.svg') no-repeat !important;
-    display: block !important;
-    opacity: 1 !important;
-    content: "" !important;
-    width: 40px !important;
-    height: 40px !important;
-    margin-left: 100px !important;
-    background-size: 40px !important;
-    position: absolute !important;
-    margin-top: -30px !important;
-}
-<style>
