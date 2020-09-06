@@ -106,7 +106,7 @@ $data = $product->get_data();
 
             jQuery("#fc_prod_quantity").val(jQuery("input[name='quantity']").val());
 
-            if (jQuery("#calc_shipping_postcode").val().length) {
+            if (jQuery("#calc_shipping_postcode").val().length >= 1) {
                 jQuery.ajax({
                     url: "<?= get_rest_url() ?>freteclick/get_shipping",
                     type: "POST",
@@ -147,10 +147,19 @@ $data = $product->get_data();
 						jQuery('#btFcSubmit').addClass('button_loading');
 						btFcSubmit.disabled = true;
 					}
-                    
                 });
-            }         
+            }
         });
+    });
+    //clear result
+    document.addEventListener('keydown', function(event) {
+        const key = event.key; 
+        if (key === "Delete") {
+            jQuery('#fc_freteResults').html('');
+        }
+        if(key === "Backspace"){
+            jQuery('#fc_freteResults').html('');
+        }
     });
 
     function createResult(dds) {
