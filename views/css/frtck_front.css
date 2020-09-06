@@ -1,0 +1,33 @@
+.woocommerce .added_to_cart.disabled, .woocommerce .added_to_cart:disabled, .woocommerce .button.disabled, .woocommerce .button:disabled, .woocommerce button.disabled, .woocommerce button:disabled, .woocommerce input[type=button].disabled, .woocommerce input[type=button]:disabled, .woocommerce input[type=reset].disabled, .woocommerce input[type=reset]:disabled, .woocommerce input[type=submit].disabled, .woocommerce input[type=submit]:disabled {
+    opacity: 1 !important; 
+    cursor: not-allowed;
+  }
+  .frtck-button{
+      padding: 15px !important;
+      width: 120px;
+      text-align: center;
+  }    
+  .frtck-loader{
+      position: absolute;
+      margin-top: -39px;
+      margin-left: 125px;
+  }
+  .button_loading {
+      border: 7px solid #398fcc;
+      border-radius: 50%;
+      border-top: 7px solid #ffa902;
+      width: 35px;
+      height: 35px;
+      -webkit-animation: spin 2s linear infinite; /* Safari */
+      animation: spin 2s linear infinite;
+  }
+  /* Safari */
+  @-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }

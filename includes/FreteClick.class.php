@@ -5,8 +5,9 @@ class FreteClick{
 	public static function init(){
 		if (is_admin()){
 			self::fc_add_scripts();
+		}else{
+			self::fc_add_styles();
 		}
-		
 		
 		add_action( 'woocommerce_shipping_init', 'freteclick_shipping_methods');	
 		add_filter( 'woocommerce_shipping_methods', array('FreteClick','add_fc_shipping_methods'));
@@ -197,7 +198,13 @@ class FreteClick{
 		//Adicionando estilos
 		wp_enqueue_script("freteclick", $plugin_uri . "views/js/Freteclick.js", array('jquery', 'jquery-ui-autocomplete'), "1.0", true);
 
-	}	
+	}
+	public static function fc_add_styles(){
+		$plugin_uri = str_replace('/includes', '', plugin_dir_url(__FILE__));
+	
+		wp_enqueue_style( 'frtck_front_style', $plugin_uri . "views/css/frtck_front.css" );
+	}
+
 	public static function fc_display_product_layout(){
 		if (get_option('freteclick_display_product') == 1) {
 			global $pluginDir;
