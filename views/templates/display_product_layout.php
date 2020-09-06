@@ -106,7 +106,7 @@ $data = $product->get_data();
 
             jQuery("#fc_prod_quantity").val(jQuery("input[name='quantity']").val());
 
-            if (jQuery("#calc_shipping_postcode").val().length >= 1) {
+            if (jQuery("#calc_shipping_postcode").val().length) {
                 jQuery.ajax({
                     url: "<?= get_rest_url() ?>freteclick/get_shipping",
                     type: "POST",
