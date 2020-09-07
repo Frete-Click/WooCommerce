@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2      
       - name: Deploy
-        uses: yukihiko-shinoda/action-deploy-wordpress-plugin@v2
+        uses: yukihiko-shinoda/action-deploy-wordpress-plugin@v2.1.0
         env:
           SVN_REPOSITORY_URL: ${{ secrets.SVN_URL }}
           SVN_USER_NAME: ${{ secrets.SVN_USERNAME }}
