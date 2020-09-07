@@ -1,21 +1,17 @@
-name: Deploy WordPress plugin
+name: Deploy to WordPress.org
 on:
   push:
     tags:
-    - "v*"
-  pull_request:
-    tags:
-    - "v*"
+    - "*"
 jobs:
-  build:
-    name: Deploy WordPress plugin    
-    runs-on: ubuntu-18.04
-    steps:      
-      - name: Checkout
-        uses: actions/checkout@v2      
-      - name: Deploy
-        uses: yukihiko-shinoda/action-deploy-wordpress-plugin@v2.1.0
-        env:
-          SVN_REPOSITORY_URL: ${{ secrets.SVN_URL }}
-          SVN_USER_NAME: ${{ secrets.SVN_USERNAME }}
-          SVN_USER_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+  tag:
+    name: New tag
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master    
+    - name: WordPress Plugin Deploy
+      uses: 10up/action-wordpress-plugin-deploy@stable
+      env:
+        SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+        SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+        SLUG: freteclick
