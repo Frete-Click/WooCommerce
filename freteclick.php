@@ -3,7 +3,7 @@
 Plugin Name:  FreteClick
 Plugin URI:     https://freteclick.com.br/
 Description:     Cálculo do frete com o serviço da web Frete Click
-Version:           1.0.4
+Version:           1.0.6
 Author:            Frete Click
 Author URI:    https://www.freteclick.com.br
 License:           Todos os Direitos Reservados
