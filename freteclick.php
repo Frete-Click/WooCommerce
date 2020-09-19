@@ -1,13 +1,14 @@
 <?php
 /*
-Plugin Name:  FreteClick
-Plugin URI:     https://freteclick.com.br/
-Description:     Cálculo do frete com o serviço da web Frete Click
+Plugin Name:       FreteClick
+Plugin URI:        https://freteclick.com.br/
+Description:       Cálculo do frete com o serviço da web Frete Click
 Version:           v1.0.13
 Author:            Frete Click
-Author URI:    https://www.freteclick.com.br
+Author URI:        https://www.freteclick.com.br
 License:           Todos os Direitos Reservados
-*/require_once('vendor/autoload.php');
+*/
+
 $pluginDir = plugin_dir_path(__FILE__);
 require_once("includes/variables.php");
 require_once("includes/FreteClick.class.php");
