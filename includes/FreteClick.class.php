@@ -1,4 +1,7 @@
 <?php
+use SDK\SDK;
+use SDK\Models\QuoteRequest;
+
 require_once("variables.php");
 
 class FreteClick{
@@ -150,16 +153,8 @@ class FreteClick{
 			$dest_number = preg_replace('/[^0-9]/', '', $dest['address']);
 			$array_data['address-number-destination'] = strlen($dest_number) > 0 ? $dest_number : 1;
 
-			/*Fazer cotação*/
-			$quote_key = md5(json_encode($array_data));
-			if (isset($_SESSION[$quote_key])) {
-				$array_resp = json_decode($_SESSION[$quote_key]);
-			} else {
-				$array_resp = self::fc_get_quotes($array_data, $orign);
-				if ($array_resp->response->data != false) {
-					$_SESSION[$quote_key] = json_encode($array_resp);
-				}
-			}
+
+			$array_resp = self::fc_get_quotes($array_data, $orign);				
 
 			return $array_resp;
 		}
@@ -327,24 +322,17 @@ class FreteClick{
 	
 	public static function fc_get_quotes($array_data, $orign = array()){
 
-		global $url_shipping_quote;
-		$array_resp = array();
-		try {
-			$array_data['api-key'] = !empty($orign) ? $orign["api_key"] : get_option('FC_API_KEY');
+		try{
+			$api_key = get_option('FC_API_KEY');			
+			$SDK = new SDK($api_key);
+			$cotafacil = $SDK->cotaFacilClient();
 
-			$args = array(
-				'method' => 'POST',
-				'timeout' => 600,
-				'headers' => array(
-					'Content-type: application/x-www-form-urlencoded'
-				),
-				'sslverify' => false,
-				'body' => $array_data
-			);
-
-			$resp = wp_remote_post($url_shipping_quote, $args);
-
-			$array_resp = self::orderByPrice(self::filterJson(wp_remote_retrieve_body($resp)));
+			$QuoteRequest = new QuoteRequest();
+			$result = $cotafacil::quote($QuoteRequest); 				
+		
+			$array_resp = self::orderByPrice(self::filterJson($result));									
+		
+		
 		} catch (Exception $ex) {
 			$array_resp = array(
 				'response' => array('success' => false, 'error' => $ex->getMessage())
@@ -369,11 +357,11 @@ class FreteClick{
 		return self::getErrors() ?: $arrJson;
 	}	
 	public static function orderByPrice($arrJson){
-		$quotes = (array)$arrJson->response->data->quote;
+		$quotes = (array)$arrJson->response->data->order->quotes;
 		usort($quotes, function ($a, $b) {
 			return $a->total > $b->total;
 		});
-		$arrJson->response->data->quote = $quotes;
+		$arrJson->response->data->order->quotes = $quotes;
 		return $arrJson;
 	}	
 	

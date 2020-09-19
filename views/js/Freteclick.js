@@ -79,7 +79,7 @@ jQuery(function ($) {
                 data: inputForm,
                 success: function (json) {
                     if (json.response.success === true) {
-                        jQuery.each(json.response.data.quote, function (index, val) {
+                        jQuery.each(json.response.data.order.quotes, function (index, val) {
                             $("#frete-valores tbody").append(addRowTableFrete(val['carrier-name'], val['carrier-logo'], val.deadline, val.total));
                         });
                         $('#resultado-frete').show('slow');

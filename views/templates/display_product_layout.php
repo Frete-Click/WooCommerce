@@ -40,8 +40,7 @@ $data = $product->get_data();
             </div>
         </p>
         <?php wp_nonce_field('woocommerce-shipping-calculator', 'woocommerce-shipping-calculator-nonce'); ?>
-    </section>
-    <input type="hidden" name="k" value="<?= get_option("FC_API_KEY") ?>"/>
+    </section>    
     <input type="hidden" name="cep_orign" value="<?= FreteClick::fc_config("FC_CEP_ORIGIN"); ?>"/>
     <input type="hidden" name="street_orign" value="<?= FreteClick::fc_config("FC_STREET_ORIGIN"); ?>"/>
     <input type="hidden" name="number_orign" value="<?= FreteClick::fc_config("FC_NUMBER_ORIGIN"); ?>"/>
@@ -121,7 +120,7 @@ $data = $product->get_data();
                         fc_freteResults.innerHTML = "";
                         var res = data.response;
                         if (res.data) {
-                            var quotes = res.data.quote;
+                            var quotes = res.data.order.quotes;
                             if (quotes.length) {
                                 for (var i = 0; i < quotes.length; i++) {
                                     createResult(quotes[i]);
