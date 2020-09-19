@@ -1,23 +1,23 @@
 [
     {
         "name": "freteclick/sdk",
-        "version": "v1.2.5",
-        "version_normalized": "1.2.5.0",
+        "version": "v1.2.7",
+        "version_normalized": "1.2.7.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Frete-Click/SDK.git",
-            "reference": "1ab92aeeafd3cff61ee5fa2fdd68d6d446a160b9"
+            "reference": "f6207c7f81dd9351d65ab1515bbfa7bdb128d710"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Frete-Click/SDK/zipball/1ab92aeeafd3cff61ee5fa2fdd68d6d446a160b9",
-            "reference": "1ab92aeeafd3cff61ee5fa2fdd68d6d446a160b9",
+            "url": "https://api.github.com/repos/Frete-Click/SDK/zipball/f6207c7f81dd9351d65ab1515bbfa7bdb128d710",
+            "reference": "f6207c7f81dd9351d65ab1515bbfa7bdb128d710",
             "shasum": ""
         },
         "require": {
             "guzzlehttp/guzzle": "^7.0"
         },
-        "time": "2020-09-18T23:12:16+00:00",
+        "time": "2020-09-19T16:05:20+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
