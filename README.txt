@@ -8,14 +8,11 @@ Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 API: https://api.freteclick.com.br/
-Painel: https://cotafacil.freteclick.com.br/
+Painel: https://cota-facil.freteclick.com.br/
 
 Módulo para realização de frete com a Frete Click na plataforma Woocommerce.
 == Description ==
 Módulo para realização de frete com a Frete Click na plataforma Woocommerce.
-
-Este plugin utiliza o serviço externo da Frete Click para realizar o calculo do frete:
-https://app.freteclick.com.br/
 
 Para mais informações:
 https://www.freteclick.com.br/termos-e-condicoes
