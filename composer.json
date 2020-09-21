@@ -1,0 +1,5 @@
+{
+    "require": {
+        "freteclick/sdk": "v1.2.8"
+    }
+}

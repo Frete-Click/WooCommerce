@@ -1,13 +1,14 @@
 <?php
 /*
-Plugin Name:  FreteClick
-Plugin URI:     https://freteclick.com.br/
-Description:     Cálculo do frete com o serviço da web Frete Click
-Version:           1.0.4
+Plugin Name:       FreteClick
+Plugin URI:        https://freteclick.com.br/
+Description:       Cálculo do frete com o serviço da web Frete Click
+Version:           v1.0.15
 Author:            Frete Click
-Author URI:    https://www.freteclick.com.br
+Author URI:        https://www.freteclick.com.br
 License:           Todos os Direitos Reservados
 */
+
 $pluginDir = plugin_dir_path(__FILE__);
 require_once("includes/variables.php");
 require_once("includes/FreteClick.class.php");
@@ -161,7 +162,7 @@ function freteclick_shipping_methods() {
 					$array_resp = FreteClick::fc_calculate_shipping($package);
 					
 					if ($array_resp->response->data != false){
-						foreach ($array_resp->response->data->quote as $key => $quote){
+						foreach ($array_resp->response->data->order->quotes as $key => $quote){
 							$quote = (array) $quote;
 							$fc_deadline =  intval($quote['deadline']) + intval(get_option("FC_PRAZO_EXTRA"));
 							$fc_deadline_variation = "";

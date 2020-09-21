@@ -2,20 +2,17 @@
 Tags: FreteClick, Frete Click, Frete, Click, Carriers, Carrier, Transportadoras, Transportadora, Correios, Frete, Cálculo de Frete
 Requires at least: 5.0
 Contributors: freteclick
-Stable tag: 1.0.4
+Stable tag: v1.0.15
 Tested up to: 5.5.1
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 API: https://api.freteclick.com.br/
-Painel: https://cotafacil.freteclick.com.br/
+Painel: https://cota-facil.freteclick.com.br/
 
 Módulo para realização de frete com a Frete Click na plataforma Woocommerce.
 == Description ==
 Módulo para realização de frete com a Frete Click na plataforma Woocommerce.
-
-Este plugin utiliza o serviço externo da Frete Click para realizar o calculo do frete:
-https://app.freteclick.com.br/
 
 Para mais informações:
 https://www.freteclick.com.br/termos-e-condicoes

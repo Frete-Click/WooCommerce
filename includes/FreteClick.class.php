@@ -1,6 +1,15 @@
 <?php
 require_once("variables.php");
 
+use SDK\SDK;
+use SDK\Models\QuoteRequest;
+use SDK\Models\Package;
+use SDK\Models\Origin;
+use SDK\Models\Destination;
+use SDK\Models\Config;
+
+
+
 class FreteClick{
 	public static function init(){
 		if (is_admin()){
@@ -51,57 +60,57 @@ class FreteClick{
 	}
 	
 	/* Fazer Cotação */
-	public static function fc_calculate_shipping($package = array(), $orign = array()){
+	public static function fc_calculate_shipping($request = array()){
+
 		/**
 		 * get products
 		 */
 		global $woocommerce;
-
+		$quote_request = new QuoteRequest();
 		session_start();
-		$dest = $package['destination'];
+		
 
-		if (!empty($dest['postcode'])) {
-			$array_resp = array();
+		if (!empty($request['destination']['postcode'])) {		
+
 			/*Dados de origem*/
-			$array_data = array(
-				'quote-type' => isset($orign["freteclick_quote_type"]) ? $orign["freteclick_quote_type"] : get_option("freteclick_quote_type"),
-				'city-origin' => self::fc_config('FC_CITY_ORIGIN', $orign),
-				'cep-origin' => self::fc_config('FC_CEP_ORIGIN', $orign),
-				'street-origin' => self::fc_config('FC_STREET_ORIGIN', $orign),
-				'address-number-origin' => self::fc_config('FC_NUMBER_ORIGIN', $orign),
-				'complement-origin' => strlen(self::fc_config('FC_COMPLEMENT_ORIGIN', $orign)) > 0 ? self::fc_config('FC_COMPLEMENT_ORIGIN', $orign) : "SEM COMPLEMENTO",
-				'district-origin' => self::fc_config('FC_DISTRICT_ORIGIN', $orign),
-				'state-origin' => self::fc_config('FC_STATE_ORIGIN', $orign),
-				'country-origin' => self::fc_config('FC_CONTRY_ORIGIN', $orign),
-				"order" => "total"
-			);
+			$origin = new Origin;			
+			$origin->setCEP(self::fc_config('FC_CEP_ORIGIN'));
+			$origin->setStreet(self::fc_config('FC_STREET_ORIGIN'));
+			$origin->setNumber(self::fc_config('FC_NUMBER_ORIGIN'));
+			$origin->setComplement(self::fc_config('FC_COMPLEMENT_ORIGIN'));
+			$origin->setDistrict(self::fc_config('FC_DISTRICT_ORIGIN'));
+			$origin->setCity(self::fc_config('FC_CITY_ORIGIN'));
+			$origin->setState(self::fc_config('FC_STATE_ORIGIN'));
+			$origin->setCountry(self::fc_config('FC_CONTRY_ORIGIN'));
+			$quote_request->setOrigin($origin);
 
+			$config = new Config;
+			$config->setQuoteType(isset($orign["freteclick_quote_type"]) ? $orign["freteclick_quote_type"] : get_option("freteclick_quote_type"));
+			$config->setOrder('total');
+
+			$quote_request->setConfig($config); 
+			
 			/*Dados do produto*/
 			if (class_exists("WC_Product_Factory")) {
 				$_pf = new WC_Product_Factory();
-			}
-
-			$prod_nomes = array();
-			$prodKey = 0;
+			}						
 
 			$items = isset($woocommerce->cart) ? $woocommerce->cart->get_cart() : [];
-
 			if (count($items) > 0) {
-				$array_data['product-total-price'] = 0;
+				
 				foreach ($items as $item) {
-					$array_data['product-package'][$prodKey]['qtd'] = $item['quantity'];
-					$array_data['product-package'][$prodKey]['weight'] = number_format($item['data']->get_weight() / 1000, 10, ',', '');
-					$array_data['product-package'][$prodKey]['height'] = number_format($item['data']->get_height() / 100, 10, ',', '');
-					$array_data['product-package'][$prodKey]['width'] = number_format($item['data']->get_width() / 100, 10, ',', '');
-					$array_data['product-package'][$prodKey]['depth'] = number_format($item['data']->get_length() / 100, 10, ',', '');
-					array_push($prod_nomes, $item['data']->get_title());
-					$prodKey++;
-
-					$array_data['product-total-price'] += $item['line_total'];
-				}
-				$array_data['product-total-price'] = number_format($array_data['product-total-price'], 2, ',', '.');
-			} else {
-				foreach ($package['contents'] as $key => $item) {
+					$package = new Package();
+					$package->setQuantity($item['quantity']);
+					$package->setWeight($item['data']->get_weight() / 1000);
+					$package->setHeight($item['data']->get_height() / 100);
+					$package->setWidth($item['data']->get_width() / 100);
+					$package->setDepth($item['data']->get_length() / 100);
+					$package->setProductType($item['data']->get_title());
+					$package->setProductPrice($item['line_total']);					
+					$quote_request->addPackage($package);					
+				}					
+			} else {				
+				foreach ($request['contents'] as $key => $item) {					
 					if (class_exists("WC_Product_Factory")) {
 						$product = $_pf->get_product($item['product_id']);
 						$p_data = $product->get_data();
@@ -111,55 +120,36 @@ class FreteClick{
 					} else {
 						$product = $item;
 						$p_data = $item["data"];
-					}
-
-					$array_data['product-package'][$prodKey]['qtd'] = $item['quantity'];
-					$array_data['product-package'][$prodKey]['weight'] = number_format($p_data['weight'] / 1000, 10, ',', '');
-					$array_data['product-package'][$prodKey]['height'] = number_format($p_data['height'] / 100, 10, ',', '');
-					$array_data['product-package'][$prodKey]['width'] = number_format($p_data['width'] / 100, 10, ',', '');
-					$array_data['product-package'][$prodKey]['depth'] = number_format($p_data['length'] / 100, 10, ',', '');
-					array_push($prod_nomes, $p_data['name']);
-					$prodKey++;
-				}
-
-				$array_data['product-total-price'] = number_format($package['cart_subtotal'], 2, ',', '.');
+					}					
+					
+					$package = new Package();
+					$package->setQuantity($item['quantity']);
+					$package->setWeight($p_data['weight'] / 1000);
+					$package->setHeight($p_data['height']  / 100);
+					$package->setWidth($p_data['width'] / 100);
+					$package->setDepth($p_data['length'] / 100);
+					$package->setProductType($p_data['name']);
+					/*
+					* @todo Verificar o preço
+					*/
+					$package->setProductPrice(1);
+					$quote_request->addPackage($package);					
+				}				
 			}
 
-			$array_data['product-type'] = implode(',', array_values($prod_nomes));
-
-			/*Dados do destino*/
-
-			$data_cep = self::fc_get_cep_data($dest['postcode']);
-
-			if (!isset($data_cep->erro)) {
-				$array_data['city-destination'] = $data_cep->localidade;
-				$array_data['street-destination'] = preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $data_cep->logradouro) ?: 'Rua não encontrada';
-				$array_data['district-destination'] = $data_cep->bairro ?: 'Bairro não encontrado';
-				$array_data['state-destination'] = $data_cep->uf;
-				$array_data['country-destination'] = 'Brasil';
-				$array_data['complement-destination'] = strlen($data_cep->complemento) ? $data_cep->complemento : "SEM COMPLEMENTO";
-			} else {
-				$array_data['city-destination'] = $dest['city'];
-				$array_data['street-destination'] = preg_replace('/[^A-Z a-z]/', '', preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $dest['address']));
-				$array_data['district-destination'] = $dest['address_2'];
-				$array_data['state-destination'] = $dest['state'];
-				$array_data['country-destination'] = $dest['country'];
-				$array_data['complement-destination'] = "SEM COMPLEMENTO";
-			}
-			$array_data['cep-destination'] = $dest['postcode'];
-			$dest_number = preg_replace('/[^0-9]/', '', $dest['address']);
-			$array_data['address-number-destination'] = strlen($dest_number) > 0 ? $dest_number : 1;
-
-			/*Fazer cotação*/
-			$quote_key = md5(json_encode($array_data));
-			if (isset($_SESSION[$quote_key])) {
-				$array_resp = json_decode($_SESSION[$quote_key]);
-			} else {
-				$array_resp = self::fc_get_quotes($array_data, $orign);
-				if ($array_resp->response->data != false) {
-					$_SESSION[$quote_key] = json_encode($array_resp);
-				}
-			}
+			/*Dados do destino*/			
+			$data_cep = self::fc_get_cep_data($request['destination']['postcode']);
+			$destination = new Destination;			
+			$destination->setCEP($dest['postcode']);
+			$destination->setStreet(preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $data_cep->logradouro) ?: 'Rua não encontrada');
+			$destination->setNumber(preg_replace('/[^0-9]/', '', $dest['address'])?:1);
+			$destination->setComplement(strlen($data_cep->complemento) ? $data_cep->complemento : "SEM COMPLEMENTO");
+			$destination->setDistrict($data_cep->bairro ?: 'Bairro não encontrado');
+			$destination->setCity($data_cep->localidade);
+			$destination->setState($data_cep->uf);
+			$destination->setCountry('Brasil');
+			$quote_request->setDestination($destination);
+			$array_resp = self::fc_get_quotes($quote_request);
 
 			return $array_resp;
 		}
@@ -308,43 +298,20 @@ class FreteClick{
 					)
 				)
 			)
-		), array(
-			"api_key" => $data["k"],
-			"FC_CITY_ORIGIN" => $data["city_orign"],
-			"FC_CEP_ORIGIN" => $data["cep_orign"],
-			"FC_STREET_ORIGIN" => $data["street_orign"],
-			"FC_NUMBER_ORIGIN" => $data["number_orign"],
-			"FC_COMPLEMENT_ORIGIN" => $data["complement_orign"],
-			"FC_DISTRICT_ORIGIN" => $data["district_orign"],
-			"FC_STATE_ORIGIN" => $data["state_orign"],
-			"FC_CONTRY_ORIGIN" => $data["contry_orign"],
-			"freteclick_quote_type" => $data["freteclick_quote_type"]
 		));
 
 		echo(json_encode($result));
 		exit;
 	}	
 	
-	public static function fc_get_quotes($array_data, $orign = array()){
+	public static function fc_get_quotes(QuoteRequest $QuoteRequest){
 
-		global $url_shipping_quote;
-		$array_resp = array();
-		try {
-			$array_data['api-key'] = !empty($orign) ? $orign["api_key"] : get_option('FC_API_KEY');
-
-			$args = array(
-				'method' => 'POST',
-				'timeout' => 600,
-				'headers' => array(
-					'Content-type: application/x-www-form-urlencoded'
-				),
-				'sslverify' => false,
-				'body' => $array_data
-			);
-
-			$resp = wp_remote_post($url_shipping_quote, $args);
-
-			$array_resp = self::orderByPrice(self::filterJson(wp_remote_retrieve_body($resp)));
+		try{
+			$api_key = get_option('FC_API_KEY');			
+			$SDK = new SDK($api_key);
+			$cotafacil = $SDK->cotaFacilClient();			
+			$array_resp = $cotafacil::quote($QuoteRequest);				
+		
 		} catch (Exception $ex) {
 			$array_resp = array(
 				'response' => array('success' => false, 'error' => $ex->getMessage())
@@ -353,29 +320,7 @@ class FreteClick{
 
 		return $array_resp;
 	}
-	public static function filterJson($json){
-		$arrJson = json_decode($json);
-		if (!$arrJson) {
-			self::addError('Erro ao recuperar dados');
-		}
-		if ($arrJson->response->success === false) {
-			if ($arrJson->response->error) {
-				foreach ($arrJson->response->error as $error) {
-					self::addError($error->message);
-				}
-			}
-			self::addError('Erro ao recuperar dados');
-		}
-		return self::getErrors() ?: $arrJson;
-	}	
-	public static function orderByPrice($arrJson){
-		$quotes = (array)$arrJson->response->data->quote;
-		usort($quotes, function ($a, $b) {
-			return $a->total > $b->total;
-		});
-		$arrJson->response->data->quote = $quotes;
-		return $arrJson;
-	}	
+	
 	
 	public static function addError($error){
 		global $fc_errors;

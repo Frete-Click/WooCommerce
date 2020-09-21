@@ -40,8 +40,7 @@ $data = $product->get_data();
             </div>
         </p>
         <?php wp_nonce_field('woocommerce-shipping-calculator', 'woocommerce-shipping-calculator-nonce'); ?>
-    </section>
-    <input type="hidden" name="k" value="<?= get_option("FC_API_KEY") ?>"/>
+    </section>    
     <input type="hidden" name="cep_orign" value="<?= FreteClick::fc_config("FC_CEP_ORIGIN"); ?>"/>
     <input type="hidden" name="street_orign" value="<?= FreteClick::fc_config("FC_STREET_ORIGIN"); ?>"/>
     <input type="hidden" name="number_orign" value="<?= FreteClick::fc_config("FC_NUMBER_ORIGIN"); ?>"/>
@@ -121,7 +120,7 @@ $data = $product->get_data();
                         fc_freteResults.innerHTML = "";
                         var res = data.response;
                         if (res.data) {
-                            var quotes = res.data.quote;
+                            var quotes = res.data.order.quotes;
                             if (quotes.length) {
                                 for (var i = 0; i < quotes.length; i++) {
                                     createResult(quotes[i]);
@@ -178,29 +177,29 @@ $data = $product->get_data();
             if (dds["deadline"] > 1) {
                 //add deadline extras
                 if(deadline_extras > 1){
-                    deadline = dds["deadline"] + parseInt(deadline_extras); 
+                    deadline = dds["retrieveDeadline"] + dds["deliveryDeadline"] + parseInt(deadline_extras); 
                 }else{
-                    deadline = dds["deadline"]; 
+                    deadline = dds["retrieveDeadline"] + dds["deliveryDeadline"]; 
                 }
                 //add deadline varied
                 if(deadline_varied > 1){
-                    deadline = dds["deadline"] + " até " + deadline_varied;
+                    deadline = dds["retrieveDeadline"] + dds["deliveryDeadline"] + " até " + deadline_varied;
                 }else{
-                    deadline = dds["deadline"];
+                    deadline = dds["retrieveDeadline"] + dds["deliveryDeadline"];
                 }
                 //add deadline extras end varied
                 if(deadline_extras > 1 && deadline_varied > 1){
-                    deadline = dds["deadline"] + parseInt(deadline_extras) + " até " + deadline_varied;
+                    deadline = dds["retrieveDeadline"] + dds["deliveryDeadline"] + parseInt(deadline_extras) + " até " + deadline_varied;
                 }else{
-                    deadline = dds["deadline"];
+                    deadline = dds["retrieveDeadline"] + dds["deliveryDeadline"];
                 }
 
             } else {
-                deadline = dds["deadline"];
+                deadline = dds["retrieveDeadline"] +dds["deliveryDeadline"];
             }
             var total = Number(dds["total"]).toFixed(2).replace(',', '').replace('.', ',');
             div.innerHTML =
-                "<label>" + dds["carrier-alias"] + " (" + deadline  + " dias úteis )" + "</label> " +
+                "<label>" + dds["carrier"]["alias"] + " (" + deadline  + " dias úteis )" + "</label> " +
                 "<strong>R$: " + total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})  + "</strong><hr/>";
 
             fc_freteResults.appendChild(div);
