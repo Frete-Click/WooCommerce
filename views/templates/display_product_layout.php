@@ -170,39 +170,32 @@ $data = $product->get_data();
 
             div.style.textAlign = "center";
 
-            var deadline = ' ';
-            var deadline_extras = "<?php echo get_option("FC_PRAZO_EXTRA") ;?>";
+            var deadline = parseInt(dds["retrieveDeadline"]) + parseInt(dds["deliveryDeadline"]);
+            var deadline_extras = parseInt("<?php echo get_option("FC_PRAZO_EXTRA") ;?>");
             var deadline_varied = "<?php echo get_option("FC_PRAZO_VARIADO") ;?>";
 
-            if (dds["deadline"] > 1) {
+            if(deadline_extras > 0 || deadline_varied > 0){
                 //add deadline extras
-                if(deadline_extras > 1){
-                    deadline = dds["retrieveDeadline"] + dds["deliveryDeadline"] + parseInt(deadline_extras); 
-                }else{
-                    deadline = dds["retrieveDeadline"] + dds["deliveryDeadline"]; 
+                if(deadline_extras > 0){
+                    add_deadline = deadline + deadline_extras; 
                 }
                 //add deadline varied
-                if(deadline_varied > 1){
-                    deadline = dds["retrieveDeadline"] + dds["deliveryDeadline"] + " até " + deadline_varied;
-                }else{
-                    deadline = dds["retrieveDeadline"] + dds["deliveryDeadline"];
+                if(deadline_varied > 0){
+                    add_deadline = deadline + " até " + deadline_varied;
                 }
                 //add deadline extras end varied
-                if(deadline_extras > 1 && deadline_varied > 1){
-                    deadline = dds["retrieveDeadline"] + dds["deliveryDeadline"] + parseInt(deadline_extras) + " até " + deadline_varied;
-                }else{
-                    deadline = dds["retrieveDeadline"] + dds["deliveryDeadline"];
+               if(deadline_extras > 0 && deadline_varied > 0){
+                    add_deadline = deadline + deadline_extras + " até " + deadline_varied;
                 }
-
-            } else {
-                deadline = dds["retrieveDeadline"] +dds["deliveryDeadline"];
+            } else{
+                add_deadline = deadline;
             }
+                          
             var total = Number(dds["total"]).toFixed(2).replace(',', '').replace('.', ',');
-            div.innerHTML =
-                "<label>" + dds["carrier"]["alias"] + " (" + deadline  + " dias úteis )" + "</label> " +
-                "<strong>R$: " + total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})  + "</strong><hr/>";
-
-            fc_freteResults.appendChild(div);
+            div.innerHTML =  "<label>" + dds["carrier"]["alias"] + " (" + add_deadline  + " dias úteis )" + "</label> " +
+             "<strong>R$: " + total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})  + "</strong><hr/>";
+            
+             fc_freteResults.appendChild(div);
         }
     }
 </script>
