@@ -164,7 +164,8 @@ function freteclick_shipping_methods() {
 					if ($array_resp->response->data != false){
 						foreach ($array_resp->response->data->order->quotes as $key => $quote){
 							$quote = (array) $quote;
-							$fc_deadline =  intval($quote['deliveryDeadline']) + intval(get_option("FC_PRAZO_EXTRA"));
+							$fc_get_deadline = intval($quote['retrieveDeadline']) + intval($quote['deliveryDeadline']);
+							$fc_deadline =  $fc_get_deadline + intval(get_option("FC_PRAZO_EXTRA"));
 							$fc_deadline_variation = "";
 							if(!empty(get_option("FC_PRAZO_VARIADO"))){
 								$fc_deadline_variation = " até " . get_option("FC_PRAZO_VARIADO");
