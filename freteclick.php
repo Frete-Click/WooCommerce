@@ -3,7 +3,7 @@
 Plugin Name:       FreteClick
 Plugin URI:        https://freteclick.com.br/
 Description:       Cálculo do frete com o serviço da web Frete Click
-Version:           v1.0.16
+Version:           v1.0.17
 Author:            Frete Click
 Author URI:        https://www.freteclick.com.br
 License:           Todos os Direitos Reservados
@@ -159,33 +159,31 @@ function freteclick_shipping_methods() {
 				 * @return void
 				 */
 				public function calculate_shipping($package = array()){
-					$array_resp = FreteClick::fc_calculate_shipping($package);
-					
+					$array_resp = json_decode( FreteClick::fc_calculate_shipping($package));
+
 					if ($array_resp->response->data != false){
 						foreach ($array_resp->response->data->order->quotes as $key => $quote){
 							$quote = (array) $quote;
-							$fc_deadline =  intval($quote['deadline']) + intval(get_option("FC_PRAZO_EXTRA"));
+							$fc_deadline =  intval($quote['deliveryDeadline']) + intval(get_option("FC_PRAZO_EXTRA"));
 							$fc_deadline_variation = "";
 							if(!empty(get_option("FC_PRAZO_VARIADO"))){
 								$fc_deadline_variation = " até " . get_option("FC_PRAZO_VARIADO");
 							}
 							$carrier_data = array(
-								'id' => $quote['quote-id'],
-								'label' =>  $quote['carrier-alias'] . "  (" . $fc_deadline . $fc_deadline_variation . "  dias úteis)",
-								'cost' => $quote['total'],
+								'id' => $quote['id'],
+								'label' =>  $quote['carrier']->alias . "  (" . $fc_deadline . $fc_deadline_variation . "  dias úteis)",
 								'cost' => $quote['total'],
 								'calc_tax' => 'per_item',
 								'meta_data' => array(
-									'Código de Rastreamento' => $quote['order-id'],
-									'Nome da Transportadora' => $quote['carrier-name'] ,
-									'Cotação' => $quote['quote-id']
+									'Código de Rastreamento' => $quote['id'],
+									'Nome da Transportadora' => $quote['carrier']->name ,
+									'Cotação' => $quote['id']
 								)
 							);
 							$this->add_rate( $carrier_data );
 						}
 					}
 					else{
-						error_log(json_encode($array_data));
 						error_log(json_encode($array_resp));
 					}
 				}
