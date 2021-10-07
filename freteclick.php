@@ -1,12 +1,12 @@
 <?php
 /*
-Plugin Name:       FreteClick
+Plugin Name:       Frete Click
 Plugin URI:        https://freteclick.com.br/
 Description:       Cálculo do frete com o serviço da web Frete Click
-Version:           1.0.18
+Version:           1.1.0
 Author:            Frete Click
- * Requires at least:   5.5.0
-WC tested up to:    5.5.1
+Requires at least: 5.5.0
+WC tested up to:   5.8.1
 Author URI:        https://www.freteclick.com.br
 License:           Todos os Direitos Reservados
 */
