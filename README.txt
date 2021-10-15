@@ -10,7 +10,6 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 API: https://api.freteclick.com.br/
 Painel: https://cota-facil.freteclick.com.br/
 
-Módulo para realização de frete com a Frete Click na plataforma Woocommerce.
 == Description ==
 Módulo para realização de frete com a Frete Click na plataforma Woocommerce.
 
