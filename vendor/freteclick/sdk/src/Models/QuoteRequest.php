@@ -8,14 +8,18 @@ use SDK\Models\Config;
 
 class QuoteRequest{
 
-	public $origin = [];
-	public $destination = [];
-	public $productTotalPrice = 0;
-	public $productType = "";	
-	public $order = 'total';
-	public $quote_type = 'simple';
-	public $packages = [];
-	public $contact = null;
+	protected $origin = [];
+	protected $destination = [];
+	protected $product_total_price = 0;	
+	protected $product_type = "";
+	protected $packages = [];
+	protected $contact = null;
+	protected $config = null;
+
+
+	public function getPackages(){
+		return $this->packages;
+	}
 
 	public function addPackage(Package $package){		
 
@@ -26,15 +30,37 @@ class QuoteRequest{
 			'width' 	=> $package->getWidth(),
 			'depth' 	=> $package->getDepth()
 		);
-		$this->productTotalPrice 	+= $package->getProductPrice();
-		$this->productType 			.= $package->getProductType().',';
+		$this->product_total_price 	    += $package->getProductPrice();
+		$this->product_type 			.= $package->getProductType().',';
 		return $this;
 	}	
 
+	public function getProductTotalPrice(){
+		return $this->product_total_price;
+	}
+
+	public function getProductType(){
+		return $this->product_type;
+	}
+
+	public function getContact(){
+		return $this->contact;
+	}
+
+	public function getConfig(){
+		if (!$this->config){
+			$this->config = new Config();
+		}
+		return $this->config;
+	}
+
 	public function setConfig(Config $config){
-		$this->order = $config->getOrder();
-		$this->quote_type = $config->getQuoteType();
+		$this->config = $config;
 		return $this;
+	}
+
+	public function getOrigin(){
+		return $this->origin;
 	}
 
 	public function setOrigin(Origin $origin){
@@ -49,6 +75,10 @@ class QuoteRequest{
 			'country' 		=> $origin->getCountry()
 		];		
 		return $this;
+	}
+
+	public function getDestination(){
+		return $this->destination;
 	}
 
 	public function setDestination(Destination $destination){
