@@ -245,7 +245,7 @@ class FreteClick{
 	
 	/* Página de Configurações */
 	public static function fc_options_register_fields(){
-		add_option("freteclick_quote_type", "0");
+		add_option("freteclick_quote_type", "simple");
 		add_option('freteclick_display_product', '0');
 		add_option('FC_API_KEY', '');
 		add_option('FC_PRAZO_EXTRA', '');
