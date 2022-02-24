@@ -3,8 +3,8 @@
 Tags: FreteClick, Frete Click, Frete, Click, Carriers, Carrier, Transportadoras, Transportadora, Correios, Frete, Cálculo de Frete
 Requires at least: 5.0
 Contributors: freteclick
-Version: 1.1.5
-Stable tag: 1.1.5
+Version: 1.1.6
+Stable tag: 1.1.6
 Tested up to: 5.9
 Requires PHP: 7.0
 License: GPLv2 or later
