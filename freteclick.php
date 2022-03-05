@@ -3,7 +3,7 @@
  * Plugin Name:       	Frete Click
  * Plugin URI:        	https://br.wordpress.org/plugins/freteclick/
  * Description:       	Plugin para cotação de fretes utilizando a API da Frete Click.
- * Version:           	1.1.6
+ * Version:           	1.1.7
  * Author:            	Frete Click
  * Requires at least: 	5.0
  * WC tested up to:   	5.9
@@ -166,6 +166,9 @@ function freteclick_shipping_methods() {
 					$array_resp = json_decode( FreteClick::fc_calculate_shipping($package));
 
 					if ($array_resp->response->data != false){
+						
+						 $order_id = $array_resp->response->data->order->id;						
+
 						foreach ($array_resp->response->data->order->quotes as $key => $quote){
 							$quote = (array) $quote;
 							$fc_get_deadline = intval($quote['retrieveDeadline']) + intval($quote['deliveryDeadline']);
@@ -180,9 +183,10 @@ function freteclick_shipping_methods() {
 								'cost' => $quote['total'],
 								'calc_tax' => 'per_item',
 								'meta_data' => array(
-									'Código de Rastreamento' => $quote['id'],
-									'Nome da Transportadora' => $quote['carrier']->name ,
-									'Cotação' => $quote['id']
+									'Pedido'			=> '#'. $order_id,
+									'Código de Rastreamento' 	=> $order_id,
+									'Nome da Transportadora' 	=> $quote['carrier']->name ,
+									'Cotação' 					=> $quote['id']
 								)
 							);
 							$this->add_rate( $carrier_data );
