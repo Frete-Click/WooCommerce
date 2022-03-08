@@ -2,8 +2,8 @@
 Tags: FreteClick, Frete Click, Frete, Click, Carriers, Carrier, Transportadoras, Transportadora, Correios, Frete, Cálculo de Frete
 Requires at least: 5.0
 Contributors: freteclick
-Version: 1.1.7
-Stable tag: 1.1.7
+Version: 1.1.8
+Stable tag: 1.1.8
 Tested up to: 5.9
 Requires PHP: 7.0
 License: GPLv2 or later
@@ -13,6 +13,13 @@ Painel: https://cota-facil.freteclick.com.br/
 
 == Description ==
 Plugin para cotação de fretes utilizando a API da Frete Click.
+
+Configurações necessarias do WooCommerce
+
+Medidas: 
+
+Unidade de peso = Kg
+Unidades de medida = cm
 
 Para mais informações:
 https://www.freteclick.com.br/termos-e-condicoes

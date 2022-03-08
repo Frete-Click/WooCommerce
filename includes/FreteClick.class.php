@@ -101,7 +101,7 @@ class FreteClick{
 				foreach ($items as $item) {
 					$package = new Package();
 					$package->setQuantity($item['quantity']);
-					$package->setWeight($item['data']->get_weight() / 1000);
+					$package->setWeight($item['data']->get_weight());
 					$package->setHeight($item['data']->get_height() / 100);
 					$package->setWidth($item['data']->get_width() / 100);
 					$package->setDepth($item['data']->get_length() / 100);
@@ -124,7 +124,7 @@ class FreteClick{
 					
 					$package = new Package();
 					$package->setQuantity($item['quantity']);
-					$package->setWeight($p_data['weight'] / 1000);
+					$package->setWeight($p_data['weight']);
 					$package->setHeight($p_data['height']  / 100);
 					$package->setWidth($p_data['width'] / 100);
 					$package->setDepth($p_data['length'] / 100);
