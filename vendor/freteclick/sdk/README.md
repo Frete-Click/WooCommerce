@@ -1,23 +1,36 @@
-# SDK
+# SDK - FRETE CLICK
 
-SDK para a API da plataforma Frete Click
+Este pacote é responsável por realizar o cálculo de cotações com API Frete Click.
 https://api.freteclick.com.br
 
 
-# Instalação
-composer require freteclick/sdk
-
-#Uso
-
+# Instalação Via Composer
 <pre>
- use freteclick\SDK;
+composer require freteclick/sdk
+</pre>
 
- $origin = new freteclick\SDK\Models\Origin(); 
- $destination = new freteclick\SDK\Models\Destination();
+# Instalação Via Git
+<pre>
+git clone https://github.com/Frete-Click/SDK.git
+composer install
+</pre>
 
- $SDK = new SDK($api_key);
- $cotafacil = $SDK->cotaFacilClient();
- $result = $cotafacil->quote($origin,$destination);
- 
- print_r($result); 
+# Dependências
+<pre>
+require
+PHP >= ^7.2
+Ext-json = *
+Guzzlehttp/guzzle >= 6.5
+</pre>
+
+# For guzzle ^5.0 and php ^5.6
+<pre>
+git clone https://github.com/Frete-Click/SDK.git
+Modify composer.json on line 17 ("php": "^5.6") and on line 19 ("guzzlehttp/guzzle": "^5.0")
+composer install
+</pre>
+
+# Examples
+<pre>
+Follow the examples in /examples.
 </pre>
