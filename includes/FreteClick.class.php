@@ -87,6 +87,7 @@ class FreteClick{
 			$config = new Config;
 			$config->setQuoteType(isset($orign["freteclick_quote_type"]) ? $orign["freteclick_quote_type"] : get_option("freteclick_quote_type"));
 			$config->setOrder('total');
+			$config->setNoRetrieve(false);
 
 			$quote_request->setConfig($config); 
 			

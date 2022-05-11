@@ -7,6 +7,7 @@ class Config{
 	protected $order = 'total';
 	protected $quote_type = 'simple';
 	protected $increase_deadline = 0;
+	protected $no_retrieve = false;
 
 
 	public function getOrder(){
@@ -36,4 +37,12 @@ class Config{
 		return $this;
 	}	
 
+	public function setNoRetrieve($no_retrieve){
+		$this->no_retrieve = $no_retrieve;
+		return $this;
+	}
+
+	public function getNoRetrieve(){
+		return $this->no_retrieve;
+	}
 }

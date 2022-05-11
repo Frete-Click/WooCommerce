@@ -2,7 +2,7 @@
 
     "title": "freteclick",
     "require": {
-        "freteclick/sdk": "v1.2.19"
+        "freteclick/sdk": "v1.2.20"
     },
     "autoload": {
         "psr-4": {

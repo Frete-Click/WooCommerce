@@ -42,7 +42,8 @@ class FreteClick{
 				'packages' => $quote_request->getPackages(),
 				'contact' => $quote_request->getContact(),
 				'order' => $quote_request->getConfig()->getOrder(),
-				'quoteType' => $quote_request->getConfig()->getQuoteType()
+				'quoteType' => $quote_request->getConfig()->getQuoteType(),
+				'noRetrieve'	=> $quote_request->getConfig()->getNoRetrieve()
 		    )
 		]);		
 		
