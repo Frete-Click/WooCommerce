@@ -87,7 +87,7 @@ class FreteClick{
 			$config = new Config;
 			$config->setQuoteType(isset($orign["freteclick_quote_type"]) ? $orign["freteclick_quote_type"] : get_option("freteclick_quote_type"));
 			$config->setOrder('total');
-			$config->setNoRetrieve(false);
+			$config->setNoRetrieve(get_option('freteclick_noretrieve'));
 
 			$quote_request->setConfig($config); 
 			
@@ -246,11 +246,14 @@ class FreteClick{
 	
 	/* Página de Configurações */
 	public static function fc_options_register_fields(){
+
 		add_option("freteclick_quote_type", "simple");
 		add_option('freteclick_display_product', '0');
+		add_option('freteclick_noretrieve', '0');
 		add_option('FC_API_KEY', '');
 		add_option('FC_PRAZO_EXTRA', '');
 		add_option('FC_PRAZO_VARIADO', '');
+
 		register_setting('freteclick_options_page', 'FC_API_KEY', array(
 			"type" => "string",
 			"description" => ""
@@ -267,6 +270,10 @@ class FreteClick{
 			"type" => "boolean",
 			"description" => "Isso vai adicionar um campo de cálculo de frete nas páginas de produto"
 		));
+		register_setting('freteclick_options_page', 'freteclick_noretrieve', array(
+			"type" => "boolean",
+			"description" => "Exibe ou não transportadoras sem coletas"
+		));		
 		register_setting('freteclick_options_page', 'freteclick_quote_type', array(
 			"type" => "string",
 			"description" => ""

@@ -46,6 +46,18 @@
             </tr>
             <tr valign="top">
                 <th scope="row">
+                    <label for="freteclick_noretrieve"><?= __('Exibir transportadoras sem coletas') ?></label>
+                </th>
+                <td>
+                    <select id="freteclick_noretrieve" name="freteclick_noretrieve">
+                        <?php $vl = get_option('freteclick_noretrieve'); $sl = " selected='selected'"; ?>
+                        <option value="0"<?= $vl == 0 ? $sl : "" ?>><?= __("Não") ?></option>
+                        <option value="1"<?= $vl == 1 ? $sl : "" ?>><?= __("Sim") ?></option>
+                    </select>
+                </td>
+            </tr>            
+            <tr valign="top">
+                <th scope="row">
                     <label for="freteclick_quote_type"><?= __('Tipo de Cotação') ?></label>
                     <p>
                         <strong>Cotação Completa:</strong> Mostra todas as opções de frete disponíveis<br/>
