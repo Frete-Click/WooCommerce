@@ -84,10 +84,16 @@ class FreteClick{
 			$origin->setCountry(self::fc_config('FC_CONTRY_ORIGIN'));
 			$quote_request->setOrigin($origin);
 
+			if(get_option('freteclick_noretrieve') === 0){
+				$no_retrieve = false;
+			}else{
+				$no_retrieve = true;
+			}
+
 			$config = new Config;
 			$config->setQuoteType(isset($orign["freteclick_quote_type"]) ? $orign["freteclick_quote_type"] : get_option("freteclick_quote_type"));
 			$config->setOrder('total');
-			$config->setNoRetrieve(get_option('freteclick_noretrieve'));
+			$config->setNoRetrieve($no_retrieve);
 
 			$quote_request->setConfig($config); 
 			
