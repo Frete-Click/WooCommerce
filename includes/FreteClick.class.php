@@ -14,7 +14,7 @@ class FreteClick{
 	public static function init(){
 		if (is_admin()){
 			self::fc_add_scripts();
-			add_action('admin_enqueue_scripts', array('FreteClick','fc_admin_style'));
+			self::fc_admin_style();
 		}else{
 			self::fc_add_styles();
 		}
@@ -203,7 +203,7 @@ class FreteClick{
 		wp_enqueue_style( 'frtck_front_style', $plugin_uri . "views/css/frtck_front.css" );
 	}
 
-	public function fc_admin_style() {
+	public static function fc_admin_style() {
 		$plugin_uri = str_replace('/includes', '', plugin_dir_url(__FILE__));
 		wp_enqueue_style('admin-styles', $plugin_uri .'views/css/admin.css');
 	}	  
