@@ -14,6 +14,7 @@ class FreteClick{
 	public static function init(){
 		if (is_admin()){
 			self::fc_add_scripts();
+			add_action('admin_enqueue_scripts', array('FreteClick','fc_admin_style'));
 		}else{
 			self::fc_add_styles();
 		}
@@ -202,6 +203,11 @@ class FreteClick{
 		wp_enqueue_style( 'frtck_front_style', $plugin_uri . "views/css/frtck_front.css" );
 	}
 
+	public function fc_admin_style() {
+		$plugin_uri = str_replace('/includes', '', plugin_dir_url(__FILE__));
+		wp_enqueue_style('admin-styles', $plugin_uri .'views/css/admin.css');
+	}	  
+
 	public static function fc_display_product_layout(){
 		if (get_option('freteclick_display_product') == 1) {
 			global $pluginDir;
@@ -257,8 +263,8 @@ class FreteClick{
 		add_option('freteclick_display_product', '0');
 		add_option('freteclick_noretrieve', '0');
 		add_option('FC_API_KEY', '');
-		add_option('FC_PRAZO_EXTRA', '');
-		add_option('FC_PRAZO_VARIADO', '');
+		add_option('FC_PRAZO_EXTRA', '0');
+		add_option('FC_PRAZO_VARIADO', '0');
 
 		register_setting('freteclick_options_page', 'FC_API_KEY', array(
 			"type" => "string",
