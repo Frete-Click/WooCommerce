@@ -183,7 +183,7 @@ function freteclick_shipping_methods() {
 							$carrier_data = array(
 								'id' => $quote['id'],
 								'label' =>  $quote['carrier']->alias . "  (" . $fc_deadline . $fc_deadline_variation . "  dias úteis)",
-								'cost' => $quote['total'] + $massoneto_tax,
+								'cost' => $quote['total'], //+ $massoneto_tax,
 								'calc_tax' => 'per_item',
 								'meta_data' => array(
 									'Pedido'			=> '#'. $order_id,
