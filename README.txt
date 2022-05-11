@@ -25,9 +25,9 @@ Plugin para cotação de fretes utilizando a API da Frete Click.
 3. Ative o plugin através da tela 'Plugins' no WordPress
 4. Use a tela Configurações -> Frete Click para configurar o plug-in e inserir a chave de API.
 
-Configurações necessarias do WooCommerce
+== Configurações necessarias ==
 
-Medidas: 
+WooCommerce Medidas: 
 
 Unidade de peso = Kg
 Unidades de medida = cm
