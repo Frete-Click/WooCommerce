@@ -7,7 +7,7 @@
  * Author:            	Frete Click
  * Requires at least: 	5.0
  * WC tested up to:   	5.9
- * Requires PHP: 		7.0
+ * Requires PHP: 		7.2
  * Author URI:        	https://www.freteclick.com.br/
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
