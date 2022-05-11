@@ -19,6 +19,7 @@
 **WooCommerce Medidas:**
 
 >Unidade de peso = Kg
+
 >Unidades de medida = cm
 
 **Para mais informações:**
