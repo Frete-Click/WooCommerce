@@ -3,7 +3,7 @@
  * Plugin Name:       	Frete Click
  * Plugin URI:        	https://br.wordpress.org/plugins/freteclick/
  * Description:       	Plugin para cotação de fretes utilizando a API da Frete Click.
- * Version:           	1.1.17
+ * Version:           	1.1.18
  * Author:            	Frete Click
  * Requires at least: 	4.7
  * WC tested up to:   	5.9
@@ -13,203 +13,55 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
-$pluginDir = plugin_dir_path(__FILE__);
-require_once("includes/variables.php");
-require_once("includes/FreteClick.class.php");
+define( 'WOO_FRETECLICK_PATH', plugin_dir_path( __FILE__ ) );
 
-if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
-	FreteClick::init();
-} else {
-	add_action( 'admin_notices', array('FreteClick','fc_wc_missing_notice') );
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
 }
 
-function freteclick_shipping_methods() {
-		/*Adicionar os métidos de entrega*/
-		if ( ! class_exists( 'freteclick_shipping_methods' ) ) {
-			class freteclick_shipping_methods extends WC_Shipping_Method {
-				/**
-				 * Constructor for your shipping class
-				 *
-				 * @access public
-				 * @return void
-				 */
-				public function __construct($instance_id = 0) {
-					global $pluginId, $pluginName, $pluginDescription, $pluginCountries, $pluginSupports;
+$pluginDir = plugin_dir_path(__FILE__);
 
-					$this->instance_id = absint( $instance_id );
-					$this->id = $pluginId;
-					$this->title = $pluginName;
-					$this->method_description = $pluginDescription;
-					$this->method_title = $pluginName ; 
-					$this->availability = 'including';
-					$this->countries = $pluginCountries ;
+if(! class_exists("WC_FreteClick_Main") )
+{
+	class WC_FreteClick_Main{
 
-					$this->supports = $pluginSupports ;
+		protected static $instance = null;
 
-					$this->init();
-				}
-				/**
-				 * Init your settings
-				 *
-				 * @access public
-				 * @return void
-				 */
-				function init() {
-					// Load the settings API
-					$this->init_form_fields();
-					$this->init_settings();
-					
-					$this->enabled = isset($this->settings['FC_IS_ACTIVE']) ? $this->settings['FC_IS_ACTIVE'] : 'yes';
+		private function __construct() {
 
-					$this->fc_check_settings($this->settings);
+			if (class_exists("WC_Integration")) {
 
-					// Save settings in admin if you have any defined
-					add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
-				}
-				function init_form_fields() {
-					$this->instance_form_fields = array(
-						'FC_IS_ACTIVE' => array(
-							'title' => __( 'Status do Frete Click' ),
-							'type' => 'checkbox',
-							'description' => __( 'Para ativar os métodos de entrega do frete click você deve checar essa opção.' ),
-							'label' => 'Ativar o Frete Click como Método de Entrega?'
-					   ),
-						'FC_CEP_ORIGIN' => array(
-							 'title' => __( 'CEP de Origem' ),
-							 'type' => 'text',
-							 'description' => __( '' ),
-							 'class' => 'fc-input-cep cep-origin'
-						),
-						'FC_STREET_ORIGIN' => array(
-							 'title' => __( 'Rua' ),
-							 'type' => 'text',
-							 'description' => __( '' ),
-							 'class' => 'street-origin'
-						),
-						'FC_NUMBER_ORIGIN' => array(
-							 'title' => __( 'Número' ),
-							 'type' => 'text',
-							 'description' => __( '' )
-						),
-						'FC_COMPLEMENT_ORIGIN' => array(
-							 'title' => __( 'Complemento' ),
-							 'type' => 'text',
-							 'description' => __( '' )
-						),
-						'FC_DISTRICT_ORIGIN' => array(
-							 'title' => __( 'Bairro' ),
-							 'type' => 'text',
-							 'description' => __( '' ),
-							 'class' => 'district-origin'
-						),
-						'FC_CITY_ORIGIN' => array(
-							 'title' => __( 'Cidade de Origem' ),
-							 'type' => 'text',
-							 'description' => __( '' ),
-							 'class' => 'city-origin'
-						),
-						'FC_STATE_ORIGIN' => array(
-							 'title' => __( 'Estado de Origem' ),
-							 'type' => 'select',
-							 'description' => __( '' ),
-							 'options' => array(
-								 'AC' => 'Acre',
-								 'AL' => 'Alagoas',
-								 'AP' => 'Amapá',
-								 'AM' => 'Amazonas',
-								 'BA' => 'Bahia',
-								 'CE' => 'Ceará',
-								 'DF' => 'Distrito Federal',
-								 'ES' => 'Espírito Santo',
-								 'GO' => 'Goiás',
-								 'MA' => 'Maranhão',
-								 'MT' => 'Mato Grosso',
-								 'MS' => 'Mato Grosso do Sul',
-								 'MG' => 'Minas Gerais',
-								 'PA' => 'Pará',
-								 'PB' => 'Paraíba',
-								 'PR' => 'Paraná',
-								 'PE' => 'Pernambuco',
-								 'PI' => 'Piauí',
-								 'RJ' => 'Rio de Janeiro',
-								 'RN' => 'Rio Grande do Norte',
-								 'RS' => 'Rio Grande do Sul',
-								 'RO' => 'Rondônia',
-								 'RR' => 'Roraima',
-								 'SC' => 'Santa Catarina',
-								 'SP' => 'São Paulo',
-								 'SE' => 'Sergipe',
-								 'TO' => 'Tocantins'
-							 ),
-							 'class' => 'state-origin'
-						),
-						'FC_CONTRY_ORIGIN' => array(
-							 'title' => __( 'Paìs de Origem' ),
-							 'type' => 'text',
-							 'description' => __( '' ),
-							 'default' => 'Brasil',
-							 'class' => 'country-origin'
-						)
-					);
-			   }
-			  	public function is_available( $package ){
-					return true;
-			  	}
-				/**
-				 * calculate_shipping function.
-				 *
-				 * @access public
-				 * @param mixed $package
-				 * @return void
-				 */
-				public function calculate_shipping($package = array()){
+				require_once WOO_FRETECLICK_PATH . 'vendor/autoload.php';
 
-					$massoneto_tax = (WC()->cart->cart_contents_total / 100) * 3;
+				$pluginDir = plugin_dir_path(__FILE__);
+				$fc_errors = array();
 
-					$array_resp = json_decode( FreteClick::fc_calculate_shipping($package));
+				require_once WOO_FRETECLICK_PATH . 'includes/class-freteclick-shipping.php';
+				include_once WOO_FRETECLICK_PATH . 'includes/class-wc-freteclick.php';
 
-					if ($array_resp->response->data != false){
-						
-						 $order_id = $array_resp->response->data->order->id;						
+				add_filter( 'woocommerce_shipping_methods', array($this,'add_fc_shipping_methods'));
 
-						foreach ($array_resp->response->data->order->quotes as $key => $quote){
-							$quote = (array) $quote;
-							$fc_get_deadline = intval($quote['retrieveDeadline']) + intval($quote['deliveryDeadline']);
-							$fc_deadline =  $fc_get_deadline + intval(get_option("FC_PRAZO_EXTRA"));
-							$fc_deadline_variation = "";
-							if(!empty(get_option("FC_PRAZO_VARIADO"))){
-								$fc_deadline_variation = " até " . get_option("FC_PRAZO_VARIADO");
-							}
-							$carrier_data = array(
-								'id' => $quote['id'],
-								'label' =>  $quote['carrier']->alias . "  (" . $fc_deadline . $fc_deadline_variation . "  dias úteis)",
-								'cost' => $quote['total'], //+ $massoneto_tax,
-								'calc_tax' => 'per_item',
-								'meta_data' => array(
-									'Pedido'			=> '#'. $order_id,
-									'Código de Rastreamento' 	=> $order_id,
-									'Nome da Transportadora' 	=> $quote['carrier']->name ,
-									'Cotação' 					=> $quote['id']
-								)
-							);
-							$this->add_rate( $carrier_data );
-						}
-					}
-					else{
-						error_log(json_encode($array_resp));
-					}
-				}
-				function fc_check_settings($set){
-					if ($set['FC_IS_ACTIVE'] != 'yes' && isset($set['FC_IS_ACTIVE'])){
-						add_action( 'admin_notices', array('FreteClick','fc_is_disabled') );
-					}
-					else if (strlen(get_option('FC_API_KEY')) <= 0){
-						add_action( 'admin_notices', array('FreteClick','fc_missing_apikey' ));
-					}
-					else if (strlen($set['FC_CEP_ORIGIN']) <= 0 || strlen($set['FC_CITY_ORIGIN']) <= 0 || strlen($set['FC_STREET_ORIGIN']) <= 0 || strlen($set['FC_NUMBER_ORIGIN']) <= 0 || strlen($set['FC_STATE_ORIGIN']) <= 0 || strlen($set['FC_CONTRY_ORIGIN']) <= 0 || strlen($set['FC_DISTRICT_ORIGIN']) <= 0){
-						add_action( 'admin_notices', array('FreteClick','fc_missing_address') );
-					}
-				}
+				FreteClick::init();
+			}else{
+				add_action( 'admin_notices', array( $this, 'wcfreteclick_woocommerce_fallback_notice' ) );
 			}
-		}		
+
+		}
+
+		public static function add_fc_shipping_methods( $methods ) {
+			$methods['freteclick'] = 'WC_FreteClick';
+			return $methods;
+		}
+
+		public static function get_instance() {
+
+            if ( null === self::$instance ) {
+                self::$instance = new self;
+            }
+
+            return self::$instance;
+        }
 	}
+
+	add_action( 'plugins_loaded', array( 'WC_FreteClick_Main', 'get_instance' ) );
+}

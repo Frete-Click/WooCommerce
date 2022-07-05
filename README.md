@@ -1,6 +1,6 @@
 # Frete Click
 
-* Version: 1.1.17
+* Version: 1.1.18
 * Requires PHP: 5.6+
 * Requires Wordpress 4.7+
 * Requires WooCommerce 4.0+

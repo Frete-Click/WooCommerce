@@ -1,5 +1,5 @@
 <?php
-global $product, $pluginName, $woocommerce, $post;
+global $product, $woocommerce, $post;
 /**
  * get product variables
  */
@@ -24,7 +24,7 @@ $data = $product->get_data();
 <form id="formCalcFrete" style="text-transform: uppercase;" class="woocommerce-shipping-calculator"
       accept-charset="utf-8" method="post">
     <h4 style="margin-bottom: 0;">Calcular Frete</h4>
-    <small><?= $pluginName ?></small>
+    <small>Frete Click</small>
     <section class="shipping-calculator-form" style="">
         <p class="form-row form-row-wide" id="calc_shipping_postcode_field">
             <input type="text" class="input-text"
