@@ -61,92 +61,93 @@ class FreteClick{
 		 */
 		global $woocommerce;
 		$quote_request = new QuoteRequest();
-		//session_start();
-		
+
 		if (!empty($request['destination']['postcode'])) {
 				
-			if(!self::fc_get_cep_data($request['destination']['postcode'])->erro === true){
+			/*Dados de origem*/
+			$origin = new Origin;			
+			$origin->setCity(self::fc_config('FC_CITY_ORIGIN'));
+			$origin->setState(self::fc_config('FC_STATE_ORIGIN'));
+			$origin->setCountry(self::fc_config('FC_CONTRY_ORIGIN'));
+			$quote_request->setOrigin($origin);
 
-				/*Dados de origem*/
-				$origin = new Origin;			
-				$origin->setCity(self::fc_config('FC_CITY_ORIGIN'));
-				$origin->setState(self::fc_config('FC_STATE_ORIGIN'));
-				$origin->setCountry(self::fc_config('FC_CONTRY_ORIGIN'));
-				$quote_request->setOrigin($origin);
-
-				if(get_option('freteclick_noretrieve') === 0){
-					$no_retrieve = false;
-				}else{
-					$no_retrieve = true;
-				}
-
-				$config = new Config;
-				$config->setQuoteType(isset($orign["freteclick_quote_type"]) ? $orign["freteclick_quote_type"] : get_option("freteclick_quote_type"));
-				$config->setOrder('total');
-				$config->setNoRetrieve($no_retrieve);
-
-				$quote_request->setConfig($config); 
-				
-				/*Dados do produto*/
-				if (class_exists("WC_Product_Factory")) {
-					$_pf = new WC_Product_Factory();
-				}						
-
-				$items = isset($woocommerce->cart) ? $woocommerce->cart->get_cart() : [];
-				if (count($items) > 0) {
-					
-					foreach ($items as $item) {
-						$package = new Package();
-						$package->setQuantity($item['quantity']);
-						$package->setWeight($item['data']->get_weight());
-						$package->setHeight($item['data']->get_height() / 100);
-						$package->setWidth($item['data']->get_width() / 100);
-						$package->setDepth($item['data']->get_length() / 100);
-						$package->setProductType($item['data']->get_title());
-						$package->setProductPrice($item['line_total']);					
-						$quote_request->addPackage($package);					
-					}					
-				} else {				
-					foreach ($request['contents'] as $key => $item) {					
-						if (class_exists("WC_Product_Factory")) {
-							$product = $_pf->get_product($item['product_id']);
-							$p_data = $product->get_data();
-							if (!$p_data['weight']) {
-								$p_data = $item["data"];
-							}
-						} else {
-							$product = $item;
-							$p_data = $item["data"];
-						}					
-						
-						$package = new Package();
-						$package->setQuantity($item['quantity']);
-						$package->setWeight($p_data['weight']);
-						$package->setHeight($p_data['height']  / 100);
-						$package->setWidth($p_data['width'] / 100);
-						$package->setDepth($p_data['length'] / 100);
-						$package->setProductType($p_data['name']);
-						/*
-						* @todo Verificar o preço
-						*/
-						$package->setProductPrice(1);
-						$quote_request->addPackage($package);					
-					}				
-				}
-
-				/*Dados do destino*/
-			
-				$data_cep = self::fc_get_cep_data($request['destination']['postcode']);
-
-				$destination = new Destination;			
-				$destination->setCity($data_cep->localidade);
-				$destination->setState($data_cep->uf);
-				$destination->setCountry('Brasil');
-				$quote_request->setDestination($destination);
-				$array_resp = self::fc_get_quotes($quote_request);
-
-				return  json_decode( $array_resp );
+			if(get_option('freteclick_noretrieve') === 0){
+				$no_retrieve = false;
+			}else{
+				$no_retrieve = true;
 			}
+
+			$config = new Config;
+			$config->setQuoteType(isset($orign["freteclick_quote_type"]) ? $orign["freteclick_quote_type"] : get_option("freteclick_quote_type"));
+			$config->setOrder('total');
+			$config->setNoRetrieve($no_retrieve);
+
+			$quote_request->setConfig($config); 
+			
+			/*Dados do produto*/
+			if (class_exists("WC_Product_Factory")) {
+				$_pf = new WC_Product_Factory();
+			}						
+
+			$items = isset($woocommerce->cart) ? $woocommerce->cart->get_cart() : [];
+			if (count($items) > 0) {
+				
+				foreach ($items as $item) {
+					$package = new Package();
+					$package->setQuantity($item['quantity']);
+					$package->setWeight($item['data']->get_weight());
+					$package->setHeight($item['data']->get_height() / 100);
+					$package->setWidth($item['data']->get_width() / 100);
+					$package->setDepth($item['data']->get_length() / 100);
+					$package->setProductType($item['data']->get_title());
+					$package->setProductPrice($item['line_total']);					
+					$quote_request->addPackage($package);					
+				}					
+			} else {				
+				foreach ($request['contents'] as $key => $item) {					
+					if (class_exists("WC_Product_Factory")) {
+						$product = $_pf->get_product($item['product_id']);
+						$p_data = $product->get_data();
+						if (!$p_data['weight']) {
+							$p_data = $item["data"];
+						}
+					} else {
+						$product = $item;
+						$p_data = $item["data"];
+					}					
+					
+					$package = new Package();
+					$package->setQuantity($item['quantity']);
+					$package->setWeight($p_data['weight']);
+					$package->setHeight($p_data['height']  / 100);
+					$package->setWidth($p_data['width'] / 100);
+					$package->setDepth($p_data['length'] / 100);
+					$package->setProductType($p_data['name']);
+					/*
+					* @todo Verificar o preço
+					*/
+					$package->setProductPrice(1);
+					$quote_request->addPackage($package);					
+				}				
+			}
+
+			/*Dados do destino*/
+		
+			$data_cep = self::get_address($request['destination']['postcode']);
+
+			if($data_cep === null){
+				return error_log(json_encode($data_cep));
+			}
+
+			$destination = new Destination;			
+			$destination->setCity($data_cep['city']);
+			$destination->setState($data_cep['state']);
+			$destination->setCountry($data_cep['country']);
+			$quote_request->setDestination($destination);
+			$array_resp = self::fc_get_quotes($quote_request);
+
+			return json_decode( $array_resp );
+			
 		}	
 	}	
 
@@ -174,11 +175,46 @@ class FreteClick{
 		return $default[$name];
 	}	
 
-	public static function fc_get_cep_data($cep){
+	/**
+	 * Format string
+	 */
+	public static function format_cep($data)
+	{
+		return preg_replace("/[^0-9]/", "", $data);
+	}
 
-		$data_cep = wp_remote_get('https://viacep.com.br/ws/' . $cep . '/json/', array());
+	/**
+	 * Get Address
+	 */
+	public static function get_address($data)
+	{
 
-		return json_decode(wp_remote_retrieve_body($data_cep));
+		$cep = self::format_cep($data);
+
+		$url_api = "https://api.freteclick.com.br/cep_address/$cep";
+
+		$headers = array(         
+			'Accept:application/ld+json',
+			'Content-Type:application/json',
+			'api-token: '. get_option('FC_API_KEY')
+		);
+
+		$ch = curl_init();
+	
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_URL, $url_api);
+	
+		$request =  json_decode(curl_exec($ch), true);
+	
+		curl_close($ch); 
+		
+		if($request['@type'] === "hydra:Error"){
+			return null;
+		}
+
+		return $request;
+			
 	}
 
 	public static function fc_add_scripts(){
