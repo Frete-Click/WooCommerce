@@ -2,11 +2,6 @@
 
     "title": "freteclick",
     "require": {
-        "freteclick/sdk": "v1.2.20"
-    },
-    "autoload": {
-        "psr-4": {
-            "Controllers\\": "Controllers/"
-        }
+        "freteclick/sdk": "v1.2.23"
     }
 }

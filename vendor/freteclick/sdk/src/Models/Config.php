@@ -8,6 +8,8 @@ class Config{
 	protected $quote_type = 'simple';
 	protected $increase_deadline = 0;
 	protected $no_retrieve = false;
+	protected $app_type = '';
+	protected $deny_carriers = null;
 
 
 	public function getOrder(){
@@ -45,4 +47,25 @@ class Config{
 	public function getNoRetrieve(){
 		return $this->no_retrieve;
 	}
+
+	public function setAppType($app_type){
+		$this->app_type = $app_type;
+		return $this;
+	}
+
+	public function getAppType(){
+		return $this->app_type;
+	}
+
+	public function setDenyCarriers($deny_carriers)
+	{
+		$this->deny_carriers = $deny_carriers;
+		return $this;
+	}
+
+	public function getDenyCarriers()
+	{
+		return $this->deny_carriers;
+	}
+
 }

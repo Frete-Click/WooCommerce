@@ -43,7 +43,9 @@ class FreteClick{
 				'contact' => $quote_request->getContact(),
 				'order' => $quote_request->getConfig()->getOrder(),
 				'quoteType' => $quote_request->getConfig()->getQuoteType(),
-				'noRetrieve'	=> $quote_request->getConfig()->getNoRetrieve()
+				'noRetrieve'	=> $quote_request->getConfig()->getNoRetrieve(),
+				'app'	=> $quote_request->getConfig()->getAppType(),
+				'denyCarriers' => $quote_request->getConfig()->getDenyCarriers()
 		    )
 		]);		
 		

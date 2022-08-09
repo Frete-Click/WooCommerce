@@ -151,8 +151,6 @@ class WC_FreteClick extends WC_Shipping_Method {
         */
     public function calculate_shipping($package = array()){
 
-        $massoneto_tax = (WC()->cart->cart_contents_total / 100) * 3;
-
         $array_resp = FreteClick::fc_calculate_shipping($package);
 
         if ($array_resp->response->data != false){
@@ -170,7 +168,7 @@ class WC_FreteClick extends WC_Shipping_Method {
                 $carrier_data = array(
                     'id' => $quote['id'],
                     'label' =>  $quote['carrier']->alias . "  (" . $fc_deadline . $fc_deadline_variation . "  dias úteis)",
-                    'cost' => $quote['total'], //+ $massoneto_tax,
+                    'cost' => $quote['total'] + FreteClick::invoice_tax(), 
                     'calc_tax' => 'per_item',
                     'meta_data' => array(
                         'Pedido'			=> '#'. $order_id,

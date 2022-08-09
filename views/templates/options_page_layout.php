@@ -1,7 +1,7 @@
 <?php global $pluginName; ?>
 <div class="wrap">
     <div class="wrap-settings-fc">
-        <h1><?= $pluginName ?></h1>
+        <h1>Frete Click</h1>
         <hr>
         <h2>Configurações</h2>
         <form method="post" action="options.php" class="form-fc">
@@ -68,6 +68,34 @@
                             <option value="full"<?= $vl == "full" ? $sl : "" ?>><?= __("Cotação Completa") ?></option>
                             <option value="simple"<?= $vl == "simple" ? $sl : "" ?>><?= __("Cotação Simples") ?></option>
                         </select>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">
+                        <label for="fclick_invoice"><?= __('Nota Fiscal') ?></label>
+                    </th>
+                    <td>
+                        <div class="regular-text">
+                            <p class="fclick-text">Será somado na nota fiscal o valor do frete?</p>
+                        </div>
+                        <select id="fclick_invoice" name="fclick_invoice" class="regular-text">
+                            <?php $vl = get_option('fclick_invoice'); $sl = " selected='selected'"; ?>
+                            <option value="0"<?= $vl == 0 ? $sl : "" ?>><?= __("Não") ?></option>
+                            <option value="1"<?= $vl == 1 ? $sl : "" ?>><?= __("Sim") ?></option>
+                        </select>
+                    </td>
+                </tr> 
+                <tr valign="top">
+                    <th scope="row">
+                        <label for="fclick_deny_carriers"><?= __('Restrições de transportadoras') ?></label>
+                    </th>
+                    <td>
+                        <div class="regular-text">
+                            <p class="fclick-text">Para restringir uma transportadora é preciso solicitar ID da mesma em nossa <a target="_black" href="https://www.freteclick.com.br/">central de relacionamento!</a></p>
+                            <p class="fclick-text">Restringir mais de uma transportadora cadastre separando por vírgula!</p>
+
+                        </div>
+                        <textarea name="fclick_deny_carriers" type="text" id="fclick_deny_carriers" placeholder="1,2,3" class="regular-text"><?= get_option('fclick_deny_carriers') ?></textarea>
                     </td>
                 </tr>
             </table>

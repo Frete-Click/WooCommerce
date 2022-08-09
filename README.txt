@@ -1,10 +1,10 @@
 === Frete Click ===
 
-Version: 1.1.19
+Version: 1.1.20
 Tags: FreteClick, Frete Click, Frete, Click, Carriers, Carrier, Transportadoras, Transportadora, Correios, Frete, Cálculo de Frete
 Requires at least: 4.7
 Tested up to: 5.9
-Stable tag: 1.1.19
+Stable tag: 1.1.20
 Requires PHP: 5.6+
 Requires Wordpress 4.7+
 Requires WooCommerce 4.0+

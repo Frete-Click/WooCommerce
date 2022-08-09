@@ -53,6 +53,11 @@ class FreteClick{
 		) : false;
 	}
 	
+	public static function deny_carriers()
+	{
+		return explode(",", get_option('fclick_deny_carriers'));
+	}
+
 	/* Fazer Cotação */
 	public static function fc_calculate_shipping($request = array()){
 
@@ -81,6 +86,7 @@ class FreteClick{
 			$config->setQuoteType(isset($orign["freteclick_quote_type"]) ? $orign["freteclick_quote_type"] : get_option("freteclick_quote_type"));
 			$config->setOrder('total');
 			$config->setNoRetrieve($no_retrieve);
+			$config->setDenyCarriers(self::deny_carriers());
 
 			$quote_request->setConfig($config); 
 			
@@ -278,6 +284,15 @@ class FreteClick{
 		error_log(json_encode($shipping_data));
 		error_log(json_encode($data));
 	}
+
+	public static function invoice_tax()
+	{
+		if(get_option('fclick_invoice') === '1'){
+			return  (WC()->cart->cart_contents_total / 100) * 3;
+		}
+
+		return 0;
+	}
 	
 	/* Página de Configurações */
 	public static function fc_options_register_fields(){
@@ -285,6 +300,8 @@ class FreteClick{
 		add_option("freteclick_quote_type", "simple");
 		add_option('freteclick_display_product', '0');
 		add_option('freteclick_noretrieve', '0');
+		add_option('fclick_invoice', '0');
+		add_option('fclick_deny_carriers', '');
 		add_option('FC_API_KEY', '');
 		add_option('FC_PRAZO_EXTRA', '0');
 		add_option('FC_PRAZO_VARIADO', '0');
@@ -308,7 +325,15 @@ class FreteClick{
 		register_setting('freteclick_options_page', 'freteclick_noretrieve', array(
 			"type" => "boolean",
 			"description" => "Exibe ou não transportadoras sem coletas"
-		));		
+		));	
+		register_setting('freteclick_options_page', 'fclick_invoice', array(
+			"type" => "boolean",
+			"description" => ""
+		));	
+		register_setting('freteclick_options_page', 'fclick_deny_carriers', array(
+			"type" => "string",
+			"description" => ""
+		));			
 		register_setting('freteclick_options_page', 'freteclick_quote_type', array(
 			"type" => "string",
 			"description" => ""
