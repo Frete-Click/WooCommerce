@@ -10,6 +10,8 @@ class Config{
 	protected $no_retrieve = false;
 	protected $app_type = '';
 	protected $deny_carriers = null;
+	protected $marketplace = true;
+	protected $noCache = true;
 
 
 	public function getOrder(){
@@ -56,6 +58,28 @@ class Config{
 	public function getAppType(){
 		return $this->app_type;
 	}
+
+	public function setMarketPlace ($marketplace)
+	{
+		$this->marketplace = $marketplace;
+		return $this;
+	}
+
+	public function getMarketPlace ($marketplace)
+	{
+		return $marketplace;
+	}
+
+	public function setNoCache ($noCache)
+	{
+		$this->noCache = $noCache;
+		return $this;
+	}
+
+	public function getNoCache () 
+	{
+		return $this->noCache;
+	} 
 
 	public function setDenyCarriers($deny_carriers)
 	{
