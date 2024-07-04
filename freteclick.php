@@ -3,10 +3,10 @@
  * Plugin Name:       	Frete Click
  * Plugin URI:        	https://br.wordpress.org/plugins/freteclick/
  * Description:       	Plugin para cotação de fretes utilizando a API da Frete Click.
- * Version:           	1.1.20
+ * Version:           	1.1.21
  * Author:            	Frete Click
  * Requires at least: 	4.7
- * WC tested up to:   	5.9
+ * WC tested up to:   	9.0
  * Requires PHP: 		5.6
  * Author URI:        	https://www.freteclick.com.br/
  * License: GPLv2 or later
@@ -25,21 +25,27 @@ if(! class_exists("WC_FreteClick_Main") )
 {
 	class WC_FreteClick_Main{
 
-		protected static $instance = null;
+		
+        /**
+         * Instance of this class.
+         *
+         * @var object
+         */
+        protected static $instance = null;
 
 		private function __construct() {
 
 			if (class_exists("WC_Integration")) {
 
-				require_once WOO_FRETECLICK_PATH . 'vendor/autoload.php';
+				include_once WOO_FRETECLICK_PATH . 'vendor/autoload.php';
 
 				$pluginDir = plugin_dir_path(__FILE__);
 				$fc_errors = array();
 
-				require_once WOO_FRETECLICK_PATH . 'includes/class-freteclick-shipping.php';
+				include_once WOO_FRETECLICK_PATH . 'includes/class-freteclick-shipping.php';
 				include_once WOO_FRETECLICK_PATH . 'includes/class-wc-freteclick.php';
 
-				add_filter( 'woocommerce_shipping_methods', array($this,'add_fc_shipping_methods'));
+				add_filter( 'woocommerce_shipping_methods', array( $this, 'add_fc_shipping_methods' ) );
 
 				FreteClick::init();
 			}else{

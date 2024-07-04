@@ -87,6 +87,9 @@ class FreteClick{
 			$config->setOrder('total');
 			$config->setNoRetrieve($no_retrieve);
 			$config->setDenyCarriers(self::deny_carriers());
+			$config->setAppType('WooCommerce');
+			$config->setMarketPlace(true);
+			$config->setNoCache(true);
 
 			$quote_request->setConfig($config); 
 			
@@ -194,34 +197,38 @@ class FreteClick{
 	 */
 	public static function get_address($data)
 	{
-
 		$cep = self::format_cep($data);
-
-		$url_api = "https://api.freteclick.com.br/cep_address/$cep";
-
+	
+		$url_api = "https://api.freteclick.com.br/geo_places?input=$cep";
+	
 		$headers = array(         
-			'Accept:application/ld+json',
-			'Content-Type:application/json',
+			'Accept: application/json',
+			'Content-Type: application/json',
 			'api-token: '. get_option('FC_API_KEY')
 		);
-
+	
 		$ch = curl_init();
 	
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers);
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $ch, CURLOPT_URL, $url_api);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_URL, $url_api);
 	
-		$request =  json_decode(curl_exec($ch), true);
-	
-		curl_close($ch); 
-		
-		if($request['@type'] === "hydra:Error"){
+		$response = curl_exec($ch);
+		if (curl_errno($ch)) {
+			echo 'Erro ao acessar API: ' . curl_error($ch);
 			return null;
 		}
-
-		return $request;
-			
+	
+		curl_close($ch); 
+	
+		$data = json_decode($response, true);
+		if (isset($data['response']) && isset($data['response']['data']) && is_array($data['response']['data']) && count($data['response']['data']) > 0) {
+			return $data['response']['data'][0];
+		} else {
+			return null;
+		}
 	}
+	
 
 	public static function fc_add_scripts(){
 		$plugin_uri = str_replace('/includes', '', plugin_dir_url(__FILE__));

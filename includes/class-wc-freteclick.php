@@ -44,6 +44,11 @@ class WC_FreteClick extends WC_Shipping_Method {
         add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
     }
     
+	/**
+	 * Backwards compatibility with version prior to 2.1.
+	 *
+	 * @return object Returns the main instance of WooCommerce class.
+	 */
 	protected function woocommerce_method() {
 		if ( function_exists( 'WC' ) ) {
 			return WC();
@@ -139,9 +144,24 @@ class WC_FreteClick extends WC_Shipping_Method {
             )
         );
     }
-    public function is_available( $package ){
-        return true;
-    }
+
+	/**
+	 * Checks if the method is available.
+	 *
+	 * @param array $package Order package.
+	 *
+	 * @return bool
+	 */
+	public function is_available( $package ) {
+		$is_available = true;
+
+		if ( 'no' == $this->enabled ) {
+			$is_available = false;
+		}
+
+		return apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', $is_available, $package, $this );
+	}
+    
     /**
         * calculate_shipping function.
         *
