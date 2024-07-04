@@ -45,7 +45,9 @@ class FreteClick{
 				'quoteType' => $quote_request->getConfig()->getQuoteType(),
 				'noRetrieve'	=> $quote_request->getConfig()->getNoRetrieve(),
 				'app'	=> $quote_request->getConfig()->getAppType(),
-				'denyCarriers' => $quote_request->getConfig()->getDenyCarriers()
+				'denyCarriers' => $quote_request->getConfig()->getDenyCarriers(),
+				'noCache' => true,
+				'marketplace' => true
 		    )
 		]);		
 		

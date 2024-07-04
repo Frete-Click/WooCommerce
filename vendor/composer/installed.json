@@ -2,17 +2,17 @@
     "packages": [
         {
             "name": "freteclick/sdk",
-            "version": "v1.2.23",
-            "version_normalized": "1.2.23.0",
+            "version": "v1.2.31",
+            "version_normalized": "1.2.31.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Frete-Click/SDK.git",
-                "reference": "89fd1df73422abf2014346b176fefb2f39172ca3"
+                "reference": "adf6af294e4d9c8c19121fa431b2e93c5d23d8c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Frete-Click/SDK/zipball/89fd1df73422abf2014346b176fefb2f39172ca3",
-                "reference": "89fd1df73422abf2014346b176fefb2f39172ca3",
+                "url": "https://api.github.com/repos/Frete-Click/SDK/zipball/adf6af294e4d9c8c19121fa431b2e93c5d23d8c0",
+                "reference": "adf6af294e4d9c8c19121fa431b2e93c5d23d8c0",
                 "shasum": ""
             },
             "require": {
@@ -20,7 +20,7 @@
                 "guzzlehttp/guzzle": "~6.3",
                 "php": ">=7.2"
             },
-            "time": "2022-06-25T23:49:37+00:00",
+            "time": "2024-07-04T19:04:54+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -35,7 +35,7 @@
             "authors": [
                 {
                     "name": "Frete Click",
-                    "email": "ti@freteclick.com.br"
+                    "email": "suporte@freteclick.com.br"
                 }
             ],
             "description": "Este pacote é responsável por realizar o cálculo de cotações com API Frete Click.",
@@ -45,7 +45,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Frete-Click/SDK/issues",
-                "source": "https://github.com/Frete-Click/SDK/tree/v1.2.23"
+                "source": "https://github.com/Frete-Click/SDK/tree/v1.2.31"
             },
             "install-path": "../freteclick/sdk"
         },

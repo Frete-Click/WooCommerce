@@ -39,12 +39,33 @@ class QuoteRequest{
 		return $this->product_total_price;
 	}
 
+	public function setProductTotalPrice($total_price){
+		$this->product_total_price = $total_price;
+		return $this;
+	}
+
 	public function getProductType(){
 		return $this->product_type;
 	}
 
+	public function setProductType($product_type){
+		$this->product_type = $product_type;
+		return $this;
+	}
+
 	public function getContact(){
 		return $this->contact;
+	}
+
+	public function setContact(array $contact){
+		
+		$this->contact = array(
+			"email" => $contact['email'],
+			"name" => $contact['name'],
+			"phone" => $contact['phone']
+		);
+
+		return $this;
 	}
 
 	public function getConfig(){

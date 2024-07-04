@@ -2,6 +2,6 @@
 
     "title": "freteclick",
     "require": {
-        "freteclick/sdk": "v1.2.23"
+        "freteclick/sdk": "v1.2.31"
     }
 }

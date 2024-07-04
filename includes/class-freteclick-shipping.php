@@ -88,7 +88,7 @@ class FreteClick{
 			$config->setNoRetrieve($no_retrieve);
 			$config->setDenyCarriers(self::deny_carriers());
 			$config->setAppType('WooCommerce');
-			$config->setMarketPlace(true);
+			$config->setMarketPlace(1);
 			$config->setNoCache(true);
 
 			$quote_request->setConfig($config); 
