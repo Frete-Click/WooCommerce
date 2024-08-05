@@ -1,11 +1,16 @@
-# Frete Click
-
-* Version: 1.1.22
-* Requires PHP: 5.6+
-* Requires WordPress: 4.7+
-* Requires WooCommerce: 4.0+
+## Frete Click
+Donate link: https://www.freteclick.com.br  
+Tags: woocommerce 
+Requires at least: 3.5  
+Tested up to: 6.4.1  
+Version: 1.1.23
+Stable tag: 1.1.23 
+License: GPLv2 or later  
+License URI: http://www.gnu.org/licenses/gpl-2.0.html  
 
 Plugin para cotação de fretes utilizando a API da Frete Click.
+
+### Plugin para cotação de fretes utilizando a API da Frete Click. ###
 
 ## Instalação
 

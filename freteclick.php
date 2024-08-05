@@ -3,11 +3,9 @@
  * Plugin Name:       	Frete Click
  * Plugin URI:        	https://br.wordpress.org/plugins/freteclick/
  * Description:       	Plugin para cotação de fretes utilizando a API da Frete Click.
- * Version:           	1.1.22
+ * Version:           	1.1.23
  * Author:            	Frete Click
- * Requires at least: 	4.7
- * WC tested up to:   	9.0
- * Requires PHP: 		5.6
+ * Requires at least: 	3.5
  * Author URI:        	https://www.freteclick.com.br/
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
