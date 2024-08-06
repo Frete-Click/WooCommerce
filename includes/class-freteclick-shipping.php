@@ -7,7 +7,11 @@ use SDK\Models\Destination;
 use SDK\Models\Config;
 
 class FreteClick{
-	public static function init(){
+	/**
+	 * 
+	 */
+	public static function init()
+	{
 		if (is_admin()){
 			self::fc_add_scripts();
 			self::fc_admin_style();
@@ -33,15 +37,28 @@ class FreteClick{
 			));
 		});
 	}
-	public static function fc_is_disabled()	{
+	
+	/**
+	 * 
+	 */
+	public static function fc_is_disabled()	
+	{
 		printf("<div class='notice notice-warning is-dismissible'><p>O Frete Click está desabilitado. Ative o Frete Click para voltar a usa-lo.</p></div>");
 	}	
-	/* Frete Click Mensagens */
-	public static function fc_wc_missing_notice(){
+
+	/**
+	 * 
+	 */
+	public static function fc_wc_missing_notice()
+	{
 		printf("<div class='notice notice-warning'><p>O WooCommerce não está intalado, para usar o Frete Click é necessário <a href='https://br.wordpress.org/plugins/woocommerce/' target='blanck'>instalar o WooCommerce</a>.</p></div>");
 	}
 	
-	public static function getErrors(){
+	/**
+	 * 
+	 */
+	public static function getErrors()
+	{
 		global $fc_errors;
 		return $fc_errors ? array(
 			'response' => array(
@@ -53,14 +70,27 @@ class FreteClick{
 		) : false;
 	}
 	
+	/**
+	 * 
+	 */
 	public static function deny_carriers()
 	{
 		return explode(",", get_option('fclick_deny_carriers'));
 	}
 
-	/* Fazer Cotação */
-	public static function fc_calculate_shipping($request = array()){
+	/**
+	 * 
+	 */
+    public static function fix_value($value) 
+	{
+		return $value;        
+	}
 
+	/**
+	 * 
+	 */
+	public static function fc_calculate_shipping($request = array())
+	{
 		/**
 		 * get products
 		 */
@@ -69,7 +99,6 @@ class FreteClick{
 
 		if (!empty($request['destination']['postcode'])) {
 				
-			/*Dados de origem*/
 			$origin = new Origin;			
 			$origin->setCity(self::fc_config('FC_CITY_ORIGIN'));
 			$origin->setState(self::fc_config('FC_STATE_ORIGIN'));
@@ -88,12 +117,11 @@ class FreteClick{
 			$config->setNoRetrieve($no_retrieve);
 			$config->setDenyCarriers(self::deny_carriers());
 			$config->setAppType('WooCommerce');
-			$config->setMarketPlace(1);
-			$config->setNoCache(true);
+			// $config->setMarketPlace(1);
+			// $config->setNoCache(true);
 
 			$quote_request->setConfig($config); 
 			
-			/*Dados do produto*/
 			if (class_exists("WC_Product_Factory")) {
 				$_pf = new WC_Product_Factory();
 			}						
@@ -125,25 +153,23 @@ class FreteClick{
 						$p_data = $item["data"];
 					}					
 					
+					// echo self::fix_value($p_data['height']) 	. "\n";
+					// echo self::fix_value($p_data['width']) 	. "\n";
+					// echo self::fix_value($p_data['length'])	. "\n";
+
 					$package = new Package();
 					$package->setQuantity($item['quantity']);
 					$package->setWeight($p_data['weight']);
-					$package->setHeight($p_data['height']  / 100);
-					$package->setWidth($p_data['width'] / 100);
-					$package->setDepth($p_data['length'] / 100);
+					$package->setHeight( self::fix_value($p_data['height']) );
+					$package->setWidth( self::fix_value($p_data['width']) );
+					$package->setDepth( self::fix_value($p_data['length']) );
 					$package->setProductType($p_data['name']);
-					/*
-					* @todo Verificar o preço
-					*/
-					$package->setProductPrice(1);
+					$package->setProductPrice($p_data['price']);
 					$quote_request->addPackage($package);					
 				}				
 			}
-
-			/*Dados do destino*/
 		
 			$data_cep = self::get_address($request['destination']['postcode']);
-
 			if($data_cep === null){
 				return error_log(json_encode($data_cep));
 			}
@@ -153,14 +179,18 @@ class FreteClick{
 			$destination->setState($data_cep['state']);
 			$destination->setCountry($data_cep['country']);
 			$quote_request->setDestination($destination);
-			$array_resp = self::fc_get_quotes($quote_request);
+			
 
-			return json_decode( $array_resp );
+			return json_decode( self::fc_get_quotes($quote_request), true );
 			
 		}	
 	}	
 
-	public static function fc_get_mathod(){
+	/**
+	 * 
+	 */
+	public static function fc_get_mathod()
+	{
 		$pluginId = 'freteclick';
 		if (class_exists("WC_Shipping_Zones")) {
 			$zones = WC_Shipping_Zones::get_zones();
@@ -175,7 +205,12 @@ class FreteClick{
 		}
 		return false;
 	}	
-	public static function fc_config($name, $default = array()){
+
+	/**
+	 * 
+	 */
+	public static function fc_config($name, $default = array())
+	{
 		$pluginId = 'freteclick';
 		$method = self::fc_get_mathod();
 		if ($method) {
@@ -193,7 +228,7 @@ class FreteClick{
 	}
 
 	/**
-	 * Get Address
+	 * 
 	 */
 	public static function get_address($data)
 	{
@@ -229,42 +264,71 @@ class FreteClick{
 		}
 	}
 	
-
-	public static function fc_add_scripts(){
+	/**
+	 * 
+	 */
+	public static function fc_add_scripts()
+	{
 		$plugin_uri = str_replace('/includes', '', plugin_dir_url(__FILE__));
 
 		//Adicionando estilos
 		wp_enqueue_script("freteclick", $plugin_uri . "views/js/Freteclick.js", array('jquery', 'jquery-ui-autocomplete'), "1.0", true);
-
 	}
-	public static function fc_add_styles(){
+	
+	/**
+	 * 
+	 */
+	public static function fc_add_styles()
+	{
 		$plugin_uri = str_replace('/includes', '', plugin_dir_url(__FILE__));
 	
 		wp_enqueue_style( 'frtck_front_style', $plugin_uri . "views/css/frtck_front.css" );
 	}
 
-	public static function fc_admin_style() {
+	/**
+	 * 
+	 */
+	public static function fc_admin_style() 
+	{
 		$plugin_uri = str_replace('/includes', '', plugin_dir_url(__FILE__));
 		wp_enqueue_style('admin-styles', $plugin_uri .'views/css/admin.css');
 	}	  
 
-	public static function fc_display_product_layout(){
+	/**
+	 * 
+	 */
+	public static function fc_display_product_layout()
+	{
 		if (get_option('freteclick_display_product') == 1) {
 			global $pluginDir;
 
 			include $pluginDir . "views/templates/display_product_layout.php";
 		}
 	}	
-	public static function fc_options_page(){
+	
+	/**
+	 * 
+	 */
+	public static function fc_options_page()
+	{
 		add_options_page("Frete Click", "Frete Click", "manage_options", "freteclick", array('FreteClick',"fc_options_page_layout"));
 	}
-	public static function fc_options_page_layout(){
+	
+	/**
+	 * 
+	 */
+	public static function fc_options_page_layout()
+	{
 		global $pluginDir;
 
 		include $pluginDir . "views/templates/options_page_layout.php";
 	}	
 	
-	public static function fc_pedido_alterado($order_id, $old_status, $new_status){
+	/**
+	 *  Incluir contratação do pedido
+	 */
+	public static function fc_pedido_alterado($order_id, $old_status, $new_status)
+	{
 		$order = new WC_Order($order_id);
 		$data = $order->get_data();
 		$shipping = $order->get_items('shipping');
@@ -292,6 +356,9 @@ class FreteClick{
 		error_log(json_encode($data));
 	}
 
+	/**
+	 * 
+	 */
 	public static function invoice_tax()
 	{
 		if(get_option('fclick_invoice') === '1'){
@@ -301,8 +368,11 @@ class FreteClick{
 		return 0;
 	}
 	
-	/* Página de Configurações */
-	public static function fc_options_register_fields(){
+	/**
+	 * 
+	 */
+	public static function fc_options_register_fields()
+	{
 
 		add_option("freteclick_quote_type", "simple");
 		add_option('freteclick_display_product', '0');
@@ -346,14 +416,21 @@ class FreteClick{
 			"description" => ""
 		));
 	}	
-	public static function fc_missing_apikey(){
+	
+	/**
+	 * 
+	 */
+	public static function fc_missing_apikey()
+	{
 		printf("<div class='notice notice-warning is-dismissible'><p>Por favor, para que o Frete Click funcione, informe sua Chave de API</p></div>");
 	}
 
-	/* Formulário na página de produto */
-	public static function rest_get_shipping(WP_REST_Request $request){
+	/**
+	 * 
+	 */
+	public static function rest_get_shipping(WP_REST_Request $request)
+	{
 		$data = $request->get_params();
-
 
 		$result = FreteClick::fc_calculate_shipping(array(
 			"cart_subtotal" => $data["product_price"] * $data["product_quantity"],
@@ -375,12 +452,15 @@ class FreteClick{
 			)
 		));
 
-		echo(json_encode($result));
-		exit;
+		echo wp_json_encode($result);
+		die;
 	}	
 	
-	public static function fc_get_quotes(QuoteRequest $QuoteRequest){
-
+	/**
+	 * 
+	 */
+	public static function fc_get_quotes(QuoteRequest $QuoteRequest)
+	{
 		try{
 			$api_key = get_option('FC_API_KEY');			
 			$SDK = new SDK($api_key);
@@ -396,7 +476,11 @@ class FreteClick{
 		return $array_resp;
 	}
 	
-	public static function addError($error){
+	/**
+	 * 
+	 */
+	public static function addError($error)
+	{
 		global $fc_errors;
 		array_push($fc_errors, array(
 			'code' => md5($error),
@@ -404,5 +488,4 @@ class FreteClick{
 		));
 		return self::getErrors();
 	}
-
 }

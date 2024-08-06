@@ -173,6 +173,8 @@ class WC_FreteClick extends WC_Shipping_Method {
 
         $array_resp = FreteClick::fc_calculate_shipping($package);
 
+        print_r($array_resp);
+
         if ($array_resp->response->data != false){
             
                 $order_id = $array_resp->response->data->order->id;						
