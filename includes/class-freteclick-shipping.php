@@ -73,7 +73,7 @@ class FreteClick{
 	/**
 	 * 
 	 */
-	public static function deny_carriers()
+	protected static function deny_carriers()
 	{
 		return explode(",", get_option('fclick_deny_carriers'));
 	}
@@ -81,10 +81,19 @@ class FreteClick{
 	/**
 	 * 
 	 */
-    public static function fix_value($value) 
+	protected static function fix_value($value) 
 	{
-		return $value;        
+		$value = trim($value);
+	
+		$value = str_replace(',', '.', $value);
+	
+		if (strpos($value, '.') === false) {
+			return $value / 100;
+		} else {
+			return $value;
+		}
 	}
+	
 
 	/**
 	 * 
@@ -153,10 +162,6 @@ class FreteClick{
 						$p_data = $item["data"];
 					}					
 					
-					// echo self::fix_value($p_data['height']) 	. "\n";
-					// echo self::fix_value($p_data['width']) 	. "\n";
-					// echo self::fix_value($p_data['length'])	. "\n";
-
 					$package = new Package();
 					$package->setQuantity($item['quantity']);
 					$package->setWeight($p_data['weight']);
