@@ -38,7 +38,7 @@ class WC_FreteClick extends WC_Shipping_Method {
         
         $this->enabled = isset($this->settings['FC_IS_ACTIVE']) ? $this->settings['FC_IS_ACTIVE'] : 'yes';
 
-        $this->fc_check_settings($this->settings);
+        // $this->fc_check_settings($this->settings);
 
         // Save settings in admin if you have any defined
         add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
@@ -204,12 +204,12 @@ class WC_FreteClick extends WC_Shipping_Method {
             error_log(json_encode($array_resp));
         }
     }
-    function fc_check_settings($set){
-        if ($set['FC_IS_ACTIVE'] != 'yes' && isset($set['FC_IS_ACTIVE'])){
-            add_action( 'admin_notices', array('FreteClick','fc_is_disabled') );
-        }
-        else if (strlen(get_option('FC_API_KEY')) <= 0){
-            add_action( 'admin_notices', array('FreteClick','fc_missing_apikey' ));
-        }
-    }
+    // function fc_check_settings($set){
+    //     if ($set['FC_IS_ACTIVE'] != 'yes' && isset($set['FC_IS_ACTIVE'])){
+    //         add_action( 'admin_notices', array('FreteClick','fc_is_disabled') );
+    //     }
+    //     else if (strlen(get_option('FC_API_KEY')) <= 0){
+    //         add_action( 'admin_notices', array('FreteClick','fc_missing_apikey' ));
+    //     }
+    // }
 }
