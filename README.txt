@@ -3,10 +3,13 @@ Donate link: https://www.freteclick.com.br
 Tags: woocommerce 
 Requires at least: 3.5  
 Tested up to: 6.4.1  
-Version: 1.1.26
-Stable tag: 1.1.26 
+Version: 1.1.27
+Stable tag: 1.1.27 
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html  
+
+
+Plugin para cotação de fretes utilizando a API da Frete Click.
 
 == Description ==
 
