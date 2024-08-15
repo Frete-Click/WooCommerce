@@ -6,34 +6,31 @@ use SDK\Models\Origin;
 use SDK\Models\Destination;
 use SDK\Models\Config;
 
-class FreteClick{
+class WC_FreteClick_Shipping_Simulator {
+    
 	/**
-	 * 
-	 */
-	public static function init()
+     * Shipping simulator actions.
+     */
+    public function __construct()
 	{
-		if (is_admin()){
-			self::fc_add_scripts();
-			self::fc_admin_style();
-		}else{
-			self::fc_add_styles();
-		}
+
+		add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
 
 		/*Hooks para status dos pedidos*/
-		add_action('woocommerce_order_status_changed', array('FreteClick','fc_pedido_alterado'), 10, 3);
+		add_action('woocommerce_order_status_changed', array('WC_FreteClick_Shipping_Simulator','fc_pedido_alterado'), 10, 3);
 
 		/* Hooks para página de configurações globais */
-		add_action('admin_init', array('FreteClick','fc_options_register_fields'));
-		add_action('admin_menu', array('FreteClick','fc_options_page'));
+		add_action('admin_init', array('WC_FreteClick_Shipping_Simulator','fc_options_register_fields'));
+		add_action('admin_menu', array('WC_FreteClick_Shipping_Simulator','fc_options_page'));
 
 		/* Hook para busca frete no carrinho */
-		add_action( 'woocommerce_product_meta_start', array('FreteClick','fc_display_product_layout'), 10, 0 );
+		add_action( 'woocommerce_product_meta_start', array('WC_FreteClick_Shipping_Simulator','fc_display_product_layout'), 10, 0 );
 
 		/* registrando rota rest para buscar cotações */
 		add_action("rest_api_init", function () {
 			register_rest_route("freteclick", "/get_shipping", array(
 				'methods' => 'POST',
-				'callback' => array('FreteClick','rest_get_shipping')
+				'callback' => array('WC_FreteClick_Shipping_Simulator','rest_get_shipping')
 			));
 		});
 	}
@@ -43,8 +40,8 @@ class FreteClick{
 	 */
 	public static function fc_is_disabled()	
 	{
-		printf("<div class='notice notice-warning is-dismissible'><p>O Frete Click está desabilitado. Ative o Frete Click para voltar a usa-lo.</p></div>");
-	}	
+	 	printf("<div class='notice notice-warning is-dismissible'><p>O Frete Click está desabilitado. Ative o Frete Click para voltar a usa-lo.</p></div>");
+	 }	
 
 	/**
 	 * 
@@ -52,24 +49,8 @@ class FreteClick{
 	public static function fc_wc_missing_notice()
 	{
 		printf("<div class='notice notice-warning'><p>O WooCommerce não está intalado, para usar o Frete Click é necessário <a href='https://br.wordpress.org/plugins/woocommerce/' target='blanck'>instalar o WooCommerce</a>.</p></div>");
-	}
-	
-	/**
-	 * 
-	 */
-	public static function getErrors()
-	{
-		global $fc_errors;
-		return $fc_errors ? array(
-			'response' => array(
-				'data' => 'false',
-				'count' => 0,
-				'success' => false,
-				'error' => $fc_errors
-			)
-		) : false;
-	}
-	
+	 }
+		
 	/**
 	 * 
 	 */
@@ -186,7 +167,7 @@ class FreteClick{
 			$quote_request->setDestination($destination);
 			
 
-			return json_decode( self::fc_get_quotes($quote_request), true );
+			return json_decode( self::fc_get_quotes($quote_request), false );
 			
 		}	
 	}	
@@ -272,32 +253,10 @@ class FreteClick{
 	/**
 	 * 
 	 */
-	public static function fc_add_scripts()
-	{
-		$plugin_uri = str_replace('/includes', '', plugin_dir_url(__FILE__));
-
-		//Adicionando estilos
-		wp_enqueue_script("freteclick", $plugin_uri . "views/js/Freteclick.js", array('jquery', 'jquery-ui-autocomplete'), "1.0", true);
+	public function enqueue_scripts()
+	{	
+		wp_enqueue_style( 'freteclick-shipping-simulator', plugins_url('views/css/simulator.css', plugin_dir_path(__FILE__)), array(), '1.0.28', 'all');
 	}
-	
-	/**
-	 * 
-	 */
-	public static function fc_add_styles()
-	{
-		$plugin_uri = str_replace('/includes', '', plugin_dir_url(__FILE__));
-	
-		wp_enqueue_style( 'frtck_front_style', $plugin_uri . "views/css/frtck_front.css" );
-	}
-
-	/**
-	 * 
-	 */
-	public static function fc_admin_style() 
-	{
-		$plugin_uri = str_replace('/includes', '', plugin_dir_url(__FILE__));
-		wp_enqueue_style('admin-styles', $plugin_uri .'views/css/admin.css');
-	}	  
 
 	/**
 	 * 
@@ -305,9 +264,7 @@ class FreteClick{
 	public static function fc_display_product_layout()
 	{
 		if (get_option('freteclick_display_product') == 1) {
-			global $pluginDir;
-
-			include $pluginDir . "views/templates/display_product_layout.php";
+			include WC_FreteClick_Main::get_plugin_path() . "views/templates/shipping-simulator.php";
 		}
 	}	
 	
@@ -316,7 +273,7 @@ class FreteClick{
 	 */
 	public static function fc_options_page()
 	{
-		add_options_page("Frete Click", "Frete Click", "manage_options", "freteclick", array('FreteClick',"fc_options_page_layout"));
+		add_options_page("Frete Click", "Frete Click", "manage_options", "freteclick", array('WC_FreteClick_Shipping_Simulator',"fc_options_page_layout"));
 	}
 	
 	/**
@@ -324,9 +281,7 @@ class FreteClick{
 	 */
 	public static function fc_options_page_layout()
 	{
-		global $pluginDir;
-
-		include $pluginDir . "views/templates/options_page_layout.php";
+		include WC_FreteClick_Main::get_plugin_path() .  "views/templates/options_page_layout.php";
 	}	
 	
 	/**
@@ -431,13 +386,13 @@ class FreteClick{
 	}
 
 	/**
-	 * 
+	 * Retorna para pagina do produto
 	 */
 	public static function rest_get_shipping(WP_REST_Request $request)
 	{
 		$data = $request->get_params();
 
-		$result = FreteClick::fc_calculate_shipping(array(
+		$result = self::fc_calculate_shipping(array(
 			"cart_subtotal" => $data["product_price"] * $data["product_quantity"],
 			"destination" => array(
 				"postcode" => $data["calc_shipping_postcode"]
@@ -481,16 +436,6 @@ class FreteClick{
 		return $array_resp;
 	}
 	
-	/**
-	 * 
-	 */
-	public static function addError($error)
-	{
-		global $fc_errors;
-		array_push($fc_errors, array(
-			'code' => md5($error),
-			'message' => $error
-		));
-		return self::getErrors();
-	}
 }
+
+new WC_FreteClick_Shipping_Simulator();

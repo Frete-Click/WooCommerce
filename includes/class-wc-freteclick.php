@@ -10,12 +10,11 @@ class WC_FreteClick extends WC_Shipping_Method {
      * @access public
      * @return void
      */
-    public function __construct($instance_id = 0) {
-
-        $this->id = 'freteclick';
-        $this->instance_id = absint( $instance_id );
-        $this->title = 'Frete CLick';
-        $this->method_title = 'Frete Click'; 
+	public function __construct($instance_id = 0 ) {
+        $this->id           = 'freteclick';
+        $this->instance_id 	= absint( $instance_id );
+        $this->title        = __( 'Frete CLick', 'freteclick-shipping-gateway' );
+		$this->method_title = __( 'Frete CLick', 'freteclick-shipping-gateway' );
         $this->method_description = 'Cálculo do frete com o serviço da web Frete Click';
         $this->supports = array(
             'shipping-zones',
@@ -25,6 +24,17 @@ class WC_FreteClick extends WC_Shipping_Method {
 
         $this->init();
     }
+
+	/**
+	 * Convert class to string.
+	 *
+	 * @return string Class ID.
+	 */
+	public function __toString()
+	{
+	    return 'WC_FreteClick::' . $this->id . '::' . $this->instance_id . '::' . $this->method_title;
+	}
+
     /**
      * Init your settings
      *
@@ -36,11 +46,7 @@ class WC_FreteClick extends WC_Shipping_Method {
         $this->init_form_fields();
         $this->init_settings();
         
-        $this->enabled = isset($this->settings['FC_IS_ACTIVE']) ? $this->settings['FC_IS_ACTIVE'] : 'yes';
-
-        // $this->fc_check_settings($this->settings);
-
-        // Save settings in admin if you have any defined
+        // Actions.
         add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
     }
     
@@ -161,55 +167,53 @@ class WC_FreteClick extends WC_Shipping_Method {
 
 		return apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', $is_available, $package, $this );
 	}
-    
+
     /**
-        * calculate_shipping function.
-        *
-        * @access public
-        * @param mixed $package
-        * @return void
-        */
-    public function calculate_shipping($package = array()){
+    * calculate_shipping function.
+    *
+    * @access public
+    * @param mixed $package
+    * @return void
+    */
+    public function calculate_shipping( $package = [] ) {
+		$rates  = [];
+        $errors = [];
 
-        $array_resp = FreteClick::fc_calculate_shipping($package);
+        $array_resp = WC_FreteClick_Shipping_Simulator::fc_calculate_shipping($package);
 
-        if ($array_resp->response->data != false){
+        if (! empty( $array_resp )){
             
-                $order_id = $array_resp->response->data->order->id;						
+            $order_id = $array_resp->response->data->order->id;						
 
             foreach ($array_resp->response->data->order->quotes as $key => $quote){
                 $quote = (array) $quote;
+                
                 $fc_get_deadline = intval($quote['retrieveDeadline']) + intval($quote['deliveryDeadline']);
                 $fc_deadline =  $fc_get_deadline + intval(get_option("FC_PRAZO_EXTRA"));
                 $fc_deadline_variation = "";
-                if(!empty(get_option("FC_PRAZO_VARIADO"))){
+                
+                if(! empty( get_option("FC_PRAZO_VARIADO") )) {
                     $fc_deadline_variation = " até " . get_option("FC_PRAZO_VARIADO");
                 }
-                $carrier_data = array(
+                
+                $rates[] = array(
                     'id' => $quote['id'],
                     'label' =>  $quote['carrier']->alias . "  (" . $fc_deadline . $fc_deadline_variation . "  dias úteis)",
-                    'cost' => $quote['total'] + FreteClick::invoice_tax(), 
+                    'cost' => $quote['total'], 
                     'calc_tax' => 'per_item',
                     'meta_data' => array(
                         'Pedido'			=> '#'. $order_id,
                         'Código de Rastreamento' 	=> $order_id,
-                        'Nome da Transportadora' 	=> $quote['carrier']->name ,
+                        'Nome da Transportadora' 	=> $quote['carrier']->name,
                         'Cotação' 					=> $quote['id']
                     )
                 );
-                $this->add_rate( $carrier_data );
+            
+            }
+
+            foreach ( $rates as $rate ) {
+                $this->add_rate( $rate );
             }
         }
-        else{
-            error_log(json_encode($array_resp));
-        }
     }
-    // function fc_check_settings($set){
-    //     if ($set['FC_IS_ACTIVE'] != 'yes' && isset($set['FC_IS_ACTIVE'])){
-    //         add_action( 'admin_notices', array('FreteClick','fc_is_disabled') );
-    //     }
-    //     else if (strlen(get_option('FC_API_KEY')) <= 0){
-    //         add_action( 'admin_notices', array('FreteClick','fc_missing_apikey' ));
-    //     }
-    // }
 }

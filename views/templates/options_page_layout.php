@@ -1,4 +1,3 @@
-<?php global $pluginName; ?>
 <div class="wrap">
     <div class="wrap-settings-fc">
         <h1>Frete Click</h1>

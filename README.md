@@ -3,8 +3,8 @@ Donate link: https://www.freteclick.com.br
 Tags: woocommerce 
 Requires at least: 3.5  
 Tested up to: 6.4.1  
-Version: 1.1.28
-Stable tag: 1.1.28 
+Version: 1.1.29
+Stable tag: 1.1.29 
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html  
 
