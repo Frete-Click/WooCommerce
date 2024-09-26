@@ -89,53 +89,65 @@ class WC_FreteClick_Shipping_Simulator {
 		 */
 		global $woocommerce;
 		$quote_request = new QuoteRequest();
-
+	
 		if (!empty($request['destination']['postcode'])) {
-				
-			$origin = new Origin;			
+			
+			$origin = new Origin();
 			$origin->setCity(self::fc_config('FC_CITY_ORIGIN'));
 			$origin->setState(self::fc_config('FC_STATE_ORIGIN'));
 			$origin->setCountry(self::fc_config('FC_CONTRY_ORIGIN'));
 			$quote_request->setOrigin($origin);
-
-			if(get_option('freteclick_noretrieve') === 0){
-				$no_retrieve = false;
-			}else{
-				$no_retrieve = true;
-			}
-
-			$config = new Config;
-			$config->setQuoteType(isset($orign["freteclick_quote_type"]) ? $orign["freteclick_quote_type"] : get_option("freteclick_quote_type"));
+	
+			$no_retrieve = (get_option('freteclick_noretrieve') === 0) ? false : true;
+	
+			$config = new Config();
+			$config->setQuoteType(get_option("freteclick_quote_type"));
 			$config->setOrder('total');
 			$config->setNoRetrieve($no_retrieve);
 			$config->setDenyCarriers(self::deny_carriers());
 			$config->setAppType('WooCommerce');
-			// $config->setMarketPlace(1);
-			// $config->setNoCache(true);
-
+	
 			$quote_request->setConfig($config); 
-			
-			if (class_exists("WC_Product_Factory")) {
-				$_pf = new WC_Product_Factory();
-			}						
-
 			$items = isset($woocommerce->cart) ? $woocommerce->cart->get_cart() : [];
+	
 			if (count($items) > 0) {
-				
 				foreach ($items as $item) {
 					$package = new Package();
+					$product = wc_get_product($item['product_id']);
+	
+					// Verifica se é uma variação de produto
+					if ($product->is_type('variable') && isset($item['variation_id'])) {
+						$product_variation = wc_get_product($item['variation_id']);
+						$weight = $product_variation->get_weight();
+						$height = $product_variation->get_height();
+						$width = $product_variation->get_width();
+						$length = $product_variation->get_length();
+						$price = $product_variation->get_price();
+						$name = $product_variation->get_name();
+					} else {
+						// Caso não seja uma variação, usa os dados do produto principal
+						$weight = $product->get_weight();
+						$height = $product->get_height();
+						$width = $product->get_width();
+						$length = $product->get_length();
+						$price = $item['line_total'];
+						$name = $product->get_title();
+					}
+	
+					// Ajusta os valores da package
 					$package->setQuantity($item['quantity']);
-					$package->setWeight($item['data']->get_weight());
-					$package->setHeight($item['data']->get_height() / 100);
-					$package->setWidth($item['data']->get_width() / 100);
-					$package->setDepth($item['data']->get_length() / 100);
-					$package->setProductType($item['data']->get_title());
-					$package->setProductPrice($item['line_total']);					
+					$package->setWeight($weight);
+					$package->setHeight(self::fix_value($height)); // Convertendo para metros
+					$package->setWidth(self::fix_value($width));   // Convertendo para metros
+					$package->setDepth(self::fix_value($length));  // Convertendo para metros
+					$package->setProductType($name);
+					$package->setProductPrice($price);
 					$quote_request->addPackage($package);					
 				}					
 			} else {				
 				foreach ($request['contents'] as $key => $item) {					
 					if (class_exists("WC_Product_Factory")) {
+						$_pf = new WC_Product_Factory();
 						$product = $_pf->get_product($item['product_id']);
 						$p_data = $product->get_data();
 						if (!$p_data['weight']) {
@@ -149,31 +161,30 @@ class WC_FreteClick_Shipping_Simulator {
 					$package = new Package();
 					$package->setQuantity($item['quantity']);
 					$package->setWeight($p_data['weight']);
-					$package->setHeight( self::fix_value($p_data['height']) );
-					$package->setWidth( self::fix_value($p_data['width']) );
-					$package->setDepth( self::fix_value($p_data['length']) );
+					$package->setHeight(self::fix_value($p_data['height'])); // Convertendo para metros
+					$package->setWidth(self::fix_value($p_data['width']));   // Convertendo para metros
+					$package->setDepth(self::fix_value($p_data['length']));  // Convertendo para metros
 					$package->setProductType($p_data['name']);
 					$package->setProductPrice($p_data['price']);
 					$quote_request->addPackage($package);					
 				}				
 			}
-		
+	
+			// Obtendo dados do CEP
 			$data_cep = self::get_address($request['destination']['postcode']);
-			if($data_cep === null){
-				return error_log(json_encode($data_cep));
+			if ($data_cep === null) {
+				return error_log('Invalid address data: ' . json_encode($data_cep));
 			}
-
-			$destination = new Destination;			
+	
+			$destination = new Destination();
 			$destination->setCity($data_cep['city']);
 			$destination->setState($data_cep['state']);
 			$destination->setCountry($data_cep['country']);
 			$quote_request->setDestination($destination);
 			
-
-			return json_decode( self::fc_get_quotes($quote_request), false );
-			
+			return json_decode(self::fc_get_quotes($quote_request), false);
 		}	
-	}	
+	}
 
 	/**
 	 * 
@@ -440,5 +451,4 @@ class WC_FreteClick_Shipping_Simulator {
 	}
 	
 }
-
 new WC_FreteClick_Shipping_Simulator();
