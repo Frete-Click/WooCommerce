@@ -30,7 +30,8 @@ class WC_FreteClick_Shipping_Simulator {
 		add_action("rest_api_init", function () {
 			register_rest_route("freteclick", "/get_shipping", array(
 				'methods' => 'POST',
-				'callback' => array('WC_FreteClick_Shipping_Simulator','rest_get_shipping')
+				'callback' => array('WC_FreteClick_Shipping_Simulator','rest_get_shipping'),
+				'permission_callback' => '__return_true',
 			));
 		});
 	}
