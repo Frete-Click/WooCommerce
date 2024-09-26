@@ -66,8 +66,11 @@ class WC_FreteClick_Shipping_Simulator {
 	protected static function fix_value($value) 
 	{
 		$value = trim($value);
-	
 		$value = str_replace(',', '.', $value);
+		
+		if (is_numeric($value)) {
+			$value = (float) $value;
+		}
 	
 		if (strpos($value, '.') === false) {
 			return $value / 100;
@@ -75,7 +78,6 @@ class WC_FreteClick_Shipping_Simulator {
 			return $value;
 		}
 	}
-	
 
 	/**
 	 * 
