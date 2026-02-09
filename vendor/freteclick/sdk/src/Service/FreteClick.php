@@ -23,7 +23,7 @@ class FreteClick{
 			[				
 				'headers' => [ 
 					'Accept' => 'application/json',
-            		'content-type' => 'application/ld+json',
+            		'Content-Type' => 'application/json',
 					'api-token' => self::$api_key
 				]
 			]);	
