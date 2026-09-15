@@ -181,11 +181,17 @@ class WC_FreteClick extends WC_Shipping_Method {
 
         $array_resp = WC_FreteClick_Shipping_Simulator::fc_calculate_shipping($package);
 
-        if (! empty( $array_resp )){
-            
-            $order_id = $array_resp->response->data->order->id;						
+        if (empty($array_resp)) {
+            return;
+        }
 
-            foreach ($array_resp->response->data->order->quotes as $key => $quote){
+        if (empty($array_resp->response->data->order->quotes)) {
+            return;
+        }
+
+        $order_id = $array_resp->response->data->order->id;
+
+        foreach ($array_resp->response->data->order->quotes as $key => $quote){
                 $quote = (array) $quote;
                 
                 $fc_get_deadline = intval($quote['retrieveDeadline']) + intval($quote['deliveryDeadline']);
@@ -214,6 +220,5 @@ class WC_FreteClick extends WC_Shipping_Method {
             foreach ( $rates as $rate ) {
                 $this->add_rate( $rate );
             }
-        }
     }
 }

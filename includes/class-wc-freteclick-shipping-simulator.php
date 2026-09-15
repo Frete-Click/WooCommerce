@@ -224,7 +224,8 @@ class WC_FreteClick_Shipping_Simulator {
 			// Obtendo dados do CEP
 			$data_cep = self::get_address($request['destination']['postcode']);
 			if ($data_cep === null) {
-				return error_log('Invalid address data: ' . json_encode($data_cep));
+				error_log('Frete Click: dados de endereço inválidos para o CEP ' . $request['destination']['postcode']);
+				return null;
 			}
 	
 			$destination = new Destination();
@@ -233,7 +234,12 @@ class WC_FreteClick_Shipping_Simulator {
 			$destination->setCountry($data_cep['country']);
 			$quote_request->setDestination($destination);
 			
-			return json_decode(self::fc_get_quotes($quote_request), false);
+			$resposta = self::fc_get_quotes($quote_request);
+			if (!is_string($resposta)) {
+				error_log('Frete Click: falha na cotação: ' . wp_json_encode($resposta));
+				return null;
+			}
+			return json_decode($resposta, false);
 		}	
 	}
 
@@ -310,14 +316,14 @@ class WC_FreteClick_Shipping_Simulator {
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_URL, $url_api);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 	
 		$response = curl_exec($ch);
 		if (curl_errno($ch)) {
-			echo 'Erro ao acessar API: ' . curl_error($ch);
+			error_log('Frete Click: erro ao acessar API: ' . curl_error($ch));
 			return null;
 		}
-	
-		curl_close($ch); 
 	
 		$data = json_decode($response, true);
 		if (isset($data['response']) && isset($data['response']['data']) && is_array($data['response']['data']) && count($data['response']['data']) > 0) {
@@ -332,7 +338,7 @@ class WC_FreteClick_Shipping_Simulator {
 	 */
 	public function enqueue_scripts()
 	{	
-		wp_enqueue_style( 'freteclick-shipping-simulator', plugins_url('views/css/simulator.css', plugin_dir_path(__FILE__)), array(), '1.0.28', 'all');
+		wp_enqueue_style( 'freteclick-shipping-simulator', plugins_url('views/css/simulator.css', plugin_dir_path(__FILE__)), array(), '1.0.29', 'all');
 	}
 
 	/**
@@ -675,7 +681,7 @@ class WC_FreteClick_Shipping_Simulator {
 			$cotafacil = $SDK->cotaFacilClient();			
 			$array_resp = $cotafacil::quote($QuoteRequest);				
 		
-		} catch (Exception $ex) {
+		} catch (\Throwable $ex) {
 			$array_resp = array(
 				'response' => array('success' => false, 'error' => $ex->getMessage())
 			);

@@ -23,10 +23,13 @@ class FreteClick{
 			[				
 				'headers' => [ 
 					'Accept' => 'application/json',
-            		'Content-Type' => 'application/json',
+					'Content-Type' => 'application/json',
 					'api-token' => self::$api_key
-				]
-			]);	
+				],
+				'http_errors' => false,
+				'connect_timeout' => 5,
+				'timeout' => 10
+			]);
 	    return __CLASS__;	
 	}
 
