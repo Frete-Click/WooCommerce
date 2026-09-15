@@ -22,6 +22,10 @@ class WC_FreteClick_Shipping_Simulator {
 		/*Hooks para status dos pedidos*/
 		add_action('woocommerce_order_status_changed', array('WC_FreteClick_Shipping_Simulator','fc_pedido_alterado'), 10, 3);
 
+		/* Hook para contratação manual a partir da tela do pedido */
+		add_filter('woocommerce_order_actions', array('WC_FreteClick_Shipping_Simulator','fc_add_order_action'));
+		add_action('woocommerce_order_action_freteclick_contract', array('WC_FreteClick_Shipping_Simulator','fc_contract_order_action'));
+
 		/* Hooks para página de configurações globais */
 		add_action('admin_init', array('WC_FreteClick_Shipping_Simulator','fc_options_register_fields'));
 		add_action('admin_menu', array('WC_FreteClick_Shipping_Simulator','fc_options_page'));
@@ -368,38 +372,111 @@ class WC_FreteClick_Shipping_Simulator {
 	}	
 	
 	/**
+	 * Adiciona ação manual de contratação na tela do pedido
+	 *
+	 * @param array $actions
+	 * @return array
+	 */
+	public static function fc_add_order_action($actions)
+	{
+		$actions['freteclick_contract'] = __('Contratar na Frete Click', 'freteclick-shipping-gateway');
+		return $actions;
+	}
+
+	/**
+	 * Executa a contratação manual na Frete Click a partir da tela do pedido
+	 *
+	 * @param WC_Order $order
+	 */
+	public static function fc_contract_order_action($order)
+	{
+		if (!$order) {
+			return;
+		}
+		$order->add_order_note('Frete Click: contratação manual solicitada.');
+		self::fc_pedido_alterado($order->get_id(), '', $order->get_status());
+	}
+
+	/**
+	 * Garante endereço completo para a API Frete Click.
+	 *
+	 * A API exige country, state, city, district, street, postal_code (8 dígitos)
+	 * e number (numérico) preenchidos no choose-quote. Campos de bairro/rua vazios
+	 * são preenchidos via consulta de CEP (geo_places) e número ausente vira "0".
+	 *
+	 * @param array $address
+	 * @return array
+	 */
+	protected static function fc_complete_address($address)
+	{
+		$cep = isset($address['postal_code']) ? $address['postal_code'] : '';
+
+		if (
+			empty($address['district']) ||
+			empty($address['street']) ||
+			empty($address['city']) ||
+			empty($address['state'])
+		) {
+			$geo = self::get_address($cep);
+			if ($geo) {
+				if (empty($address['district']) && !empty($geo['district'])) $address['district'] = $geo['district'];
+				if (empty($address['street']) && !empty($geo['street'])) $address['street'] = $geo['street'];
+				if (empty($address['city']) && !empty($geo['city'])) $address['city'] = $geo['city'];
+				if (empty($address['state']) && !empty($geo['state'])) $address['state'] = $geo['state'];
+			}
+		}
+
+		if (!isset($address['number']) || !is_numeric($address['number'])) {
+			$address['number'] = '0';
+		}
+
+		if (empty($address['country'])) {
+			$address['country'] = 'Brasil';
+		}
+
+		return $address;
+	}
+
+	/**
 	 * Realiza a contratação do pedido quando o status muda para "processing"
 	 */
 	public static function fc_pedido_alterado($order_id, $old_status, $new_status)
 	{
 		try {
 
+			self::fc_log('fc_pedido_alterado:start', array('order_id' => $order_id, 'old' => $old_status, 'new' => $new_status));
+
 			/**
 			 * API Key para autenticação na Frete Click
 			 */
 			$api_key = get_option('FC_API_KEY');
 			if (empty($api_key)) {
+				self::fc_log('fc_pedido_alterado:no_api_key', array('order_id' => $order_id));
 				return;
 			}
 
 			$order = wc_get_order($order_id);
 			if (!$order) {
+				self::fc_log('fc_pedido_alterado:no_order', array('order_id' => $order_id));
 				return;
 			}
 			
 			// Evita múltiplas contratações para o mesmo pedido
 			if ($order->get_meta('_freteclick_checkout_done') === 'yes') {
+				self::fc_log('fc_pedido_alterado:already_done', array('order_id' => $order_id));
 				return;
 			}
 
 			// Considera apenas estados iniciais de pagamento
 			$status_espera = array('pending', 'processing', 'on-hold');
 			if (!in_array($order->get_status(), $status_espera)) {
+				self::fc_log('fc_pedido_alterado:status_skip', array('order_id' => $order_id, 'status' => $order->get_status()));
 				return;
 			}
 
 			$shipping_items = $order->get_items('shipping');
 			if (empty($shipping_items)) {
+				self::fc_log('fc_pedido_alterado:no_shipping', array('order_id' => $order_id));
 				return;
 			}
 
@@ -412,14 +489,17 @@ class WC_FreteClick_Shipping_Simulator {
 				}
 			}
 			if (!$fc_shipping_item) {
+				self::fc_log('fc_pedido_alterado:no_freteclick_item', array('order_id' => $order_id));
 				return;
 			}
 
 			$quote_id = $fc_shipping_item->get_meta('Cotação');
 			$fc_order_api_id = $fc_shipping_item->get_meta('Código de Rastreamento');
 			if (empty($fc_order_api_id) || empty($quote_id)) {
+				self::fc_log('fc_pedido_alterado:missing_ids', array('order_id' => $order_id, 'freteclick_order' => $fc_order_api_id, 'quote' => $quote_id));
 				return;
 			}
+			self::fc_log('fc_pedido_alterado:ids_ok', array('order_id' => $order_id, 'freteclick_order' => $fc_order_api_id, 'quote' => $quote_id));
 
 			/**
 			 * Obtém o preço da cotação pela API; se falhar, usa o total do frete do pedido
@@ -450,6 +530,7 @@ class WC_FreteClick_Shipping_Simulator {
 				'number' => self::fc_config('FC_NUMBER_ORIGIN'),
 				'complement' => self::fc_config('FC_COMPLEMENT_ORIGIN')
 			);
+			$retrieve_address = self::fc_complete_address($retrieve_address);
 
 			$shipping_country = $order->get_shipping_country() ?: 'BR';
 			if ($shipping_country === 'BR') {
@@ -469,6 +550,7 @@ class WC_FreteClick_Shipping_Simulator {
 					?: $order->get_meta('_billing_number'),
 				"complement" => $order->get_shipping_address_2() ?: $order->get_billing_address_2(),
 			);
+			$delivery_address = self::fc_complete_address($delivery_address);
 
 			$api = new FCAPI($api_key);
 			$orderClient = new FCOrder($api);
@@ -486,13 +568,17 @@ class WC_FreteClick_Shipping_Simulator {
 				if (isset($me->peopleId)) $myPeopleId = $me->peopleId;
 				if (isset($me->people_id)) $myPeopleId = $me->people_id;
 				if (isset($me->id) && !$myPeopleId) $myPeopleId = $me->id;
+			} else {
+				self::fc_log('fc_pedido_alterado:getMe_failed', array('order_id' => $order_id, 'me' => $me));
 			}
+			self::fc_log('fc_pedido_alterado:getMe', array('order_id' => $order_id, 'company_id' => $companyId, 'my_people_id' => $myPeopleId, 'me' => $me));
 
 			/**
 			 * Obter dados do cliente destinatário (cliente do pedido)
 			 */
 			$customer_email = $order->get_billing_email();
 			$customerId = $peopleClient->getIdByEmail($customer_email);
+			self::fc_log('fc_pedido_alterado:customer_email', array('order_id' => $order_id, 'email' => $customer_email, 'customer_id' => $customerId));
 
 			$deliveryContactId = null;
 			if (!empty($customerId)) {
@@ -558,15 +644,27 @@ class WC_FreteClick_Shipping_Simulator {
 			/**
 			 * Finalizar o checkout na Frete Click
 			 */
+			self::fc_log('fc_pedido_alterado:finish_checkout_payload', array(
+				'order_id' => $order_id,
+				'freteclick_order' => $fc_order_api_id,
+				'quote' => $quote_id,
+				'price' => $price,
+				'payload' => $payload
+			));
 			$peopleId = $orderClient->finishCheckout((int) $fc_order_api_id, $payload);
 
 			if ($peopleId) {
 				$order->update_meta_data('_freteclick_checkout_done', 'yes');
 				$order->update_meta_data('_freteclick_people_id', $peopleId);
 				$order->save();
+				self::fc_log('fc_pedido_alterado:success', array('order_id' => $order_id, 'people_id' => $peopleId, 'freteclick_order' => $fc_order_api_id));
+			} else {
+				self::fc_log('fc_pedido_alterado:finish_checkout_failed', array('order_id' => $order_id, 'freteclick_order' => $fc_order_api_id, 'quote' => $quote_id, 'company_id' => $companyId, 'my_people_id' => $myPeopleId, 'delivery_contact_id' => $deliveryContactId));
+				$order->add_order_note('Frete Click: falha ao contratar pedido ' . $fc_order_api_id . ' (cotação ' . $quote_id . '). Verifique o log do Frete Click.');
 			} 
 		} catch (\Exception $e) {
 			error_log('Frete Click contratação error: ' . $e->getMessage());
+			self::fc_log('fc_pedido_alterado:exception', array('order_id' => $order_id, 'error' => $e->getMessage()));
 		}
 	}
 

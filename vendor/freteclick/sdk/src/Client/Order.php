@@ -40,12 +40,16 @@ class Order
         }
       }
 
-      return null;
+      $body = (string) $response->getBody();
+      throw new FCClientException(
+        sprintf('choose-quote falhou. Status %s, resposta: %s', $response->getStatusCode(), $body)
+      );
 
     } catch (\Exception $e) {
       if ($e instanceof FCClientException)
         throw new \Exception($e->getMessage());
 
+      error_log('Frete Click SDK: ' . $e->getMessage());
       return null;
     }
   }

@@ -19,7 +19,11 @@ class API
 		if (empty($this->apiKey))
 			throw new \Exception('API key can not be empty');
 
-		$client = new GuzzClient();
+		$client = new GuzzClient([
+			'http_errors' => false,
+			'connect_timeout' => 5,
+			'timeout' => 10
+		]);
 
 		$headers = [
 			'Accept'       => 'application/json',
@@ -38,7 +42,11 @@ class API
 
 	public function public(string $method, string $resource, array $options = []): ResponseInterface
 	{
-		$client = new GuzzClient();
+		$client = new GuzzClient([
+			'http_errors' => false,
+			'connect_timeout' => 5,
+			'timeout' => 10
+		]);
 
 		$headers = [
 			'Accept'       => 'application/json',

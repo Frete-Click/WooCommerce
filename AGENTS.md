@@ -40,6 +40,14 @@ A cotação é feita por uma rota REST (`/wp-json/freteclick/get_shipping`) e pe
 - Remover `curl_close()`: obsoleto desde o PHP 8.0 e removed em versões futuras; o PHP gerencia o recurso.
 - Validar resposta da API antes de acessar propriedades aninhadas: `empty($resposta->response->data->order->quotes)`.
 
+## Endereço completo no choose-quote (obrigatório)
+
+A API exige `country`, `state`, `city`, `district`, `street`, `postal_code` (8 dígitos) e `number` (numérico) preenchidos
+nos endereços `retrieve` e `delivery` da contratação (`AddressService::isFullAddress`). Bairro/rua vazios são um erro comum
+(`Parameter "address district" is missing`). Usar `fc_complete_address()` para completar via `geo_places` (CEP)
+e `number` ausente vira `"0"`. Cidade/estado dos endereços devem coincidir com origem/destino da cotação.
+Consulte `MPC.md` para o contrato completo da API.
+
 ## Falhas de API não podem derrubar o checkout
 
 O padrão correto é: falha na cotação do Frete Click apenas exclui as tarifas do Frete Click,
