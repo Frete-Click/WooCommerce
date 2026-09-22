@@ -176,18 +176,8 @@ class WC_FreteClick extends WC_Shipping_Method {
     * @return void
     */
     public function calculate_shipping( $package = [] ) {
-        $rates  = [];
+		$rates  = [];
         $errors = [];
-
-        $cache_key = $this->get_shipping_cache_key($package);
-        $cached_rates = WC()->session ? WC()->session->get($cache_key) : null;
-
-        if ($cached_rates && $this->is_package_unchanged($package, $cached_rates['package_hash'])) {
-            foreach ($cached_rates['rates'] as $rate) {
-                $this->add_rate($rate);
-            }
-            return;
-        }
 
         $array_resp = WC_FreteClick_Shipping_Simulator::fc_calculate_shipping($package);
 
@@ -228,49 +218,8 @@ class WC_FreteClick extends WC_Shipping_Method {
             
             }
 
-        if (WC()->session) {
-            $package_hash = $this->get_package_hash($package);
-            WC()->session->set($cache_key, array(
-                'rates' => $rates,
-                'package_hash' => $package_hash
-            ));
-        }
-
-        foreach ( $rates as $rate ) {
-            $this->add_rate( $rate );
-        }
-    }
-
-    /**
-     * Generate a cache key for the shipping rates based on the package.
-     */
-    protected function get_shipping_cache_key($package) {
-        return 'freteclick_rates_' . $this->instance_id . '_' . md5(wp_json_encode($package['destination']));
-    }
-
-    /**
-     * Generate a hash of the package to detect changes.
-     */
-    protected function get_package_hash($package) {
-        $hash_data = array(
-            'destination' => $package['destination'] ?? array(),
-            'contents' => array(),
-        );
-        if (isset($package['contents'])) {
-            foreach ($package['contents'] as $item) {
-                $hash_data['contents'][] = array(
-                    'product_id' => $item['product_id'] ?? 0,
-                    'quantity' => $item['quantity'] ?? 0,
-                );
+            foreach ( $rates as $rate ) {
+                $this->add_rate( $rate );
             }
-        }
-        return md5(wp_json_encode($hash_data));
-    }
-
-    /**
-     * Check if the package has changed since the rates were cached.
-     */
-    protected function is_package_unchanged($package, $cached_hash) {
-        return $this->get_package_hash($package) === $cached_hash;
     }
 }

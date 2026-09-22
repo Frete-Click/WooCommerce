@@ -3,7 +3,7 @@
  * Plugin Name:       	Frete Click
  * Plugin URI:        	https://br.wordpress.org/plugins/freteclick/
  * Description:       	Cotação de fretes com múltiplas transportadoras, prazos e preços em tempo real no checkout do WooCommerce. Simulador de frete na página do produto e contratação automática.
- * Version:           	1.1.40
+ * Version:           	1.1.39
  * Author:            	Frete Click
  * Requires at least: 	3.5
  * Author URI:        	https://www.freteclick.com.br/
@@ -45,30 +45,10 @@ if(! class_exists("WC_FreteClick_Main") ) :
 				include_once WOO_FRETECLICK_PATH . 'includes/class-wc-freteclick.php';
 
 				add_filter( 'woocommerce_shipping_methods', array( $this, 'wcfreteclick_add_method' ) );
-
-				add_action('woocommerce_cart_updated', array('WC_FreteClick_Main', 'fc_clear_shipping_cache'));
-				add_action('woocommerce_checkout_update_order_review', array('WC_FreteClick_Main', 'fc_clear_shipping_cache'));
-				add_action('woocommerce_after_calculate_totals', array('WC_FreteClick_Main', 'fc_clear_shipping_cache'));
 			}else{
 				// add_action( 'admin_notices', array( $this, 'wcfreteclick_woocommerce_fallback_notice' ) );
 			}
 
-		}
-
-		/**
-		 * Clear Frete Click shipping cache when cart/checkout changes.
-		 */
-		public static function fc_clear_shipping_cache() {
-			if (WC()->session) {
-				$session_data = WC()->session->get_data();
-				if ($session_data) {
-					foreach ($session_data as $key => $value) {
-						if (strpos($key, 'freteclick_rates_') === 0) {
-							WC()->session->__unset($key);
-						}
-					}
-				}
-			}
 		}
 
 		/**
