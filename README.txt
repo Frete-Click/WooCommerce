@@ -3,8 +3,8 @@ Donate link: https://www.freteclick.com.br
 Tags: woocommerce, frete, freteclick, cotacao-frete, shipping
 Requires at least: 3.5
 Tested up to: 6.9.1
-Version: 1.1.38
-Stable tag: 1.1.38
+Version: 1.1.39
+Stable tag: 1.1.39
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,6 +70,9 @@ O cliente adiciona produtos ao carrinho, informa o CEP no checkout e ve as opcoe
 Ao concluir o pagamento, o frete e contratado automaticamente na Frete Click.
 
 == Changelog ==
+
+= 1.1.39 =
+* Correcao: selecao de transportadora nao persistia no carrinho/checkout — IDs das tarifas agora seguem padrao WooCommerce (method_id:instance_id:quote_id).
 
 = 1.1.38 =
 * Descricoes do plugin aprimoradas no README.txt e README.md com detalhes completos de funcionalidades, requisitos e instalacao.

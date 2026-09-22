@@ -202,8 +202,9 @@ class WC_FreteClick extends WC_Shipping_Method {
                     $fc_deadline_variation = " até " . get_option("FC_PRAZO_VARIADO");
                 }
                 
+                $rate_id = $this->id . ':' . $this->instance_id . ':' . $quote['id'];
                 $rates[] = array(
-                    'id' => $quote['id'],
+                    'id' => $rate_id,
                     'label' =>  $quote['carrier']->alias . "  (" . $fc_deadline . $fc_deadline_variation . "  dias úteis)",
                     'cost' => $quote['total'], 
                     'calc_tax' => 'per_item',

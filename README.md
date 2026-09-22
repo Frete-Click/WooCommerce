@@ -2,7 +2,7 @@
 
 Cotacao de fretes com multiplas transportadoras, prazos e precos em tempo real direto no checkout da sua loja WooCommerce.
 
-`v1.1.38` · [Instalacao](#instalacao) · [Contribuicao](./AGENTS.md)
+`v1.1.39` · [Instalacao](#instalacao) · [Contribuicao](./AGENTS.md)
 
 ## O que o plugin faz
 
@@ -52,6 +52,9 @@ Ao concluir o pagamento, o frete e contratado automaticamente na Frete Click.
 - `AGENTS.md` — regras do projeto e fluxo de publicacao.
 
 ## Changelog
+
+**1.1.39**
+- Correcao: selecao de transportadora nao persistia no carrinho/checkout — IDs das tarifas agora seguem padrao WooCommerce (method_id:instance_id:quote_id).
 
 **1.1.38**
 - Descricoes do plugin aprimoradas no README.txt e README.md com detalhes completos de funcionalidades, requisitos e instalacao.
