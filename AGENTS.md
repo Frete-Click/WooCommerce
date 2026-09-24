@@ -12,6 +12,11 @@ A cotação é feita por uma rota REST (`/wp-json/freteclick/get_shipping`) e pe
 - `includes/class-wc-freteclick-shipping-simulator.php` — lógica de cotação, CEP, configurações e contratação de pedidos.
 - `includes/class-wc-freteclick-helper.php` — helpers.
 - `vendor/freteclick/sdk/` — SDK (commitado no repositório; alterar junto quando necessário).
+- `vendor/` — totalmente commitado (SDK + Guzzle + PSR). Ao atualizar dependências:
+  1. Publicar nova tag do SDK em `Frete-Click/SDK` (constraint: `guzzlehttp/guzzle: "^6.5 || ^7.0"`);
+  2. editar `composer.json` do plugin (SDK + versões alvo) e rodar `composer update <pkgs> --with-all-dependencies`;
+  3. o `composer.json` do plugin mantém a entrada `"repositories": [{"type": "git", "url": "https://github.com/Frete-Click/SDK.git"}]` para não depender do sync do Packagist/webhook;
+  4. o vendor usa Guzzle 7.x — `guzzlehttp/promises` 2.x **não possui** o `src/functions.php` (fonte de deprecations de nullable implícito no PHP 8.4+); em tempo de runtime são usadas apenas as classes (`Promise`, etc.).
 - `views/templates/`, `views/css/`, `views/img/` — templates e assets.
 - `.github/workflows/wordpress-svn-deploy.yml` — deploy automático no WordPress.org ao criar tag.
 

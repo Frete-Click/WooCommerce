@@ -3,7 +3,7 @@
  * Plugin Name:       	Frete Click
  * Plugin URI:        	https://br.wordpress.org/plugins/freteclick/
  * Description:       	Cotação de fretes com múltiplas transportadoras, prazos e preços em tempo real no checkout do WooCommerce. Simulador de frete na página do produto e contratação automática.
- * Version:           	1.1.41
+ * Version:           	1.1.42
  * Author:            	Frete Click
  * Requires at least: 	3.5
  * Author URI:        	https://www.freteclick.com.br/

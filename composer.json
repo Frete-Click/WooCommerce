@@ -1,7 +1,15 @@
 {
-
     "title": "freteclick",
     "require": {
-        "freteclick/sdk": "v1.2.33"
-    }
+        "freteclick/sdk": "v1.2.34",
+        "guzzlehttp/guzzle": "^7.9",
+        "guzzlehttp/promises": "^2.0",
+        "guzzlehttp/psr7": "^2.7"
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/Frete-Click/SDK.git"
+        }
+    ]
 }

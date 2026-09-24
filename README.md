@@ -2,7 +2,7 @@
 
 Cotacao de fretes com multiplas transportadoras, prazos e precos em tempo real direto no checkout da sua loja WooCommerce.
 
-`v1.1.41` · [Instalacao](#instalacao) · [Contribuicao](./AGENTS.md)
+`v1.1.42` · [Instalacao](#instalacao) · [Contribuicao](./AGENTS.md)
 
 ## O que o plugin faz
 
@@ -52,6 +52,9 @@ Ao concluir o pagamento, o frete e contratado automaticamente na Frete Click.
 - `AGENTS.md` — regras do projeto e fluxo de publicacao.
 
 ## Changelog
+
+**1.1.42**
+- Eliminados os avisos `PHP Deprecated: Implicitly marking parameter $x as nullable` emitidos pelo Guzzle empacotado (guzzlehttp/promises 1.x) em cada requisicao no PHP 8.4/8.5. O `vendor` foi atualizado para Guzzle 7.15 (guzzle 7, promises 2, psr7 2) e o SDK para `v1.2.34` (que passou a aceitar `guzzle ^6.5 || ^7.0` e sincronizou as correcoes de HTTP ja presentes no plugin, incluindo timeouts e `Psr\Http\Message\ResponseInterface`).
 
 **1.1.41**
 - Correcao critica: a v1.1.40 causava fatal error (`Call to undefined method WC_Session_Handler::get_data()`) em qualquer pagina com itens no carrinho. O metodo `get_data()` nao existe na API de sessao do WooCommerce.
