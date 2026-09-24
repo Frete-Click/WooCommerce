@@ -342,7 +342,7 @@ class WC_FreteClick_Shipping_Simulator {
 	 */
 	public function enqueue_scripts()
 	{	
-		wp_enqueue_style( 'freteclick-shipping-simulator', plugins_url('views/css/simulator.css', plugin_dir_path(__FILE__)), array(), '1.1.39', 'all');
+		wp_enqueue_style( 'freteclick-shipping-simulator', plugins_url('views/css/simulator.css', plugin_dir_path(__FILE__)), array(), '1.1.41', 'all');
 	}
 
 	/**

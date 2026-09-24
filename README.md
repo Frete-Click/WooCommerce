@@ -2,7 +2,7 @@
 
 Cotacao de fretes com multiplas transportadoras, prazos e precos em tempo real direto no checkout da sua loja WooCommerce.
 
-`v1.1.39` · [Instalacao](#instalacao) · [Contribuicao](./AGENTS.md)
+`v1.1.41` · [Instalacao](#instalacao) · [Contribuicao](./AGENTS.md)
 
 ## O que o plugin faz
 
@@ -52,6 +52,11 @@ Ao concluir o pagamento, o frete e contratado automaticamente na Frete Click.
 - `AGENTS.md` — regras do projeto e fluxo de publicacao.
 
 ## Changelog
+
+**1.1.41**
+- Correcao critica: a v1.1.40 causava fatal error (`Call to undefined method WC_Session_Handler::get_data()`) em qualquer pagina com itens no carrinho. O metodo `get_data()` nao existe na API de sessao do WooCommerce.
+- Cache de tarifas reescrito usando apenas metodos publicos da sessao (`get`/`set`/`__unset`) e com invalidação por hash do pacote.
+- Limpeza do cache movida para eventos reais de mudanca do carrinho (`woocommerce_add_to_cart`, `woocommerce_cart_item_removed`, `woocommerce_cart_item_restored`). Os hooks anteriores (`woocommerce_cart_updated`, `woocommerce_after_calculate_totals`, `woocommerce_checkout_update_order_review`) disparavam em toda requisicao e apagavam o cache logo apos gravado.
 
 **1.1.39**
 - Correcao: selecao de transportadora nao persistia no carrinho/checkout — IDs das tarifas agora seguem padrao WooCommerce (method_id:instance_id:quote_id).

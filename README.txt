@@ -3,8 +3,8 @@ Donate link: https://www.freteclick.com.br
 Tags: woocommerce, frete, freteclick, cotacao-frete, shipping
 Requires at least: 3.5
 Tested up to: 6.9.1
-Version: 1.1.39
-Stable tag: 1.1.39
+Version: 1.1.41
+Stable tag: 1.1.41
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,6 +70,10 @@ O cliente adiciona produtos ao carrinho, informa o CEP no checkout e ve as opcoe
 Ao concluir o pagamento, o frete e contratado automaticamente na Frete Click.
 
 == Changelog ==
+
+= 1.1.41 =
+* Correcao critica: v1.1.40 causava fatal error (Call to undefined method WC_Session_Handler::get_data()) em qualquer pagina com itens no carrinho. O metodo get_data() nao existe na API de sessao do WooCommerce. O cache de tarifas foi corrigido para usar apenas metodos publicos da sessao (get/set/__unset) e limpar o cache apenas quando itens sao adicionados/removidos/restaurados no carrinho, mantendo os quote IDs estaveis entre requisições AJAX do checkout.
+* Corrigidos os hooks de limpeza de cache que disparavam em toda requisicao e apagavam o cache imediatamente apos gravado.
 
 = 1.1.39 =
 * Correcao: selecao de transportadora nao persistia no carrinho/checkout — IDs das tarifas agora seguem padrao WooCommerce (method_id:instance_id:quote_id).
