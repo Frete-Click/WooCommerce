@@ -3,8 +3,8 @@ Donate link: https://www.freteclick.com.br
 Tags: woocommerce, frete, freteclick, cotacao-frete, shipping
 Requires at least: 3.5
 Tested up to: 6.9.1
-Version: 1.1.42
-Stable tag: 1.1.42
+Version: 1.1.43
+Stable tag: 1.1.43
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,7 +62,7 @@ O **Frete Click** e um plugin para WooCommerce que conecta sua loja a dezenas de
 **WooCommerce -> Configuracoes -> Envio -> Unidades de medida:**
 
 * Unidade de peso: **Kg**
-* Unidades de medida: **cm**
+* Dimensoes: unidade configurada no WooCommerce; conversao para metros feita automaticamente.
 
 ## Exemplo de uso
 
@@ -70,6 +70,10 @@ O cliente adiciona produtos ao carrinho, informa o CEP no checkout e ve as opcoe
 Ao concluir o pagamento, o frete e contratado automaticamente na Frete Click.
 
 == Changelog ==
+
+= 1.1.43 =
+* Correcao: dimensoes com casas decimais agora sao convertidas para metros a partir da unidade configurada no WooCommerce.
+* Correcao: dimensoes vazias ou invalidas sao tratadas como zero, evitando TypeError no PHP 8.
 
 = 1.1.42 =
 * Eliminados os avisos "PHP Deprecated: Implicitly marking parameter $x as nullable" emitidos pelo Guzzle empacotado (guzzlehttp/promises 1.x) em toda requisicao em ambientes PHP 8.4/8.5. O vendor foi atualizado para Guzzle 7.15 e o SDK para v1.2.34 (linha 7.x do Guzzle, timeouts e PSR-7). Sem mudanca de comportamento no checkout.

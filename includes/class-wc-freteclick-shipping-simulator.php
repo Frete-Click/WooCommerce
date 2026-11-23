@@ -110,25 +110,20 @@ class WC_FreteClick_Shipping_Simulator {
 	}
 
 	/**
-	 * Corrige valor para formato decimal
+	 * Converte dimensão da unidade configurada no WooCommerce para metros.
 	 * 
-	 * @param string $value
+	 * @param mixed $value
 	 * @return float
 	 */
 	protected static function fix_value($value) 
 	{
-		$value = trim($value);
-		$value = str_replace(',', '.', $value);
-		
-		if (is_numeric($value)) {
-			$value = (float) $value;
+		$value = str_replace(',', '.', trim((string) $value));
+
+		if ('' === $value || ! is_numeric($value)) {
+			return 0;
 		}
-	
-		if (strpos($value, '.') === false) {
-			return $value / 100;
-		} else {
-			return $value;
-		}
+
+		return wc_get_dimension((float) $value, 'm');
 	}
 
 	/**
@@ -342,7 +337,7 @@ class WC_FreteClick_Shipping_Simulator {
 	 */
 	public function enqueue_scripts()
 	{	
-		wp_enqueue_style( 'freteclick-shipping-simulator', plugins_url('views/css/simulator.css', plugin_dir_path(__FILE__)), array(), '1.1.42', 'all');
+		wp_enqueue_style( 'freteclick-shipping-simulator', plugins_url('views/css/simulator.css', plugin_dir_path(__FILE__)), array(), '1.1.43', 'all');
 	}
 
 	/**
